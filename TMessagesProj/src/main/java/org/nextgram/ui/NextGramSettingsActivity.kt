@@ -1,10 +1,6 @@
 package org.nextgram.ui
 
-import android.content.Context
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.Toast
 import org.nextgram.engine.EngineStrings
 import org.nextgram.engine.edit.ColorPickerDialog
@@ -14,118 +10,116 @@ import org.nextgram.profiles.NextProfiles
 import org.nextgram.profiles.NgProfile
 import org.telegram.messenger.BuildConfig
 import org.telegram.messenger.R
-import org.telegram.ui.ActionBar.ActionBar
 import org.telegram.ui.ActionBar.AlertDialog
-import org.telegram.ui.ActionBar.BaseFragment
-import org.telegram.ui.ActionBar.Theme
-import org.telegram.ui.Cells.HeaderCell
-import org.telegram.ui.Cells.TextCheckCell
 import org.telegram.ui.Cells.TextColorCell
-import org.telegram.ui.Cells.TextInfoPrivacyCell
-import org.telegram.ui.Cells.TextSettingsCell
-import org.telegram.ui.Components.LayoutHelper
+import org.telegram.ui.Components.UItem
+import org.telegram.ui.Components.UniversalAdapter
+import org.telegram.ui.Components.UniversalFragment
 
-/** Настройки NextGram: интерфейс (NextEngine), режим призрака, профиль для своих. */
-class NextGramSettingsActivity : BaseFragment() {
+/**
+ * Настройки NextGram на родных компонентах Telegram (UniversalFragment/UItem) —
+ * выглядят и перекрашиваются так же, как остальные экраны настроек.
+ */
+class NextGramSettingsActivity : UniversalFragment() {
 
-    private var list: LinearLayout? = null
     private var connecting = false
 
-    override fun createView(context: Context): View {
-        actionBar.setBackButtonImage(R.drawable.ic_ab_back)
-        actionBar.setAllowOverlayTitle(true)
-        actionBar.setTitle("NextGram")
-        actionBar.setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
-            override fun onItemClick(id: Int) {
-                if (id == -1) finishFragment()
-            }
-        })
+    override fun getTitle(): CharSequence = "NextGram"
 
-        val root = FrameLayout(context).apply { setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray)) }
-        val l = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
-        list = l
-        root.addView(ScrollView(context).apply {
-            addView(l, LayoutHelper.createScroll(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0))
-        }, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
-        fragmentView = root
-        rebuild()
-        return root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        rebuild()
-    }
-
-    private fun rebuild() {
-        val context = context ?: return
-        val l = list ?: return
-        l.removeAllViews()
-
+    override fun fillItems(items: ArrayList<UItem>, adapter: UniversalAdapter) {
         // ---------------- NextEngine
-        header(l, s("ng_engine"))
-        textRow(l, s("ng_engine_open"), null, false).apply {
-            setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4))
-            setOnClickListener {
-                EditMode.enter(parentActivity)
-                finishFragment()
-            }
-        }
-        info(l, s("ng_engine_info"))
+        items += UItem.asHeader(s("ng_engine"))
+        items += UItem.asButton(ID_EDIT, R.drawable.msg_customize, s("ng_engine_open")).accent()
+        items += UItem.asShadow(s("ng_engine_info"))
 
         // ---------------- Режим призрака
-        header(l, s("ng_ghost"))
         val ghost = GhostMode.get(GhostMode.KEY_ENABLED)
-        check(l, s("ng_ghost_enabled"), GhostMode.KEY_ENABLED, enabled = true, divider = true)
-        check(l, s("ng_ghost_read"), GhostMode.KEY_READ, ghost, true)
-        check(l, s("ng_ghost_online"), GhostMode.KEY_ONLINE, ghost, true)
-        check(l, s("ng_ghost_typing"), GhostMode.KEY_TYPING, ghost, true)
-        check(l, s("ng_ghost_stories"), GhostMode.KEY_STORIES, ghost, false)
-        info(l, s("ng_ghost_info"))
+        items += UItem.asHeader(s("ng_ghost"))
+        items += UItem.asCheck(ID_GHOST, s("ng_ghost_enabled")).setChecked(ghost)
+        items += UItem.asCheck(ID_GHOST_READ, s("ng_ghost_read")).setChecked(GhostMode.get(GhostMode.KEY_READ)).setEnabled(ghost)
+        items += UItem.asCheck(ID_GHOST_ONLINE, s("ng_ghost_online")).setChecked(GhostMode.get(GhostMode.KEY_ONLINE)).setEnabled(ghost)
+        items += UItem.asCheck(ID_GHOST_TYPING, s("ng_ghost_typing")).setChecked(GhostMode.get(GhostMode.KEY_TYPING)).setEnabled(ghost)
+        items += UItem.asCheck(ID_GHOST_STORIES, s("ng_ghost_stories")).setChecked(GhostMode.get(GhostMode.KEY_STORIES)).setEnabled(ghost)
+        items += UItem.asShadow(s("ng_ghost_info"))
 
         // ---------------- Профиль NextGram
-        header(l, s("ng_profile"))
+        items += UItem.asHeader(s("ng_profile"))
         when {
-            !NextProfiles.isConfigured -> info(l, s("ng_profile_off"))
+            !NextProfiles.isConfigured -> items += UItem.asShadow(s("ng_profile_off"))
             !NextProfiles.isConnected(currentAccount) -> {
-                textRow(l, s(if (connecting) "ng_profile_connecting" else "ng_profile_connect"), null, false).apply {
-                    setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4))
-                    setOnClickListener { connect() }
-                }
-                info(l, EngineStrings.format("ng_profile_connect_info", BuildConfig.NG_BOT_USERNAME))
+                items += UItem.asButton(ID_CONNECT, R.drawable.msg_customize, s(if (connecting) "ng_profile_connecting" else "ng_profile_connect")).accent()
+                items += UItem.asShadow(EngineStrings.format("ng_profile_connect_info", BuildConfig.NG_BOT_USERNAME))
             }
             else -> {
                 val p = NextProfiles.own(currentAccount)
-                textRow(l, s("ng_profile_particles"), particlesName(p.particles), true).setOnClickListener { chooseParticles() }
-                l.addView(TextColorCell(context).apply {
-                    setTextAndColor(s("ng_profile_color"), p.particlesColor, true)
-                    background = selector()
-                    setOnClickListener {
-                        ColorPickerDialog.show(context, s("ng_profile_color"), p.particlesColor) { picked ->
-                            save(NextProfiles.own(currentAccount).apply { particlesColor = picked ?: 0xFFFFFFFF.toInt() })
-                        }
+                items += UItem.asButton(ID_PARTICLES, s("ng_profile_particles"), particlesName(p.particles))
+                if (p.particles != null) {
+                    val cell = TextColorCell(context).apply { setTextAndColor(s("ng_profile_color"), p.particlesColor, true) }
+                    items += UItem.asCustom(ID_COLOR, cell)
+                    val chosen = when {
+                        p.density < 0.8f -> 0
+                        p.density > 1.3f -> 2
+                        else -> 1
                     }
-                })
-                textRow(l, s("ng_profile_density"), densityName(p.density), true).setOnClickListener { chooseDensity() }
-                textRow(l, s("ng_profile_disconnect"), null, false).apply {
-                    setTextColor(Theme.getColor(Theme.key_text_RedRegular))
-                    setOnClickListener { NextProfiles.disconnect(currentAccount) { _, _ -> rebuild() } }
+                    items += UItem.asSlideView(arrayOf(s("ng_density_low"), s("ng_density_mid"), s("ng_density_high")), chosen) { idx ->
+                        save(NextProfiles.own(currentAccount).apply { density = DENSITIES[idx] })
+                    }
                 }
-                info(l, EngineStrings.format("ng_profile_connect_info", BuildConfig.NG_BOT_USERNAME))
+                items += UItem.asShadow(EngineStrings.format("ng_profile_connect_info", BuildConfig.NG_BOT_USERNAME))
+                items += UItem.asButton(ID_DISCONNECT, s("ng_profile_disconnect")).red()
+                items += UItem.asShadow(null)
             }
         }
     }
 
-    // ------------------------------------------------------------------ действия
+    override fun onClick(item: UItem, view: View, position: Int, x: Float, y: Float) {
+        when (item.id) {
+            ID_EDIT -> {
+                EditMode.enter(parentActivity)
+                finishFragment()
+            }
+            ID_GHOST -> toggle(GhostMode.KEY_ENABLED)
+            ID_GHOST_READ -> toggle(GhostMode.KEY_READ)
+            ID_GHOST_ONLINE -> toggle(GhostMode.KEY_ONLINE)
+            ID_GHOST_TYPING -> toggle(GhostMode.KEY_TYPING)
+            ID_GHOST_STORIES -> toggle(GhostMode.KEY_STORIES)
+            ID_CONNECT -> connect()
+            ID_PARTICLES -> chooseParticles()
+            ID_COLOR -> {
+                val p = NextProfiles.own(currentAccount)
+                ColorPickerDialog.show(context, s("ng_profile_color"), p.particlesColor) { picked ->
+                    save(NextProfiles.own(currentAccount).apply { particlesColor = picked ?: 0xFFFFFFFF.toInt() })
+                }
+            }
+            ID_DISCONNECT -> NextProfiles.disconnect(currentAccount) { _, _ -> update() }
+        }
+    }
+
+    override fun onLongClick(item: UItem, view: View, position: Int, x: Float, y: Float): Boolean = false
+
+    override fun onResume() {
+        super.onResume()
+        update()
+    }
+
+    private fun update() {
+        (listView?.getAdapter() as? UniversalAdapter)?.update(true)
+    }
+
+    private fun toggle(key: String) {
+        if (key != GhostMode.KEY_ENABLED && !GhostMode.get(GhostMode.KEY_ENABLED)) return
+        GhostMode.set(key, !GhostMode.get(key))
+        update()
+    }
 
     private fun connect() {
         if (connecting) return
         connecting = true
-        rebuild()
+        update()
         NextProfiles.connect(currentAccount) { ok, error ->
             connecting = false
             if (!ok) toast(EngineStrings.format("ng_profile_error", error))
-            rebuild()
+            update()
         }
     }
 
@@ -140,76 +134,33 @@ class NextGramSettingsActivity : BaseFragment() {
             .show()
     }
 
-    private fun chooseDensity() {
-        val values = floatArrayOf(0.5f, 1f, 1.6f)
-        val items: Array<CharSequence> = arrayOf(s("ng_density_low"), s("ng_density_mid"), s("ng_density_high"))
-        AlertDialog.Builder(context)
-            .setTitle(s("ng_profile_density"))
-            .setItems(items) { _, which -> save(NextProfiles.own(currentAccount).apply { density = values[which] }) }
-            .show()
-    }
-
     private fun save(p: NgProfile) {
         NextProfiles.saveOwn(currentAccount, p) { ok, error ->
             if (!ok) toast(EngineStrings.format("ng_profile_error", error))
-            rebuild()
+            update()
         }
-        rebuild()
+        update()
     }
 
     private fun toast(text: String) {
         parentActivity?.let { Toast.makeText(it, text, Toast.LENGTH_LONG).show() }
     }
 
-    // ------------------------------------------------------------------ ячейки
-
-    private fun selector() = Theme.createSelectorWithBackgroundDrawable(
-        Theme.getColor(Theme.key_windowBackgroundWhite), Theme.getColor(Theme.key_listSelector),
-    )
-
-    private fun header(l: LinearLayout, text: String) {
-        l.addView(HeaderCell(l.context).apply {
-            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
-            setText(text)
-        })
-    }
-
-    private fun info(l: LinearLayout, text: String) {
-        l.addView(TextInfoPrivacyCell(l.context).apply {
-            setText(text)
-            background = Theme.getThemedDrawableByKey(l.context, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow)
-        })
-    }
-
-    private fun textRow(l: LinearLayout, text: String, value: String?, divider: Boolean): TextSettingsCell =
-        TextSettingsCell(l.context).apply {
-            background = selector()
-            if (value == null) setText(text, divider) else setTextAndValue(text, value, divider)
-            l.addView(this)
-        }
-
-    private fun check(l: LinearLayout, text: String, key: String, enabled: Boolean, divider: Boolean) {
-        l.addView(TextCheckCell(l.context).apply {
-            background = selector()
-            setTextAndCheck(text, GhostMode.get(key), divider)
-            setEnabled(enabled, null)
-            setOnClickListener {
-                if (!enabled) return@setOnClickListener
-                GhostMode.set(key, !GhostMode.get(key))
-                rebuild()
-            }
-        })
-    }
-
     private companion object {
+        const val ID_EDIT = 1
+        const val ID_GHOST = 10
+        const val ID_GHOST_READ = 11
+        const val ID_GHOST_ONLINE = 12
+        const val ID_GHOST_TYPING = 13
+        const val ID_GHOST_STORIES = 14
+        const val ID_CONNECT = 20
+        const val ID_PARTICLES = 21
+        const val ID_COLOR = 22
+        const val ID_DISCONNECT = 23
+        val DENSITIES = floatArrayOf(0.5f, 1f, 1.6f)
+
         fun s(key: String) = EngineStrings.get(key)
 
         fun particlesName(type: String?) = if (type == null) s("ng_off") else s("ng_$type")
-
-        fun densityName(d: Float) = when {
-            d < 0.8f -> s("ng_density_low")
-            d > 1.3f -> s("ng_density_high")
-            else -> s("ng_density_mid")
-        }
     }
 }

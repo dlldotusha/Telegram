@@ -49,6 +49,8 @@ class MessageCellSpec : EditorSpec {
         )
     }
 
+    override fun colorGroups(view: View) = ThemeCatalog.messageGroups(out = mo(view)?.isOutOwner == true)
+
     override fun apply(view: View) {
         val cell = view as ChatMessageCell
         if (cell.messageObject != null) {

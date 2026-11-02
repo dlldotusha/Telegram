@@ -5,9 +5,7 @@ import android.view.View
 /** Реестр заготовок. Новая заготовка = класс EditorSpec + строка в [specs]. */
 object SpecRegistry {
 
-    private val specs: List<EditorSpec> = listOf(
-        MessageCellSpec(),
-    )
+    private val specs: List<EditorSpec> = listOf<EditorSpec>(MessageCellSpec()) + ThemeCatalog.specs
 
     /** Заготовка для конкретного view или null. */
     @JvmStatic

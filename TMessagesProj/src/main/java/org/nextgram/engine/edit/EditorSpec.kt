@@ -46,6 +46,12 @@ interface EditorSpec {
 
     fun props(view: View): List<Prop>
 
+    /**
+     * Цвета темы, за которые отвечает элемент, с понятными названиями.
+     * Цвета темы глобальные: меняются везде, где используются.
+     */
+    fun colorGroups(view: View): List<ThemeCatalog.ColorGroup> = emptyList()
+
     /** Применить изменившийся конфиг к view (перемерить, перерисовать). */
     fun apply(view: View)
 }

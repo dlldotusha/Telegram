@@ -10,14 +10,17 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.RectF
 import android.graphics.Shader
+import android.graphics.drawable.GradientDrawable
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
 import org.nextgram.engine.EngineStrings
 import org.nextgram.engine.core.Colors
 import org.telegram.messenger.AndroidUtilities
@@ -26,7 +29,10 @@ import org.telegram.ui.ActionBar.Theme
 import org.telegram.ui.Components.LayoutHelper
 import kotlin.math.roundToInt
 
-/** Простой HSV-пикер с прозрачностью и полем HEX. */
+/**
+ * Выбор цвета в стиле диалогов Telegram: квадрат цвета, ползунки «Оттенок»
+ * и «Прозрачность» с подписями, поле HEX и сравнение «было/стало».
+ */
 object ColorPickerDialog {
 
     fun interface Callback {
@@ -34,20 +40,63 @@ object ColorPickerDialog {
         fun onPicked(argb: Int?)
     }
 
+    /** Общее состояние трёх ползунков. */
+    private class State(initial: Int) {
+        val hsv = FloatArray(3)
+        var alpha = 0
+        val listeners = ArrayList<() -> Unit>()
+
+        init {
+            set(initial)
+        }
+
+        val color: Int get() = Color.HSVToColor(alpha, hsv)
+
+        fun set(argb: Int) {
+            Color.colorToHSV(argb, hsv)
+            alpha = Color.alpha(argb)
+        }
+
+        fun changed() = listeners.forEach { it() }
+    }
+
     @JvmStatic
     fun show(context: Context, title: String, initial: Int, callback: Callback) {
+        val state = State(initial)
+        val text = Theme.getColor(Theme.key_dialogTextBlack)
+        val gray = Theme.getColor(Theme.key_dialogTextGray3)
+
+        fun label(s: String) = TextView(context).apply {
+            this.text = s
+            setTextColor(gray)
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
+        }
+
         val layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(AndroidUtilities.dp(20f), AndroidUtilities.dp(8f), AndroidUtilities.dp(20f), 0)
+            setPadding(AndroidUtilities.dp(24f), AndroidUtilities.dp(4f), AndroidUtilities.dp(24f), 0)
         }
-        val picker = HsvView(context, initial)
-        layout.addView(picker, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 260))
+
+        // было / стало
+        val preview = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+        val oldSwatch = View(context).apply { background = swatch(initial, left = true) }
+        val newSwatch = View(context)
+        preview.addView(oldSwatch, LayoutHelper.createLinear(0, 28, 1f))
+        preview.addView(newSwatch, LayoutHelper.createLinear(0, 28, 1f))
+        layout.addView(preview, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 28, 0f, 0f, 0f, 12f))
+
+        layout.addView(SvView(context, state), LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 180))
+        layout.addView(label(EngineStrings.get("hue")), LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, 0f, 14f, 0f, 6f))
+        layout.addView(BarView(context, state, hue = true), LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 24))
+        val opacityLabel = label("")
+        layout.addView(opacityLabel, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, 0f, 14f, 0f, 6f))
+        layout.addView(BarView(context, state, hue = false), LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 24))
 
         val hex = EditText(context).apply {
             hint = EngineStrings.get("hex")
             isSingleLine = true
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            setTextColor(Theme.getColor(Theme.key_dialogTextBlack))
+            setTextColor(text)
             setHintTextColor(Theme.getColor(Theme.key_dialogTextHint))
             gravity = Gravity.CENTER
             setText(Colors.format(initial))
@@ -55,15 +104,22 @@ object ColorPickerDialog {
         layout.addView(hex, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 8f, 0f, 0f))
 
         var fromText = false
-        picker.listener = { argb -> if (!fromText) hex.setText(Colors.format(argb)) }
+        val update = {
+            newSwatch.background = swatch(state.color, left = false)
+            opacityLabel.text = EngineStrings.get("opacity") + " · " + (100 - state.alpha * 100 / 255) + "%"
+            if (!fromText) hex.setText(Colors.format(state.color))
+        }
+        state.listeners += update
+        update()
         hex.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val c = Colors.parse(s?.toString()) ?: return
-                if (c != picker.color) {
+                if (c != state.color) {
                     fromText = true
-                    picker.color = c
+                    state.set(c)
+                    state.changed()
                     fromText = false
                 }
             }
@@ -72,141 +128,121 @@ object ColorPickerDialog {
         AlertDialog.Builder(context)
             .setTitle(title)
             .setView(layout)
-            .setPositiveButton(EngineStrings.get("done")) { _, _ -> callback.onPicked(picker.color) }
+            .setPositiveButton(EngineStrings.get("done")) { _, _ -> callback.onPicked(state.color) }
             .setNeutralButton(EngineStrings.get("reset")) { _, _ -> callback.onPicked(null) }
             .setNegativeButton(EngineStrings.get("cancel"), null)
             .show()
     }
 
-    /** Квадрат насыщенность/яркость, под ним полосы оттенка и прозрачности. */
-    @SuppressLint("ViewConstructor")
-    private class HsvView(context: Context, initial: Int) : View(context) {
-
-        var listener: ((Int) -> Unit)? = null
-        private val hsv = FloatArray(3)
-        private var alpha = 0
-
-        private val svPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        private val huePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        private val alphaPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        private val checkerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFFCCCCCC.toInt() }
-        private val thumbPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.STROKE
-            strokeWidth = AndroidUtilities.dp(2f).toFloat()
-            color = Color.WHITE
-            setShadowLayer(AndroidUtilities.dp(1.5f).toFloat(), 0f, 0f, 0x80000000.toInt())
+    private fun swatch(color: Int, left: Boolean): GradientDrawable {
+        val r = AndroidUtilities.dp(8f).toFloat()
+        return GradientDrawable().apply {
+            setColor(color)
+            cornerRadii = if (left) floatArrayOf(r, r, 0f, 0f, 0f, 0f, r, r) else floatArrayOf(0f, 0f, r, r, r, r, 0f, 0f)
         }
-        private val sv = RectF()
-        private val hue = RectF()
-        private val alphaBar = RectF()
-        private var dragging = 0 // 0 — нет, 1 — квадрат, 2 — оттенок, 3 — прозрачность
-        private var lastHue = -1f
+    }
 
-        var color: Int
-            get() = Color.HSVToColor(alpha, hsv)
-            set(argb) {
-                setColorInternal(argb)
-                invalidate()
-                listener?.invoke(color)
-            }
+    private val thumbPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = AndroidUtilities.dp(2.5f).toFloat()
+        color = Color.WHITE
+        setShadowLayer(AndroidUtilities.dp(1.5f).toFloat(), 0f, 0f, 0x80000000.toInt())
+    }
+
+    /** Квадрат «насыщенность × яркость». */
+    @SuppressLint("ViewConstructor")
+    private class SvView(context: Context, private val state: State) : View(context) {
+        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val rect = RectF()
+        private var shaderHue = -1f
 
         init {
-            setColorInternal(initial)
-        }
-
-        private fun setColorInternal(argb: Int) {
-            Color.colorToHSV(argb, hsv)
-            alpha = Color.alpha(argb)
-        }
-
-        override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-            val bar = AndroidUtilities.dp(24f).toFloat()
-            val gap = AndroidUtilities.dp(12f).toFloat()
-            alphaBar.set(0f, h - bar, w.toFloat(), h.toFloat())
-            hue.set(0f, alphaBar.top - gap - bar, w.toFloat(), alphaBar.top - gap)
-            sv.set(0f, 0f, w.toFloat(), hue.top - gap)
-            huePaint.shader = LinearGradient(
-                0f, 0f, w.toFloat(), 0f,
-                intArrayOf(0xFFFF0000.toInt(), 0xFFFFFF00.toInt(), 0xFF00FF00.toInt(), 0xFF00FFFF.toInt(), 0xFF0000FF.toInt(), 0xFFFF00FF.toInt(), 0xFFFF0000.toInt()),
-                null, Shader.TileMode.CLAMP,
-            )
-            lastHue = -1f
+            state.listeners += { invalidate() }
+            setLayerType(LAYER_TYPE_SOFTWARE, null) // тень бегунка
         }
 
         override fun onDraw(canvas: Canvas) {
-            val r = AndroidUtilities.dp(8f).toFloat()
-            if (lastHue != hsv[0]) {
-                lastHue = hsv[0]
-                val pure = Color.HSVToColor(floatArrayOf(hsv[0], 1f, 1f))
-                val sat = LinearGradient(sv.left, 0f, sv.right, 0f, Color.WHITE, pure, Shader.TileMode.CLAMP)
-                val value = LinearGradient(0f, sv.top, 0f, sv.bottom, Color.WHITE, Color.BLACK, Shader.TileMode.CLAMP)
-                svPaint.shader = ComposeShader(sat, value, PorterDuff.Mode.MULTIPLY)
+            rect.set(0f, 0f, width.toFloat(), height.toFloat())
+            if (shaderHue != state.hsv[0] || paint.shader == null) {
+                shaderHue = state.hsv[0]
+                val pure = Color.HSVToColor(floatArrayOf(state.hsv[0], 1f, 1f))
+                paint.shader = ComposeShader(
+                    LinearGradient(0f, 0f, rect.right, 0f, Color.WHITE, pure, Shader.TileMode.CLAMP),
+                    LinearGradient(0f, 0f, 0f, rect.bottom, Color.WHITE, Color.BLACK, Shader.TileMode.CLAMP),
+                    PorterDuff.Mode.MULTIPLY,
+                )
             }
-            canvas.drawRoundRect(sv, r, r, svPaint)
-            canvas.drawRoundRect(hue, r, r, huePaint)
+            val r = AndroidUtilities.dp(10f).toFloat()
+            canvas.drawRoundRect(rect, r, r, paint)
+            canvas.drawCircle(state.hsv[1] * width, (1f - state.hsv[2]) * height, AndroidUtilities.dp(10f).toFloat(), thumbPaint)
+        }
 
-            // шахматка под полосой прозрачности
-            val cell = AndroidUtilities.dp(6f).toFloat()
-            canvas.save()
-            canvas.clipRect(alphaBar)
-            var x = alphaBar.left
-            while (x < alphaBar.right) {
-                var y = alphaBar.top
-                while (y < alphaBar.bottom) {
-                    if ((((x - alphaBar.left) / cell).toInt() + ((y - alphaBar.top) / cell).toInt()) and 1 == 0) {
-                        canvas.drawRect(x, y, x + cell, y + cell, checkerPaint)
-                    }
-                    y += cell
-                }
-                x += cell
-            }
-            canvas.restore()
-            val opaque = Color.HSVToColor(255, hsv)
-            alphaPaint.shader = LinearGradient(alphaBar.left, 0f, alphaBar.right, 0f, opaque and 0x00FFFFFF, opaque, Shader.TileMode.CLAMP)
-            canvas.drawRoundRect(alphaBar, r, r, alphaPaint)
-
-            val tr = AndroidUtilities.dp(9f).toFloat()
-            canvas.drawCircle(sv.left + hsv[1] * sv.width(), sv.top + (1f - hsv[2]) * sv.height(), tr, thumbPaint)
-            canvas.drawCircle(hue.left + hsv[0] / 360f * hue.width(), hue.centerY(), tr, thumbPaint)
-            canvas.drawCircle(alphaBar.left + alpha / 255f * alphaBar.width(), alphaBar.centerY(), tr, thumbPaint)
+        override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+            paint.shader = null
         }
 
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouchEvent(e: MotionEvent): Boolean {
-            val x = e.x
-            val y = e.y
-            when (e.actionMasked) {
-                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                    if (e.actionMasked == MotionEvent.ACTION_DOWN) {
-                        dragging = when {
-                            sv.contains(x, y) -> 1
-                            hue.contains(x, y) -> 2
-                            alphaBar.contains(x, y) -> 3
-                            else -> 0
-                        }
-                        if (dragging != 0) parent.requestDisallowInterceptTouchEvent(true)
-                    }
-                    when (dragging) {
-                        1 -> {
-                            hsv[1] = clamp((x - sv.left) / sv.width())
-                            hsv[2] = 1f - clamp((y - sv.top) / sv.height())
-                        }
-                        2 -> hsv[0] = clamp((x - hue.left) / hue.width()) * 359.9f
-                        3 -> alpha = (clamp((x - alphaBar.left) / alphaBar.width()) * 255).roundToInt()
-                        else -> return false
-                    }
-                    invalidate()
-                    listener?.invoke(color)
-                    return true
-                }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    dragging = 0
-                    return true
-                }
-            }
-            return super.onTouchEvent(e)
+            if (e.actionMasked == MotionEvent.ACTION_DOWN) parent.requestDisallowInterceptTouchEvent(true)
+            state.hsv[1] = (e.x / width).coerceIn(0f, 1f)
+            state.hsv[2] = 1f - (e.y / height).coerceIn(0f, 1f)
+            state.changed()
+            return true
+        }
+    }
+
+    /** Ползунок оттенка или прозрачности. */
+    @SuppressLint("ViewConstructor")
+    private class BarView(context: Context, private val state: State, private val hue: Boolean) : View(context) {
+        private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        private val checker = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFFCCCCCC.toInt() }
+        private val rect = RectF()
+
+        init {
+            state.listeners += { invalidate() }
+            setLayerType(LAYER_TYPE_SOFTWARE, null)
         }
 
-        private fun clamp(v: Float) = v.coerceIn(0f, 1f)
+        override fun onDraw(canvas: Canvas) {
+            val pad = AndroidUtilities.dp(10f).toFloat()
+            rect.set(0f, height * 0.2f, width.toFloat(), height * 0.8f)
+            val r = rect.height() / 2
+            if (hue) {
+                paint.shader = LinearGradient(
+                    0f, 0f, rect.right, 0f,
+                    intArrayOf(0xFFFF0000.toInt(), 0xFFFFFF00.toInt(), 0xFF00FF00.toInt(), 0xFF00FFFF.toInt(), 0xFF0000FF.toInt(), 0xFFFF00FF.toInt(), 0xFFFF0000.toInt()),
+                    null, Shader.TileMode.CLAMP,
+                )
+            } else {
+                // шахматка — чтобы прозрачность была видна
+                canvas.save()
+                canvas.clipRect(rect)
+                val cell = rect.height() / 2
+                var x = 0f
+                var i = 0
+                while (x < rect.right) {
+                    canvas.drawRect(x, if (i % 2 == 0) rect.top else rect.top + cell, x + cell, if (i % 2 == 0) rect.top + cell else rect.bottom, checker)
+                    x += cell
+                    i++
+                }
+                canvas.restore()
+                val opaque = Color.HSVToColor(255, state.hsv)
+                paint.shader = LinearGradient(0f, 0f, rect.right, 0f, opaque and 0x00FFFFFF, opaque, Shader.TileMode.CLAMP)
+            }
+            canvas.drawRoundRect(rect, r, r, paint)
+            val pos = if (hue) state.hsv[0] / 360f else state.alpha / 255f
+            val cx = pad + pos * (width - 2 * pad)
+            canvas.drawCircle(cx, height / 2f, AndroidUtilities.dp(10f).toFloat(), thumbPaint)
+        }
+
+        @SuppressLint("ClickableViewAccessibility")
+        override fun onTouchEvent(e: MotionEvent): Boolean {
+            if (e.actionMasked == MotionEvent.ACTION_DOWN) parent.requestDisallowInterceptTouchEvent(true)
+            val pad = AndroidUtilities.dp(10f).toFloat()
+            val f = ((e.x - pad) / (width - 2 * pad)).coerceIn(0f, 1f)
+            if (hue) state.hsv[0] = f * 359.9f else state.alpha = (f * 255).roundToInt()
+            state.changed()
+            return true
+        }
     }
 }

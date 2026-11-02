@@ -10,6 +10,12 @@ object EngineStrings {
 
     // ключ → [ru, en]
     private val strings = hashMapOf(
+        "scope_info" to arrayOf("Куда сохраняются настройки ниже: везде, для типа чатов, папки или только этого чата. Цвета темы всегда общие.", "Where the settings below are saved: everywhere, a chat type, a folder or just this chat. Theme colors are always shared."),
+        "inherited" to arrayOf("Унаследовано:", "Inherited:"),
+        "reset_colors" to arrayOf("Сбросить цвета элемента", "Reset element colors"),
+        "hue" to arrayOf("Оттенок", "Hue"),
+        "opacity" to arrayOf("Прозрачность", "Opacity"),
+        "collapse" to arrayOf("Свернуть", "Collapse"),
         "customize" to arrayOf("Кастомизация · NextEngine", "Customization · NextEngine"),
         "customize_info" to arrayOf("Зажмите элемент, чтобы изменить его", "Long-press any element to edit it"),
         "done" to arrayOf("Готово", "Done"),
@@ -25,7 +31,7 @@ object EngineStrings {
         "from" to arrayOf("из: %s", "from: %s"),
         "not_set" to arrayOf("по умолчанию", "default"),
         "theme_colors" to arrayOf("Цвета темы", "Theme colors"),
-        "theme_colors_info" to arrayOf("Меняются везде, где используется этот цвет, а не только здесь. Сохраняются для текущей темы.", "Changes everywhere this color is used, not only here. Saved for the current theme."),
+        "theme_colors_info" to arrayOf("Цвета темы общие: меняются везде, где Telegram их использует, а не только здесь. Сохраняются для текущей темы. Долгий тап — вернуть как было.", "Theme colors are shared: they change everywhere Telegram uses them, not only here. Saved for the current theme. Long-press to restore."),
         "no_spec" to arrayOf("Для этого элемента ещё нет заготовки — доступны только цвета темы.", "No prepared editor for this element yet — only theme colors are available."),
         "parent" to arrayOf("Выделить родительский элемент", "Select parent element"),
         "hide_by_tap" to arrayOf("Скрыть части касанием", "Hide parts by tapping"),
@@ -82,7 +88,12 @@ object EngineStrings {
     @JvmStatic
     fun format(key: String, vararg args: Any?): String = String.format(get(key), *args)
 
-    private fun isRussian(): Boolean = try {
+    /** Строка на языке интерфейса (для подписей, заданных прямо в коде). */
+    @JvmStatic
+    fun pick(ru: String, en: String): String = if (isRussian()) ru else en
+
+    @JvmStatic
+    fun isRussian(): Boolean = try {
         LocaleController.getInstance().currentLocaleInfo?.shortName?.startsWith("ru") == true
     } catch (e: Throwable) {
         false

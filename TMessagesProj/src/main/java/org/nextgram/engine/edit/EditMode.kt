@@ -85,6 +85,7 @@ object EditMode {
         overlay?.detach()
         overlay = null
         refreshAll()
+        ThemeApply.onEditModeExit()
         activityRef = null
     }
 
