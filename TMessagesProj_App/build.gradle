@@ -187,6 +187,10 @@ android {
         externalNativeBuild {
             cmake {
                 version '3.22.1'
+                // nextgram: в CI нативный код собирается через ccache (NG_CCACHE=1) — повторные сборки берут объектники из кэша
+                if (System.getenv("NG_CCACHE") == "1") {
+                    arguments '-DCMAKE_C_COMPILER_LAUNCHER=ccache', '-DCMAKE_CXX_COMPILER_LAUNCHER=ccache'
+                }
                 arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-23' // , '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
                 targets 'tmessages.49'
             }

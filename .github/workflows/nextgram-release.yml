@@ -52,8 +52,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 330
     env:
-      # Только ARM: так собирается вдвое быстрее, а телефоны x86 почти не встречаются.
-      NG_ABIS: arm64-v8a,armeabi-v7a
+      # Пока только arm64 (S24 Ultra и другие современные телефоны) — вдвое быстрее.
+      NG_ABIS: arm64-v8a
+      NG_CCACHE: '1'
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_COMPILERCHECK: content
+      CCACHE_NOHASHDIR: 'true'
       NG_BUILD_NUMBER: ${{ github.run_number }}
       NG_VERSION_SUFFIX: -ng${{ github.run_number }}
     steps:
@@ -117,10 +121,20 @@ jobs:
             echo "::warning::NG_GOOGLE_SERVICES_JSON не задан — пуши через FCM работать не будут"
           fi
 
+      - name: Кэш нативной сборки (ccache)
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: nextgram-ndk-${{ env.NDK_VERSION }}-${{ env.NG_ABIS }}
+          max-size: 3G
+
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
 
       - name: Сборка
-        run: ./gradlew :TMessagesProj_App:assembleAfatRelease --stacktrace
+        run: |
+          ./gradlew :TMessagesProj_App:assembleAfatRelease --build-cache --stacktrace
+          ccache -s || true
 
       - name: Подготовка файлов
         id: out
