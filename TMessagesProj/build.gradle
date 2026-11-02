@@ -143,6 +143,11 @@ android {
         def customApiHash = getProps("TELEGRAM_APP_HASH")
         buildConfigField "int", "CUSTOM_APP_ID", (customApiId ? customApiId.toString() : "0")
         buildConfigField "String", "CUSTOM_APP_HASH", "\"" + (customApiHash ? customApiHash.toString() : "") + "\""
+        // nextgram: сервер профилей «для своих» (backend/worker) и бот подтверждения Telegram ID
+        def ngBackend = getProps("NG_BACKEND_URL")
+        def ngBot = getProps("NG_BOT_USERNAME")
+        buildConfigField "String", "NG_BACKEND_URL", "\"" + (ngBackend ? ngBackend.toString() : "") + "\""
+        buildConfigField "String", "NG_BOT_USERNAME", "\"" + (ngBot ? ngBot.toString() : "") + "\""
 
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
 

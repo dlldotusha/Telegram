@@ -45,6 +45,37 @@ public final class EngineStrings {
         put("cancel", "Отмена", "Cancel");
         put("reset", "Сбросить", "Reset");
         put("hex", "Цвет в HEX", "HEX color");
+        // экран NextGram
+        put("ng_settings_info", "Кастомизация, режим призрака, профиль", "Customization, ghost mode, profile");
+        put("ng_engine", "Интерфейс · NextEngine", "Interface · NextEngine");
+        put("ng_engine_open", "Редактировать интерфейс", "Edit interface");
+        put("ng_engine_info", "Включает режим редактирования: зажмите любой элемент интерфейса, чтобы изменить его. Правки сохраняются глобально, для категории чатов, папки или одного чата.", "Turns on edit mode: long-press any element to change it. Edits can apply everywhere, to a chat category, a folder or one chat.");
+        put("ng_ghost", "Режим призрака", "Ghost mode");
+        put("ng_ghost_enabled", "Включить режим призрака", "Enable ghost mode");
+        put("ng_ghost_read", "Не отправлять «прочитано»", "Don't send read receipts");
+        put("ng_ghost_online", "Не показывать «в сети»", "Don't show online");
+        put("ng_ghost_typing", "Не показывать «печатает»", "Don't show typing");
+        put("ng_ghost_stories", "Не отмечать просмотр историй", "Don't mark stories as viewed");
+        put("ng_ghost_info", "Правила Telegram API запрещают подмену статусов прочтения — со своим api_id это риск отзыва ключа. Сервер всё равно помечает чат прочитанным, когда вы отправляете в него сообщение.", "Telegram API terms forbid tampering with read statuses — with your own api_id this risks key revocation. The server still marks a chat as read when you send a message to it.");
+        put("ng_profile", "Профиль NextGram", "NextGram profile");
+        put("ng_profile_off", "Сервер профилей не настроен в этой сборке (NG_BACKEND_URL).", "Profile server is not configured in this build (NG_BACKEND_URL).");
+        put("ng_profile_connect", "Подключить профиль", "Connect profile");
+        put("ng_profile_connecting", "Подключаем…", "Connecting…");
+        put("ng_profile_connect_info", "Приложение запустит служебного бота @%s от вашего имени — так сервер убедится, что аккаунт ваш. Расширенный профиль видят только пользователи NextGram.", "The app will start the service bot @%s on your behalf so the server can verify the account. The extended profile is visible only to NextGram users.");
+        put("ng_profile_particles", "Частицы в профиле", "Profile particles");
+        put("ng_profile_color", "Цвет частиц", "Particles color");
+        put("ng_profile_density", "Плотность", "Density");
+        put("ng_profile_disconnect", "Отключить профиль", "Disconnect profile");
+        put("ng_profile_saved", "Сохранено", "Saved");
+        put("ng_profile_error", "Не получилось: %s", "Failed: %s");
+        put("ng_off", "Выкл.", "Off");
+        put("ng_stars", "Звёзды", "Stars");
+        put("ng_snow", "Снег", "Snow");
+        put("ng_bubbles", "Пузыри", "Bubbles");
+        put("ng_hearts", "Сердца", "Hearts");
+        put("ng_density_low", "Реже", "Sparse");
+        put("ng_density_mid", "Обычно", "Normal");
+        put("ng_density_high", "Гуще", "Dense");
     }
 
     private static void put(String key, String ru, String en) {

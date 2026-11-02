@@ -85,14 +85,19 @@ jobs:
           GOOGLE_SERVICES_JSON: ${{ secrets.NG_GOOGLE_SERVICES_JSON }}
           TELEGRAM_APP_ID: ${{ secrets.NG_TELEGRAM_APP_ID }}
           TELEGRAM_APP_HASH: ${{ secrets.NG_TELEGRAM_APP_HASH }}
+          NG_BACKEND_URL: ${{ secrets.NG_BACKEND_URL }}
+          NG_BOT_USERNAME: ${{ secrets.NG_BOT_USERNAME }}
         run: |
           {
             echo "sdk.dir=$ANDROID_HOME"
+            [ -n "$NG_BACKEND_URL" ] && echo "NG_BACKEND_URL=$NG_BACKEND_URL"
+            [ -n "$NG_BOT_USERNAME" ] && echo "NG_BOT_USERNAME=$NG_BOT_USERNAME"
             if [ -n "$TELEGRAM_APP_ID" ] && [ -n "$TELEGRAM_APP_HASH" ]; then
               echo "TELEGRAM_APP_ID=$TELEGRAM_APP_ID"
               echo "TELEGRAM_APP_HASH=$TELEGRAM_APP_HASH"
             fi
           } > local.properties
+          [ -n "$NG_BACKEND_URL" ] || echo "::warning::NG_BACKEND_URL не задан — профили NextGram в этой сборке отключены"
           [ -n "$TELEGRAM_APP_ID" ] || echo "::warning::NG_TELEGRAM_APP_ID не задан — сборка с тестовым api_id из исходников Telegram (не для постоянного использования)"
 
           if [ -n "$KEYSTORE_BASE64" ]; then

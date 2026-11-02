@@ -5240,6 +5240,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         topView.setBackgroundColorId(peerColor, false);
         topView.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundGray));
         frameLayout.addView(topView);
+        org.nextgram.profiles.ProfileHooks.attach(frameLayout, currentAccount, userId, () -> ActionBar.getCurrentActionBarHeight() + (actionBar.getOccupyStatusBar() ? AndroidUtilities.statusBarHeight : 0) + extraHeight + searchTransitionOffset); // nextgram
         contentView.blurBehindViews.add(topView);
 
         animatedStatusView = new AnimatedStatusView(context, 20, 60);

@@ -27,16 +27,16 @@ import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.LayoutHelper;
 
 /** Простой HSV-пикер с прозрачностью и полем HEX. */
-final class ColorPickerDialog {
+public final class ColorPickerDialog {
 
-    interface Callback {
+    public interface Callback {
         void onPicked(Integer argb);
     }
 
     private ColorPickerDialog() {
     }
 
-    static void show(Context context, String title, int initial, Callback callback) {
+    public static void show(Context context, String title, int initial, Callback callback) {
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(AndroidUtilities.dp(20), AndroidUtilities.dp(8), AndroidUtilities.dp(20), 0);
