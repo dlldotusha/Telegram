@@ -1,0 +1,14 @@
+name = "nextgram-profiles"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+# id KV-неймспейса подставляет workflow backend-deploy из секрета NG_KV_ID.
+[[kv_namespaces]]
+binding = "NG_KV"
+id = "__NG_KV_ID__"
+
+[vars]
+# username бота подставляет workflow из секрета NG_BOT_USERNAME
+BOT_USERNAME = "__NG_BOT_USERNAME__"
+
+# Секреты (wrangler secret put): BOT_TOKEN, WEBHOOK_SECRET
