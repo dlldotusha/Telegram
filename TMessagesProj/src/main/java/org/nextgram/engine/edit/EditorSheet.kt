@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.FrameLayout
 import org.nextgram.engine.EngineStrings
 import org.nextgram.engine.NextEngine
+import org.nextgram.engine.hooks.SizeHooks
 import org.telegram.messenger.AndroidUtilities
 import org.telegram.messenger.FileLog
 import org.telegram.messenger.R
@@ -19,21 +20,22 @@ import org.telegram.ui.Components.UItem
 import org.telegram.ui.Components.UniversalAdapter
 import org.telegram.ui.Components.UniversalRecyclerView
 import org.telegram.ui.LaunchActivity
+import kotlin.math.roundToInt
 
 /**
- * Свойства выбранного элемента. Собрано на родных компонентах Telegram
- * (UniversalRecyclerView + UItem), поэтому выглядит и перекрашивается как
- * остальные настройки.
+ * Свойства выбранного элемента на родных компонентах Telegram.
  *
- * Сверху — свойства этого элемента, которые можно сохранить на уровень
- * (везде / категория / папка / чат). Ниже — цвета темы элемента: они глобальные.
- * Тап — изменить, долгий тап — сбросить.
+ * Сверху — часть, которую зажали (время, текст, пузырь…): её цвета, размер текста,
+ * и если есть — настройки, которые можно сохранить по уровням (везде / тип чатов /
+ * папка / чат). Ниже — остальные части элемента и все его цвета.
+ * Тап — изменить, долгий тап — вернуть как было.
  */
 internal class EditorSheet(context: Context, private val target: EditTarget) : BottomSheet(context, false) {
 
     private val parts: List<EditorSpec.Part>
     private val props: List<EditorSpec.Prop>
     private val groups: List<ThemeCatalog.ColorGroup>
+    private var showAllColors = false
 
     private val clicks = HashMap<Int, () -> Unit>()
     private val longClicks = HashMap<Int, () -> Unit>()
@@ -66,8 +68,6 @@ internal class EditorSheet(context: Context, private val target: EditTarget) : B
         (listView.getAdapter() as UniversalAdapter).update(true)
     }
 
-    // ------------------------------------------------------------------ содержимое
-
     private fun id(onClick: () -> Unit, onLong: (() -> Unit)? = null): Int {
         val id = nextId++
         clicks[id] = onClick
@@ -75,62 +75,49 @@ internal class EditorSheet(context: Context, private val target: EditTarget) : B
         return id
     }
 
+    // ------------------------------------------------------------------ содержимое
+
     private fun fill(items: ArrayList<UItem>) {
         clicks.clear()
         longClicks.clear()
         nextId = 1
-        val context = context
-        val style = target.style()
-        val scopes = ScopeOption.forTarget(target)
-        val scope = EditMode.currentScope(scopes)
+        val focus = parts.firstOrNull { it.id == target.part }
 
-        // Свойства этого элемента (по уровням)
-        if (props.isNotEmpty()) {
-            items += UItem.asButton(id({ chooseScope(scopes) }), EngineStrings.get("save_to"), scope.label)
-            items += UItem.asShadow(EngineStrings.get("scope_info"))
+        if (focus != null) {
+            items += UItem.asHeader(focus.title)
+            focus.colors.forEach { items += colorRow(it) }
+            focus.sizeId?.let { sizeId -> addSize(items, sizeId) }
+            addScoped(items, focus)
+            items += UItem.asShadow(EngineStrings.get("theme_colors_info"))
+        }
 
-            val partTitles = parts.associate { it.id to it.title }
-            val inherited = ArrayList<String>()
-            for ((part, partProps) in props.groupBy { it.part }) {
-                items += UItem.asHeader(part?.let { partTitles[it] ?: it } ?: target.title)
-                for (prop in partProps) {
-                    val source = style.sourceOf(prop.part, prop.key)
-                    if (source != null && source != scope.scope) inherited += prop.title + " — " + ScopeOption.labelFor(source, scopes)
-                    when (prop.type) {
-                        EditorSpec.Prop.Type.BOOL -> {
-                            val value = style.getBool(prop.part, prop.key, prop.defaultBool)
-                            items += UItem.asCheck(id({ write(scope, prop, !value) }, { write(scope, prop, null) }), prop.title).setChecked(value)
-                        }
-                        EditorSpec.Prop.Type.COLOR -> {
-                            val color = style.getColor(prop.part, prop.key)
-                            val cell = TextColorCell(context).apply { setTextAndColor(prop.title, color ?: 0, false) }
-                            items += UItem.asCustom(id({
-                                ColorPickerDialog.show(context, prop.title, color ?: 0xFF808080.toInt()) { picked -> write(scope, prop, picked) }
-                            }, { write(scope, prop, null) }), cell)
-                        }
-                    }
+        // Остальные части элемента
+        val others = parts.filter { it.id != focus?.id }
+        if (others.isNotEmpty()) {
+            items += UItem.asHeader(EngineStrings.get(if (focus != null) "other_parts" else "parts"))
+            for (p in others) items += UItem.asButton(id({ EditMode.selectPart(p.id) }), p.title)
+            items += UItem.asShadow(EngineStrings.get("parts_hint"))
+        }
+        // Настройки по уровням, не привязанные к части
+        if (focus == null) addScoped(items, null)
+
+        // Все цвета элемента
+        if (groups.isNotEmpty()) {
+            val expanded = showAllColors || parts.isEmpty()
+            if (parts.isNotEmpty()) {
+                items += UItem.asButton(id({ showAllColors = !showAllColors; rebuild() }), R.drawable.msg_palette,
+                    EngineStrings.get(if (expanded) "hide_all_colors" else "all_colors"))
+            }
+            if (expanded) {
+                for (group in groups) {
+                    items += UItem.asHeader(group.title)
+                    group.items.forEach { items += colorRow(it) }
                 }
-            }
-            if (parts.any { it.hideable }) {
-                items += UItem.asButton(id({ EditMode.startHideByTap() }), R.drawable.msg_customize, EngineStrings.get("hide_by_tap")).accent()
-            }
-            val info = StringBuilder(EngineStrings.get("long_press_reset"))
-            if (inherited.isNotEmpty()) info.append("\n\n").append(EngineStrings.get("inherited")).append(' ').append(inherited.joinToString("; "))
-            items += UItem.asShadow(info.toString())
-        }
-
-        // Цвета темы элемента (глобальные)
-        for (group in groups) {
-            items += UItem.asHeader(group.title)
-            for (item in group.items) {
-                val color = ThemeApply.color(item.key)
-                val cell = TextColorCell(context).apply { setTextAndColor(item.title, color, false) }
-                items += UItem.asCustom(id({
-                    ColorPickerDialog.show(context, item.title, color) { picked -> setThemeColor(item.key, picked) }
-                }, { setThemeColor(item.key, null) }), cell)
+                items += UItem.asShadow(EngineStrings.get("theme_colors_info"))
+            } else {
+                items += UItem.asShadow(null)
             }
         }
-        if (groups.isNotEmpty()) items += UItem.asShadow(EngineStrings.get("theme_colors_info"))
 
         if (target.isAuto) {
             target.parent()?.let { parent ->
@@ -141,12 +128,66 @@ internal class EditorSheet(context: Context, private val target: EditTarget) : B
 
         // Сброс
         if (props.isNotEmpty()) {
+            val scope = EditMode.currentScope(ScopeOption.forTarget(target))
             items += UItem.asButton(id({ NextEngine.edit { it.clearElement(scope.scope, target.elementId) } }), EngineStrings.get("reset_element")).red()
         }
-        if (groups.isNotEmpty()) {
-            items += UItem.asButton(id({ groups.flatMap { it.items }.forEach { ThemeApply.setColor(it.key, null) }; rebuild() }), EngineStrings.get("reset_colors")).red()
+        val allKeys = (groups.flatMap { it.items } + parts.flatMap { it.colors }).map { it.key }.distinct()
+        if (allKeys.isNotEmpty()) {
+            items += UItem.asButton(id({ allKeys.forEach { ThemeApply.setColor(it, null) }; rebuild() }), EngineStrings.get("reset_colors")).red()
         }
         items += UItem.asShadow(null)
+    }
+
+    private fun colorRow(item: ThemeCatalog.ColorItem): UItem {
+        val color = ThemeApply.color(item.key)
+        val cell = TextColorCell(context).apply { setTextAndColor(item.title, color, false) }
+        return UItem.asCustom(id({
+            ColorPickerDialog.show(context, item.title, color) { picked -> setThemeColor(item.key, picked) }
+        }, { setThemeColor(item.key, null) }), cell)
+    }
+
+    private fun addSize(items: ArrayList<UItem>, sizeId: String) {
+        items += UItem.asHeader(EngineStrings.get(if (sizeId == SizeHooks.CHAT_TEXT) "text_size_messages" else "text_size"))
+        val value = (SizeHooks.scale(sizeId) * 100).roundToInt()
+        items += UItem.asIntSlideView(1, (SizeHooks.MIN * 100).roundToInt(), value, (SizeHooks.MAX * 100).roundToInt(),
+            { v -> "$v%" },
+            { v -> SizeHooks.setScale(sizeId, v / 100f) })
+    }
+
+    /** Настройки, которые можно сохранить по уровням (секунды, свой цвет, скрытие…). */
+    private fun addScoped(items: ArrayList<UItem>, part: EditorSpec.Part?) {
+        val list = props.filter { it.part == part?.id }
+        if (list.isEmpty() && part?.hideable != true) return
+        val style = target.style()
+        val scopes = ScopeOption.forTarget(target)
+        val scope = EditMode.currentScope(scopes)
+        items += UItem.asShadow(null)
+        items += UItem.asHeader(EngineStrings.get("scoped_header"))
+        items += UItem.asButton(id({ chooseScope(scopes) }), EngineStrings.get("save_to"), scope.label)
+        val inherited = ArrayList<String>()
+        for (prop in list) {
+            val source = style.sourceOf(prop.part, prop.key)
+            if (source != null && source != scope.scope) inherited += prop.title + " — " + ScopeOption.labelFor(source, scopes)
+            when (prop.type) {
+                EditorSpec.Prop.Type.BOOL -> {
+                    val value = style.getBool(prop.part, prop.key, prop.defaultBool)
+                    items += UItem.asCheck(id({ write(scope, prop, !value) }, { write(scope, prop, null) }), prop.title).setChecked(value)
+                }
+                EditorSpec.Prop.Type.COLOR -> {
+                    val color = style.getColor(prop.part, prop.key)
+                    val cell = TextColorCell(context).apply { setTextAndColor(prop.title, color ?: 0, false) }
+                    items += UItem.asCustom(id({
+                        ColorPickerDialog.show(context, prop.title, color ?: ThemeApply.color(org.telegram.ui.ActionBar.Theme.key_chat_inTimeText)) { picked -> write(scope, prop, picked) }
+                    }, { write(scope, prop, null) }), cell)
+                }
+            }
+        }
+        if (part?.hideable == true) {
+            items += UItem.asButton(id({ EditMode.startHideByTap() }), R.drawable.msg_customize, EngineStrings.get("hide_by_tap")).accent()
+        }
+        val info = StringBuilder(EngineStrings.get("scope_info"))
+        if (inherited.isNotEmpty()) info.append("\n\n").append(EngineStrings.get("inherited")).append(' ').append(inherited.joinToString("; "))
+        items += UItem.asShadow(info.toString())
     }
 
     // ------------------------------------------------------------------ действия

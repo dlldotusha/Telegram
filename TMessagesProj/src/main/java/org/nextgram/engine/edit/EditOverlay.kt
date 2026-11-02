@@ -270,7 +270,7 @@ internal class EditOverlay(context: Context) : FrameLayout(context) {
         hintView.text = when {
             EditMode.isHideByTap && t != null ->
                 EngineStrings.get("hide_by_tap_hint") + " · " + EditMode.currentScope(ScopeOption.forTarget(t)).label
-            t != null -> t.title
+            t != null -> t.partInfo()?.let { t.title + " · " + it.title } ?: t.title
             else -> EngineStrings.get("customize_info")
         }
         panel.post { clampPanel() }

@@ -8050,6 +8050,7 @@ public class Theme {
             chat_msgTextCode2Paint.setTextSize(dp(Math.max(Math.min(10, SharedConfig.fontSize - 2), SharedConfig.fontSize - 3)));
             chat_msgTextCode3Paint.setTextSize(dp(Math.max(Math.min(10, SharedConfig.fontSize - 2), SharedConfig.fontSize - 5)));
         }
+        org.nextgram.engine.hooks.SizeHooks.applyChatSizes(); // nextgram
     }
 
     public static void createCommonChatResources() {
@@ -8422,6 +8423,7 @@ public class Theme {
             chat_commentTextPaint.setTextSize(dp(14));
             chat_commentTextPaint.setTypeface(AndroidUtilities.bold());
         }
+        org.nextgram.engine.hooks.SizeHooks.applyChatSizes(); // nextgram
     }
 
     public static void applyChatTheme(boolean fontsOnly, boolean bg) {

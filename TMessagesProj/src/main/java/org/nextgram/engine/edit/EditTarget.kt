@@ -7,7 +7,11 @@ import org.nextgram.engine.core.ResolvedElement
 import java.lang.ref.WeakReference
 
 /** Выбранный в режиме редактирования элемент. View держим слабо: ячейки переиспользуются. */
-class EditTarget internal constructor(view: View, val spec: EditorSpec) {
+class EditTarget internal constructor(view: View, val spec: EditorSpec, part: String? = null) {
+
+    /** Выбранная видимая часть (время, текст, пузырь…) или null — элемент целиком. */
+    var part: String? = part
+        internal set
 
     private val viewRef = WeakReference(view)
     val elementId: String = spec.elementId(view)
@@ -32,11 +36,22 @@ class EditTarget internal constructor(view: View, val spec: EditorSpec) {
         return SpecRegistry.targetFor(p)
     }
 
-    /** Границы элемента на экране. */
+    fun partInfo(): EditorSpec.Part? {
+        val v = view() ?: return null
+        val id = part ?: return null
+        return spec.parts(v).firstOrNull { it.id == id }
+    }
+
+    /** Границы выбранной части (или всего элемента) на экране. */
     fun screenBounds(out: RectF): Boolean {
         val v = view() ?: return false
         val loc = IntArray(2)
         v.getLocationOnScreen(loc)
+        val id = part
+        if (id != null && spec.partBounds(v, id, out)) {
+            out.offset(loc[0].toFloat(), loc[1].toFloat())
+            return true
+        }
         out.set(loc[0].toFloat(), loc[1].toFloat(), (loc[0] + v.width).toFloat(), (loc[1] + v.height).toFloat())
         return true
     }

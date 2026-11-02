@@ -10,8 +10,10 @@ import org.telegram.messenger.UserConfig
 import org.telegram.ui.Cells.ChatMessageCell
 
 /**
- * Заготовка для сообщения в чате. Пока одна часть — время: секунды, цвет, скрытие.
- * Новые части добавляются сюда же: id части, границы и свойства, плюс хук в ячейке.
+ * Заготовка для сообщения в чате. Части — как их видит человек: время, ответ,
+ * имя отправителя, текст, пузырь (ThemeCatalog.messageParts). У времени есть
+ * ещё свойства по уровням (секунды, свой цвет, скрытие) — они хранятся в NextEngine
+ * и могут отличаться для разных чатов.
  */
 class MessageCellSpec : EditorSpec {
 
@@ -28,15 +30,12 @@ class MessageCellSpec : EditorSpec {
 
     override fun account(view: View): Int = mo(view)?.currentAccount ?: UserConfig.selectedAccount
 
-    override fun parts(view: View) = listOf(
-        EditorSpec.Part(MessageCellHooks.PART_TIME, EngineStrings.get("part_time"), hideable = true),
-    )
+    override fun parts(view: View) = ThemeCatalog.messageParts(out = mo(view)?.isOutOwner == true)
 
     override fun partBounds(view: View, partId: String, out: RectF): Boolean {
-        if (partId != MessageCellHooks.PART_TIME) return false
-        if (!(view as ChatMessageCell).getCustomTimeBounds(out)) return false
-        // палец толще текста — расширяем зону попадания
-        out.inset(-AndroidUtilities.dp(6f).toFloat(), -AndroidUtilities.dp(6f).toFloat())
+        if (!(view as ChatMessageCell).getCustomPartBounds(partId, out)) return false
+        // палец толще мелкого текста — расширяем зону попадания у времени
+        if (partId == MessageCellHooks.PART_TIME) out.inset(-AndroidUtilities.dp(6f).toFloat(), -AndroidUtilities.dp(6f).toFloat())
         return true
     }
 
@@ -44,7 +43,7 @@ class MessageCellSpec : EditorSpec {
         val time = MessageCellHooks.PART_TIME
         return listOf(
             EditorSpec.Prop(time, MessageCellHooks.PROP_SECONDS, EditorSpec.Prop.Type.BOOL, EngineStrings.get("seconds")),
-            EditorSpec.Prop(time, MessageCellHooks.PROP_COLOR, EditorSpec.Prop.Type.COLOR, EngineStrings.get("color")),
+            EditorSpec.Prop(time, MessageCellHooks.PROP_COLOR, EditorSpec.Prop.Type.COLOR, EngineStrings.get("color_here")),
             EditorSpec.Prop(time, MessageCellHooks.PROP_HIDDEN, EditorSpec.Prop.Type.BOOL, EngineStrings.get("hidden")),
         )
     }
@@ -53,10 +52,10 @@ class MessageCellSpec : EditorSpec {
 
     override fun apply(view: View) {
         val cell = view as ChatMessageCell
-        if (cell.messageObject != null) {
-            cell.forceResetMessageObject()
-            cell.requestLayout()
-            cell.invalidate()
-        }
+        val m = cell.messageObject ?: return
+        m.resetLayout() // размер текста мог измениться
+        cell.forceResetMessageObject()
+        cell.requestLayout()
+        cell.invalidate()
     }
 }

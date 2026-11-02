@@ -1,7 +1,16 @@
 package org.nextgram.engine.edit
 
+import android.graphics.RectF
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 import org.nextgram.engine.EngineStrings
+import org.nextgram.engine.hooks.SizeHooks
+import org.telegram.ui.ActionBar.SimpleTextView
+import org.telegram.ui.Components.AnimatedTextView
+import org.telegram.ui.Components.Switch
 import org.telegram.ui.ActionBar.ActionBar
 import org.telegram.ui.ActionBar.Theme
 import org.telegram.ui.ActionBar.ThemeColors
@@ -103,6 +112,222 @@ object ThemeCatalog {
             c(Theme.key_chat_inAudioTitleText, "Название трека", "Track title"),
             c(Theme.key_chat_inAudioPerformerText, "Исполнитель", "Performer")),
     )
+
+    private fun p(id: String, ru: String, en: String, vararg colors: ColorItem, size: String? = null, hideable: Boolean = false) =
+        EditorSpec.Part(id, EngineStrings.pick(ru, en), hideable, colors.toList(), size)
+
+    /** Части сообщения в порядке проверки попадания: сначала мелкие, в конце пузырь целиком. */
+    fun messageParts(out: Boolean): List<EditorSpec.Part> = if (out) listOf(
+        p("time", "Время", "Time",
+            c(Theme.key_chat_outTimeText, "Цвет времени", "Time color"),
+            c(Theme.key_chat_outSentCheck, "Галочка «доставлено»", "Delivered check"),
+            c(Theme.key_chat_outSentCheckRead, "Галочки «прочитано»", "Read checks"),
+            c(Theme.key_chat_outSentClock, "Часики «отправляется»", "Sending clock"),
+            c(Theme.key_chat_outViews, "Просмотры", "Views"),
+            size = SizeHooks.CHAT_TIME, hideable = true),
+        p("reply", "Ответ на сообщение", "Reply",
+            c(Theme.key_chat_outReplyLine, "Полоска", "Line"),
+            c(Theme.key_chat_outReplyNameText, "Имя", "Name"),
+            c(Theme.key_chat_outReplyMessageText, "Текст", "Text"),
+            size = SizeHooks.CHAT_REPLY),
+        p("name", "Имя отправителя", "Sender name",
+            c(Theme.key_chat_outForwardedNameText, "«Переслано от»", "“Forwarded from”"),
+            c(Theme.key_chat_outViaBotNameText, "Имя бота «через @»", "“via @bot”"),
+            size = SizeHooks.CHAT_NAME),
+        p("text", "Текст сообщения", "Message text",
+            c(Theme.key_chat_messageTextOut, "Цвет текста", "Text color"),
+            c(Theme.key_chat_messageLinkOut, "Ссылки", "Links"),
+            size = SizeHooks.CHAT_TEXT),
+        p("bubble", "Пузырь", "Bubble",
+            c(Theme.key_chat_outBubble, "Фон пузыря", "Bubble background"),
+            c(Theme.key_chat_outBubbleGradient1, "Второй цвет градиента", "Gradient 2nd color"),
+            c(Theme.key_chat_outBubbleSelected, "Фон выделенного пузыря", "Selected bubble"),
+            c(Theme.key_chat_outBubbleShadow, "Тень пузыря", "Bubble shadow")),
+    ) else listOf(
+        p("time", "Время", "Time",
+            c(Theme.key_chat_inTimeText, "Цвет времени", "Time color"),
+            c(Theme.key_chat_inViews, "Просмотры", "Views"),
+            size = SizeHooks.CHAT_TIME, hideable = true),
+        p("reply", "Ответ на сообщение", "Reply",
+            c(Theme.key_chat_inReplyLine, "Полоска", "Line"),
+            c(Theme.key_chat_inReplyNameText, "Имя", "Name"),
+            c(Theme.key_chat_inReplyMessageText, "Текст", "Text"),
+            size = SizeHooks.CHAT_REPLY),
+        p("name", "Имя отправителя", "Sender name",
+            c(Theme.key_chat_inForwardedNameText, "«Переслано от»", "“Forwarded from”"),
+            c(Theme.key_chat_inViaBotNameText, "Имя бота «через @»", "“via @bot”"),
+            size = SizeHooks.CHAT_NAME),
+        p("text", "Текст сообщения", "Message text",
+            c(Theme.key_chat_messageTextIn, "Цвет текста", "Text color"),
+            c(Theme.key_chat_messageLinkIn, "Ссылки", "Links"),
+            size = SizeHooks.CHAT_TEXT),
+        p("bubble", "Пузырь", "Bubble",
+            c(Theme.key_chat_inBubble, "Фон пузыря", "Bubble background"),
+            c(Theme.key_chat_inBubbleSelected, "Фон выделенного пузыря", "Selected bubble"),
+            c(Theme.key_chat_inBubbleShadow, "Тень пузыря", "Bubble shadow")),
+    )
+
+    private val dialogParts = listOf(
+        p("counter", "Счётчик непрочитанных", "Unread counter",
+            c(Theme.key_chats_unreadCounter, "Фон счётчика", "Counter background"),
+            c(Theme.key_chats_unreadCounterMuted, "Фон в чатах без звука", "Muted counter background"),
+            c(Theme.key_chats_unreadCounterText, "Цифры", "Digits"),
+            c(Theme.key_chats_mentionIcon, "Значок упоминания @", "Mention icon"),
+            size = SizeHooks.DIALOG_COUNTER),
+        p("time", "Время и галочки", "Time and checks",
+            c(Theme.key_chats_date, "Время", "Time"),
+            c(Theme.key_chats_sentCheck, "Галочка «доставлено»", "Delivered check"),
+            c(Theme.key_chats_sentReadCheck, "Галочки «прочитано»", "Read checks"),
+            c(Theme.key_chats_sentClock, "Часики «отправляется»", "Sending clock"),
+            size = SizeHooks.DIALOG_TIME),
+        p("name", "Название чата", "Chat name",
+            c(Theme.key_chats_name, "Цвет названия", "Name color"),
+            c(Theme.key_chats_secretName, "Секретный чат", "Secret chat"),
+            c(Theme.key_chats_verifiedBackground, "Галочка верификации — фон", "Verified badge — background"),
+            c(Theme.key_chats_verifiedCheck, "Галочка верификации — знак", "Verified badge — check"),
+            c(Theme.key_chats_muteIcon, "Значок «без звука»", "Mute icon"),
+            size = SizeHooks.DIALOG_NAME),
+        p("message", "Последнее сообщение", "Last message",
+            c(Theme.key_chats_message, "Текст", "Text"),
+            c(Theme.key_chats_nameMessage, "Имя отправителя", "Sender name"),
+            c(Theme.key_chats_attachMessage, "«Фото», «Видео» и т. п.", "“Photo”, “Video” etc."),
+            c(Theme.key_chats_actionMessage, "Служебные события", "Service events"),
+            c(Theme.key_chats_draft, "Черновик", "Draft"),
+            size = SizeHooks.DIALOG_MESSAGE),
+        p("avatar", "Аватар", "Avatar",
+            c(Theme.key_chats_onlineCircle, "Кружок «в сети»", "Online dot")),
+        p("all", "Фон строки", "Row background",
+            c(Theme.key_windowBackgroundWhite, "Фон списка", "List background"),
+            c(Theme.key_chats_pinnedOverlay, "Подсветка закреплённых", "Pinned chats tint"),
+            c(Theme.key_chats_pinnedIcon, "Значок закрепа", "Pin icon"),
+            c(Theme.key_listSelector, "Подсветка при нажатии", "Press highlight")),
+    )
+
+    private val actionBarParts = listOf(
+        p("title", "Заголовок", "Title", c(Theme.key_actionBarDefaultTitle, "Цвет заголовка", "Title color")),
+        p("subtitle", "Подзаголовок", "Subtitle", c(Theme.key_actionBarDefaultSubtitle, "Цвет подзаголовка", "Subtitle color")),
+        p("back", "Кнопка «Назад»", "Back button", c(Theme.key_actionBarDefaultIcon, "Иконки", "Icons"), c(Theme.key_actionBarDefaultSelector, "Подсветка при нажатии", "Press highlight")),
+        p("menu", "Кнопки справа", "Buttons on the right", c(Theme.key_actionBarDefaultIcon, "Иконки", "Icons"), c(Theme.key_actionBarDefaultSelector, "Подсветка при нажатии", "Press highlight")),
+        p("all", "Фон панели", "Bar background", c(Theme.key_actionBarDefault, "Фон", "Background")),
+    )
+
+    private val settingsParts = listOf(
+        p("switch", "Переключатель", "Switch", c(Theme.key_switchTrack, "Выключен", "Off"), c(Theme.key_switchTrackChecked, "Включён", "On")),
+        p("icon", "Иконка", "Icon", c(Theme.key_windowBackgroundWhiteGrayIcon, "Цвет иконок", "Icon color")),
+        p("value", "Значение справа", "Value on the right", c(Theme.key_windowBackgroundWhiteValueText, "Цвет значения", "Value color")),
+        p("text", "Текст пункта", "Row text",
+            c(Theme.key_windowBackgroundWhiteBlackText, "Обычный текст", "Regular text"),
+            c(Theme.key_windowBackgroundWhiteBlueText4, "Синие пункты («Добавить…»)", "Blue rows (“Add…”)"),
+            c(Theme.key_text_RedRegular, "Красные пункты («Удалить…»)", "Red rows (“Delete…”)"),
+            c(Theme.key_windowBackgroundWhiteBlueHeader, "Заголовки разделов", "Section headers"),
+            c(Theme.key_windowBackgroundWhiteGrayText4, "Пояснения под разделами", "Section footers")),
+        p("all", "Фон пункта", "Row background",
+            c(Theme.key_windowBackgroundWhite, "Фон пункта", "Row background"),
+            c(Theme.key_windowBackgroundGray, "Фон между разделами", "Background between sections"),
+            c(Theme.key_divider, "Разделитель", "Divider"),
+            c(Theme.key_listSelector, "Подсветка при нажатии", "Press highlight")),
+    )
+
+    private val enterParts = listOf(
+        p("field", "Поле ввода", "Input field",
+            c(Theme.key_chat_messagePanelText, "Текст", "Text"),
+            c(Theme.key_chat_messagePanelHint, "Подсказка «Сообщение»", "“Message” hint"),
+            c(Theme.key_chat_messagePanelCursor, "Курсор", "Cursor")),
+        p("buttons", "Кнопки (эмодзи, скрепка, отправить)", "Buttons (emoji, attach, send)",
+            c(Theme.key_chat_messagePanelIcons, "Иконки", "Icons"),
+            c(Theme.key_chat_messagePanelSend, "Кнопка «Отправить»", "Send button"),
+            c(Theme.key_chat_messagePanelVoiceBackground, "Кнопка записи — фон", "Record button — background")),
+        p("all", "Фон панели", "Panel background",
+            c(Theme.key_chat_messagePanelBackground, "Фон", "Background"),
+            c(Theme.key_chat_messagePanelShadow, "Тень над панелью", "Shadow above panel")),
+    )
+
+    private val serviceParts = listOf(
+        p("all", "Плашка", "Pill",
+            c(Theme.key_chat_serviceBackground, "Фон плашки", "Pill background"),
+            c(Theme.key_chat_serviceText, "Текст", "Text"),
+            c(Theme.key_chat_serviceLink, "Ссылки", "Links"),
+            c(Theme.key_chat_serviceIcon, "Иконки", "Icons"),
+            size = SizeHooks.CHAT_SERVICE),
+    )
+
+    // ------------------------------------------------------------------ поиск частей
+
+    /** Границы дочернего view в координатах root. */
+    fun childBounds(root: View, child: View?, out: RectF): Boolean {
+        if (child == null || !child.isShown || child.width == 0) return false
+        val a = IntArray(2)
+        val b = IntArray(2)
+        root.getLocationOnScreen(a)
+        child.getLocationOnScreen(b)
+        out.set((b[0] - a[0]).toFloat(), (b[1] - a[1]).toFloat(), (b[0] - a[0] + child.width).toFloat(), (b[1] - a[1] + child.height).toFloat())
+        return true
+    }
+
+    private fun whole(root: View, out: RectF): Boolean {
+        out.set(0f, 0f, root.width.toFloat(), root.height.toFloat())
+        return true
+    }
+
+    private fun children(v: View): List<View> =
+        if (v is ViewGroup) (0 until v.childCount).map { v.getChildAt(it) }.filter { it.isShown } else emptyList()
+
+    private fun isText(v: View) = v is SimpleTextView || v is AnimatedTextView || v is TextView && v !is EditText
+
+    /** Пункт настроек: текст — левый текстовый ребёнок, значение — правый, иконка, переключатель. */
+    private fun settingsBounds(root: View, part: String, out: RectF): Boolean {
+        val kids = children(root)
+        val texts = kids.filter { isText(it) }.sortedBy { it.left }
+        return when (part) {
+            "switch" -> childBounds(root, kids.firstOrNull { it is Switch }, out)
+            "icon" -> childBounds(root, kids.firstOrNull { it is ImageView && it !is Switch }, out)
+            "value" -> texts.size > 1 && childBounds(root, texts.last(), out)
+            "text" -> if (texts.isEmpty() && root is TextView) whole(root, out) else childBounds(root, texts.firstOrNull(), out)
+            "all" -> whole(root, out)
+            else -> false
+        }
+    }
+
+    private fun actionBarBounds(root: View, part: String, out: RectF): Boolean {
+        val ab = root as ActionBar
+        return when (part) {
+            "title" -> childBounds(root, ab.titleTextView, out)
+            "subtitle" -> childBounds(root, ab.subtitleTextView, out)
+            "back" -> childBounds(root, ab.backButton, out)
+            "menu" -> childBounds(root, ab.menu, out)
+            "all" -> whole(root, out)
+            else -> false
+        }
+    }
+
+    private fun enterBounds(root: View, part: String, out: RectF): Boolean {
+        fun find(v: View, pred: (View) -> Boolean): View? {
+            if (pred(v)) return v
+            for (c in children(v)) find(c, pred)?.let { return it }
+            return null
+        }
+        return when (part) {
+            "field" -> childBounds(root, find(root) { it is EditText }, out)
+            // кнопки — объединение всех иконок панели; поле ввода проверяется раньше, поэтому не перекрывается
+            "buttons" -> {
+                val icons = ArrayList<View>()
+                fun collect(v: View) {
+                    if (v is ImageView && v.isShown) icons += v
+                    children(v).forEach { collect(it) }
+                }
+                collect(root)
+                val r = RectF()
+                var any = false
+                for (icon in icons) if (childBounds(root, icon, r)) {
+                    if (!any) out.set(r) else out.union(r)
+                    any = true
+                }
+                any
+            }
+            "all" -> whole(root, out)
+            else -> false
+        }
+    }
 
     // ------------------------------------------------------------------ остальные элементы
 
@@ -221,17 +446,19 @@ object ThemeCatalog {
             c(Theme.key_profile_verifiedCheck, "Галочка верификации — знак", "Verified badge — check")),
     )
 
-    /** Заготовки без настроек по уровням — только цвета темы. Порядок важен: первая подходящая побеждает. */
+    /** Заготовки без настроек по уровням (только цвета и размеры). Порядок важен: первая подходящая побеждает. */
     val specs: List<EditorSpec> = listOf(
-        CatalogSpec("dialog", "Чат в списке", "Chat in the list", dialogCell) { it is DialogCell },
-        CatalogSpec("service", "Служебное сообщение", "Service message", serviceMessage) { it is ChatActionCell },
-        CatalogSpec("enter", "Поле ввода сообщения", "Message input", enterView) { it is ChatActivityEnterView },
+        CatalogSpec("dialog", "Чат в списке", "Chat in the list", dialogCell, dialogParts,
+            { v, part, out -> part == "all" && whole(v, out) || (v as DialogCell).getCustomPartBounds(part, out) }) { it is DialogCell },
+        CatalogSpec("service", "Служебное сообщение", "Service message", serviceMessage, serviceParts,
+            { v, _, out -> whole(v, out) }) { it is ChatActionCell },
+        CatalogSpec("enter", "Поле ввода сообщения", "Message input", enterView, enterParts, ::enterBounds) { it is ChatActivityEnterView },
         CatalogSpec("tabs", "Нижние вкладки", "Bottom tabs", bottomTabs) { it is MainTabsLayout || it is GlassTabView },
-        CatalogSpec("actionbar", "Верхняя панель", "Top bar", actionBar) { it is ActionBar },
+        CatalogSpec("actionbar", "Верхняя панель", "Top bar", actionBar, actionBarParts, ::actionBarBounds) { it is ActionBar },
         CatalogSpec("profile", "Шапка профиля", "Profile header", profileHeader) {
             it.javaClass.name.startsWith("org.telegram.ui.ProfileActivity$")
         },
-        CatalogSpec("settings", "Пункт настроек", "Settings row", settingsCell) {
+        CatalogSpec("settings", "Пункт настроек", "Settings row", settingsCell, settingsParts, ::settingsBounds) {
             it is TextCell || it is TextSettingsCell || it is TextCheckCell || it is HeaderCell ||
                 it is TextInfoPrivacyCell || it is ShadowSectionCell || it is NotificationsCheckCell ||
                 it is TextDetailSettingsCell || it is RadioCell || it is SettingsActivity.SettingCell
@@ -279,12 +506,17 @@ object ThemeCatalog {
     }
 }
 
-/** Заготовка из каталога: элемент без своих настроек по уровням, только цвета темы. */
+/**
+ * Заготовка из каталога: элемент без своих настроек по уровням — цвета темы
+ * и размеры, разложенные по видимым частям.
+ */
 class CatalogSpec(
     private val id: String,
     private val ru: String,
     private val en: String,
     private val groups: List<ThemeCatalog.ColorGroup>,
+    private val partList: List<EditorSpec.Part> = emptyList(),
+    private val bounds: (View, String, RectF) -> Boolean = { _, _, _ -> false },
     private val matcher: (View) -> Boolean,
 ) : EditorSpec {
     override fun handles(view: View) = matcher(view)
@@ -292,9 +524,12 @@ class CatalogSpec(
     override fun title(view: View) = EngineStrings.pick(ru, en)
     override fun dialogId(view: View) = 0L
     override fun account(view: View) = org.telegram.messenger.UserConfig.selectedAccount
-    override fun parts(view: View) = emptyList<EditorSpec.Part>()
-    override fun partBounds(view: View, partId: String, out: android.graphics.RectF) = false
+    override fun parts(view: View) = partList
+    override fun partBounds(view: View, partId: String, out: RectF) = bounds(view, partId, out)
     override fun props(view: View) = emptyList<EditorSpec.Prop>()
     override fun colorGroups(view: View) = groups
-    override fun apply(view: View) = view.invalidate()
+    override fun apply(view: View) {
+        view.requestLayout()
+        view.invalidate()
+    }
 }

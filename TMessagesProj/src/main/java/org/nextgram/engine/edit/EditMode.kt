@@ -154,7 +154,7 @@ object EditMode {
         val root = a.window.decorView
         val hit = HitTest.deepestAt(root, downX.toInt(), downY.toInt(), overlay) ?: return
         root.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-        select(SpecRegistry.targetFor(hit))
+        select(SpecRegistry.targetFor(hit, downX, downY))
     }
 
     private fun isInside(t: EditTarget, x: Float, y: Float): Boolean {
@@ -182,6 +182,13 @@ object EditMode {
     }
 
     // ------------------------------------------------------------------ выбор
+
+    /** Переключить выбранную часть того же элемента (из панели свойств). */
+    internal fun selectPart(part: String?) {
+        selected?.part = part
+        overlay?.onSelectionChanged()
+        sheet?.rebuild()
+    }
 
     internal fun select(t: EditTarget) {
         selected = t

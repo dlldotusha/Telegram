@@ -1272,6 +1272,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             paintIndex = 0;
             thumbSize = 19;
         }
+        org.nextgram.engine.hooks.SizeHooks.applyDialogSizes(); // nextgram
 
         currentDialogFolderDialogsCount = 0;
         CharSequence nameString = "";
@@ -6546,5 +6547,32 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             }
             invalidate();
         }
+    }
+
+    // nextgram: границы видимых частей (аватар, название, превью, время, счётчик) для редактора NextEngine
+    public boolean getCustomPartBounds(String part, android.graphics.RectF out) {
+        switch (part) {
+            case "avatar":
+                out.set(avatarImage.getImageX(), avatarImage.getImageY(), avatarImage.getImageX2(), avatarImage.getImageY2());
+                return true;
+            case "name":
+                if (nameLayout == null) return false;
+                int nameTop = dp(useForceThreeLines || SharedConfig.useThreeLinesLayout ? 10 : 14);
+                out.set(nameLeft, nameTop, nameLeft + nameWidth, nameTop + nameLayout.getHeight());
+                return true;
+            case "message":
+                if (messageLayout == null) return false;
+                out.set(messageLeft, messageTop, messageLeft + messageLayout.getWidth(), messageTop + messageLayout.getHeight());
+                return true;
+            case "time":
+                if (timeLayout == null) return false;
+                out.set(timeLeft, timeTop, timeLeft + timeLayout.getWidth(), timeTop + timeLayout.getHeight());
+                return true;
+            case "counter":
+                if (!drawCount || countLayout == null) return false;
+                out.set(countLeft - dp(5.5f), countTop, countLeft + countWidth + dp(5.5f), countTop + dp(23));
+                return true;
+        }
+        return false;
     }
 }

@@ -12,8 +12,18 @@ import android.view.View
  */
 interface EditorSpec {
 
-    /** Часть элемента: время, просмотры, текст... */
-    data class Part(val id: String, val title: String, val hideable: Boolean)
+    /**
+     * Видимая часть элемента — так, как её выделил бы человек: пузырь, текст,
+     * время, счётчик... У части свои цвета темы и, если есть, свой размер текста.
+     */
+    data class Part(
+        val id: String,
+        val title: String,
+        val hideable: Boolean = false,
+        val colors: List<ThemeCatalog.ColorItem> = emptyList(),
+        /** id размера в SizeHooks или null, если размер не настраивается. */
+        val sizeId: String? = null,
+    )
 
     /** Редактируемое свойство. part == null — свойство самого элемента. */
     data class Prop(

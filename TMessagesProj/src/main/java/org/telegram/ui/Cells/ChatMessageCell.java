@@ -29624,4 +29624,29 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         out.set(drawTimeX, y, drawTimeX + timeTextWidth, y + timeLayout.getHeight());
         return true;
     }
+
+    // nextgram: границы видимых частей сообщения (пузырь, текст, имя, ответ, время) для редактора NextEngine
+    public boolean getCustomPartBounds(String part, android.graphics.RectF out) {
+        switch (part) {
+            case "time":
+                return getCustomTimeBounds(out);
+            case "bubble":
+                if (currentBackgroundDrawable == null) return false;
+                out.set(getBackgroundDrawableLeft(), getBackgroundDrawableTop(), getBackgroundDrawableRight(), getBackgroundDrawableBottom());
+                return true;
+            case "text":
+                if (currentMessageObject == null || currentMessageObject.textLayoutBlocks == null || currentMessageObject.textLayoutBlocks.isEmpty()) return false;
+                out.set(textX, textY, textX + currentMessageObject.textWidth, textY + currentMessageObject.textHeight());
+                return true;
+            case "name":
+                if (!drawNameLayout || nameLayout == null) return false;
+                out.set(nameX, nameY, nameX + nameLayout.getWidth(), nameY + nameLayout.getHeight());
+                return true;
+            case "reply":
+                if (replyNameLayout == null) return false;
+                out.set(replyStartX, replyStartY, replyStartX + Math.max(replyNameWidth, replyTextWidth) + dp(12), replyStartY + replyHeight);
+                return true;
+        }
+        return false;
+    }
 }

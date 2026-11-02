@@ -11,14 +11,28 @@ object SpecRegistry {
     @JvmStatic
     fun find(view: View): EditorSpec? = specs.firstOrNull { it.handles(view) }
 
-    /** Цель редактирования для точки: ближайший предок с заготовкой, иначе сам view в авторежиме. */
+    /**
+     * Цель редактирования для точки экрана: ближайший предок с заготовкой и его
+     * видимая часть под пальцем (части проверяются по порядку — мелкие раньше крупных).
+     * Если заготовки нет — сам view в авторежиме.
+     */
     @JvmStatic
-    fun targetFor(deepest: View): EditTarget {
+    fun targetFor(deepest: View, rawX: Float = Float.NaN, rawY: Float = Float.NaN): EditTarget {
         var v: View? = deepest
         while (v != null) {
-            find(v)?.let { return EditTarget(v!!, it) }
+            val spec = find(v)
+            if (spec != null) return EditTarget(v, spec, if (rawX.isNaN()) null else partAt(v, spec, rawX, rawY))
             v = v.parent as? View
         }
         return EditTarget(deepest, AutoSpec)
+    }
+
+    private fun partAt(view: View, spec: EditorSpec, rawX: Float, rawY: Float): String? {
+        val loc = IntArray(2)
+        view.getLocationOnScreen(loc)
+        val x = rawX - loc[0]
+        val y = rawY - loc[1]
+        val r = android.graphics.RectF()
+        return spec.parts(view).firstOrNull { spec.partBounds(view, it.id, r) && r.contains(x, y) }?.id
     }
 }

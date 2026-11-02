@@ -10,6 +10,15 @@ object EngineStrings {
 
     // ключ → [ru, en]
     private val strings = hashMapOf(
+        "other_parts" to arrayOf("Другие части элемента", "Other parts of the element"),
+        "parts" to arrayOf("Части элемента", "Parts of the element"),
+        "parts_hint" to arrayOf("Можно и прямо на экране: зажмите нужную часть.", "Or long-press the part right on the screen."),
+        "all_colors" to arrayOf("Все цвета элемента", "All element colors"),
+        "hide_all_colors" to arrayOf("Свернуть все цвета", "Collapse all colors"),
+        "text_size" to arrayOf("Размер текста", "Text size"),
+        "text_size_messages" to arrayOf("Размер текста сообщений (как в «Оформлении»)", "Message text size (same as in Appearance)"),
+        "scoped_header" to arrayOf("Для разных чатов по-разному", "Different per chat"),
+        "color_here" to arrayOf("Свой цвет", "Own color"),
         "scope_info" to arrayOf("Куда сохраняются настройки ниже: везде, для типа чатов, папки или только этого чата. Цвета темы всегда общие.", "Where the settings below are saved: everywhere, a chat type, a folder or just this chat. Theme colors are always shared."),
         "inherited" to arrayOf("Унаследовано:", "Inherited:"),
         "reset_colors" to arrayOf("Сбросить цвета элемента", "Reset element colors"),
