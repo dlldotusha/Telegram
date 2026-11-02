@@ -59,7 +59,6 @@ jobs:
       CCACHE_COMPILERCHECK: content
       CCACHE_NOHASHDIR: 'true'
       NG_BUILD_NUMBER: ${{ github.run_number }}
-      NG_VERSION_SUFFIX: -ng${{ github.run_number }}
     steps:
       - name: Освободить место на диске
         run: |
@@ -75,6 +74,15 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Версия NextGram
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # 0.0.N, где N — номер релиза по порядку (без пропусков, в отличие от номера запуска CI)
+          COUNT=$(gh api "repos/${{ github.repository }}/releases?per_page=100" --jq 'length')
+          echo "NG_VERSION_NAME=0.0.$((COUNT + 1))" >> "$GITHUB_ENV"
+          echo "Версия: 0.0.$((COUNT + 1))"
 
       - name: Пакеты Android SDK
         run: |
@@ -139,7 +147,8 @@ jobs:
       - name: Подготовка файлов
         id: out
         run: |
-          VERSION="$(grep '^APP_VERSION_NAME=' gradle.properties | cut -d= -f2)${NG_VERSION_SUFFIX}"
+          VERSION="$NG_VERSION_NAME"
+          echo "telegram=$(grep '^APP_VERSION_NAME=' gradle.properties | cut -d= -f2)" >> "$GITHUB_OUTPUT"
           mkdir -p out
           cp TMessagesProj_App/build/outputs/apk/afat/release/app.apk "out/NextGram-${VERSION}.apk"
           (cd out && sha256sum *.apk > SHA256SUMS.txt)
@@ -156,6 +165,8 @@ jobs:
             out/*.apk
             out/SHA256SUMS.txt
           body: |
+            NextGram ${{ steps.out.outputs.version }} · на основе Telegram ${{ steps.out.outputs.telegram }} · arm64
+
             Сборка из `${{ github.sha }}` (ветка `${{ github.ref_name }}`).
 
             ${{ github.event.head_commit.message }}

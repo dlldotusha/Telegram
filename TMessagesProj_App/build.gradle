@@ -177,7 +177,7 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 36
-        versionName APP_VERSION_NAME + (System.getenv("NG_VERSION_SUFFIX") ?: "") // nextgram
+        versionName System.getenv("NG_VERSION_NAME") ?: "0.0.0-dev" // nextgram: своя версия NextGram (0.0.N из CI)
         ndkVersion "27.2.12479018"
 
         multiDexEnabled true
