@@ -8997,7 +8997,7 @@ public class Theme {
                 return animatingColors.valueAt(index);
             }
         }
-        if (org.telegram.custom.CustomColors.has(key)) return org.telegram.custom.CustomColors.get(key); // custom
+        if (org.nextgram.engine.EngineColors.has(key)) return org.nextgram.engine.EngineColors.get(key); // nextgram
         if (serviceBitmapShader != null && (key_chat_serviceText == key || key_chat_serviceLink == key || key_chat_serviceIcon == key
                 || key_chat_stickerReplyLine == key || key_chat_stickerReplyNameText == key || key_chat_stickerReplyMessageText == key)) {
             return 0xffffffff;

@@ -1,8 +1,8 @@
-package org.telegram.custom.hooks;
+package org.nextgram.engine.hooks;
 
-import org.telegram.custom.Customize;
-import org.telegram.custom.core.ResolvedElement;
-import org.telegram.custom.edit.EditMode;
+import org.nextgram.engine.NextEngine;
+import org.nextgram.engine.core.ResolvedElement;
+import org.nextgram.engine.edit.EditMode;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.time.FastDateFormat;
@@ -36,7 +36,7 @@ public final class MessageCellHooks {
         if (mo == null) {
             return ResolvedElement.EMPTY;
         }
-        return Customize.resolve(mo.currentAccount, mo.getDialogId(), elementId(mo));
+        return NextEngine.resolve(mo.currentAccount, mo.getDialogId(), elementId(mo));
     }
 
     /** Форматтер времени сообщения: стандартный или с секундами. */

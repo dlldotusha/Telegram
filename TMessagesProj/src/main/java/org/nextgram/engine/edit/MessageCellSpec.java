@@ -1,10 +1,10 @@
-package org.telegram.custom.edit;
+package org.nextgram.engine.edit;
 
 import android.graphics.RectF;
 import android.view.View;
 
-import org.telegram.custom.CustomStrings;
-import org.telegram.custom.hooks.MessageCellHooks;
+import org.nextgram.engine.EngineStrings;
+import org.nextgram.engine.hooks.MessageCellHooks;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.UserConfig;
 import org.telegram.ui.Cells.ChatMessageCell;
@@ -36,7 +36,7 @@ public final class MessageCellSpec implements EditorSpec {
     @Override
     public String title(View view) {
         MessageObject m = mo(view);
-        return CustomStrings.get(m != null && m.isOutOwner() ? "msg_out" : "msg_in");
+        return EngineStrings.get(m != null && m.isOutOwner() ? "msg_out" : "msg_in");
     }
 
     @Override
@@ -54,7 +54,7 @@ public final class MessageCellSpec implements EditorSpec {
     @Override
     public List<Part> parts(View view) {
         ArrayList<Part> parts = new ArrayList<>();
-        parts.add(new Part(MessageCellHooks.PART_TIME, CustomStrings.get("part_time"), true));
+        parts.add(new Part(MessageCellHooks.PART_TIME, EngineStrings.get("part_time"), true));
         return parts;
     }
 
@@ -75,9 +75,9 @@ public final class MessageCellSpec implements EditorSpec {
     public List<Prop> props(View view) {
         String time = MessageCellHooks.PART_TIME;
         ArrayList<Prop> props = new ArrayList<>();
-        props.add(new Prop(time, MessageCellHooks.PROP_SECONDS, Prop.Type.BOOL, CustomStrings.get("seconds"), false));
-        props.add(new Prop(time, MessageCellHooks.PROP_COLOR, Prop.Type.COLOR, CustomStrings.get("color"), false));
-        props.add(new Prop(time, MessageCellHooks.PROP_HIDDEN, Prop.Type.BOOL, CustomStrings.get("hidden"), false));
+        props.add(new Prop(time, MessageCellHooks.PROP_SECONDS, Prop.Type.BOOL, EngineStrings.get("seconds"), false));
+        props.add(new Prop(time, MessageCellHooks.PROP_COLOR, Prop.Type.COLOR, EngineStrings.get("color"), false));
+        props.add(new Prop(time, MessageCellHooks.PROP_HIDDEN, Prop.Type.BOOL, EngineStrings.get("hidden"), false));
         return Collections.unmodifiableList(props);
     }
 

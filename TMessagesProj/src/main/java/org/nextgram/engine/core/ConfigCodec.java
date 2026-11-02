@@ -1,4 +1,4 @@
-package org.telegram.custom.core;
+package org.nextgram.engine.core;
 
 import org.json.JSONException;
 import org.json.JSONObject;

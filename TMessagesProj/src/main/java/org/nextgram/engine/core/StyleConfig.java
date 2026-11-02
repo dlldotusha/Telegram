@@ -1,4 +1,4 @@
-package org.telegram.custom.core;
+package org.nextgram.engine.core;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -13,7 +13,7 @@ import java.util.Set;
  * themeColors: тема → имя цветового ключа Telegram → цвет. Это «базовый»
  * режим: цвет ключа темы, который меняется везде, где ключ используется.
  *
- * Класс не потокобезопасен: меняйте его только с UI-потока (через Customize.edit).
+ * Класс не потокобезопасен: меняйте его только с UI-потока (через NextEngine.edit).
  */
 public final class StyleConfig {
 

@@ -1,4 +1,4 @@
-package org.telegram.custom.edit;
+package org.nextgram.engine.edit;
 
 import android.view.View;
 import android.view.ViewGroup;

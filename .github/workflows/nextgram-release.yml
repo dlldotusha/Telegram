@@ -1,0 +1,136 @@
+name: NextGram release
+
+# Каждый пуш в ветку nextgram: проверка Java и тестов NextEngine,
+# затем сборка APK и публикация в Releases.
+on:
+  push:
+    branches: [nextgram]
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextgram-release
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: '17'
+  NDK_VERSION: '27.2.12479018'
+
+jobs:
+  check:
+    name: Java + тесты NextEngine
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Тесты ядра NextEngine
+        run: |
+          curl -sSfLo /tmp/json.jar https://repo1.maven.org/maven2/org/json/json/20240303/json-20240303.jar
+          JSON_CP=/tmp/json.jar ./nextengine-tests/run.sh
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Компиляция Java (без нативной части)
+        run: ./gradlew :TMessagesProj:compileReleaseJavaWithJavac --stacktrace
+
+  apk:
+    name: Сборка APK и релиз
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    env:
+      # Только ARM: так собирается вдвое быстрее, а телефоны x86 почти не встречаются.
+      NG_ABIS: arm64-v8a,armeabi-v7a
+      NG_BUILD_NUMBER: ${{ github.run_number }}
+      NG_VERSION_SUFFIX: -ng${{ github.run_number }}
+    steps:
+      - name: Освободить место на диске
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/node_modules /opt/ghc /usr/local/.ghcup \
+                      /usr/share/swift /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          df -h /
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Пакеты Android SDK
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-36" "build-tools;36.0.0" "ndk;${NDK_VERSION}" "cmake;3.22.1" > /dev/null
+
+      - name: Секреты → файлы сборки
+        env:
+          KEYSTORE_BASE64: ${{ secrets.NG_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.NG_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.NG_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.NG_KEY_PASSWORD }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.NG_GOOGLE_SERVICES_JSON }}
+          TELEGRAM_APP_ID: ${{ secrets.NG_TELEGRAM_APP_ID }}
+          TELEGRAM_APP_HASH: ${{ secrets.NG_TELEGRAM_APP_HASH }}
+        run: |
+          {
+            echo "sdk.dir=$ANDROID_HOME"
+            if [ -n "$TELEGRAM_APP_ID" ] && [ -n "$TELEGRAM_APP_HASH" ]; then
+              echo "TELEGRAM_APP_ID=$TELEGRAM_APP_ID"
+              echo "TELEGRAM_APP_HASH=$TELEGRAM_APP_HASH"
+            fi
+          } > local.properties
+          [ -n "$TELEGRAM_APP_ID" ] || echo "::warning::NG_TELEGRAM_APP_ID не задан — сборка с тестовым api_id из исходников Telegram (не для постоянного использования)"
+
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > TMessagesProj/config/release.keystore
+            echo "ORG_GRADLE_PROJECT_RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "ORG_GRADLE_PROJECT_RELEASE_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+            echo "ORG_GRADLE_PROJECT_RELEASE_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
+          else
+            echo "::warning::NG_KEYSTORE_BASE64 не задан — APK подписан публичным ключом из исходников Telegram"
+          fi
+
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > TMessagesProj_App/google-services.json
+          else
+            echo "::warning::NG_GOOGLE_SERVICES_JSON не задан — пуши через FCM работать не будут"
+          fi
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Сборка
+        run: ./gradlew :TMessagesProj_App:assembleAfatRelease --stacktrace
+
+      - name: Подготовка файлов
+        id: out
+        run: |
+          VERSION="$(grep '^APP_VERSION_NAME=' gradle.properties | cut -d= -f2)${NG_VERSION_SUFFIX}"
+          mkdir -p out
+          cp TMessagesProj_App/build/outputs/apk/afat/release/app.apk "out/NextGram-${VERSION}.apk"
+          (cd out && sha256sum *.apk > SHA256SUMS.txt)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          ls -la out
+
+      - name: Релиз на GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.out.outputs.version }}
+          name: NextGram ${{ steps.out.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          files: |
+            out/*.apk
+            out/SHA256SUMS.txt
+          body: |
+            Сборка из `${{ github.sha }}` (ветка `${{ github.ref_name }}`).
+
+            ${{ github.event.head_commit.message }}

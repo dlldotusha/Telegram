@@ -1,4 +1,4 @@
-package org.telegram.custom.edit;
+package org.nextgram.engine.edit;
 
 import android.content.Context;
 import android.view.View;
@@ -6,10 +6,10 @@ import android.view.ViewParent;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
-import org.telegram.custom.CustomColors;
-import org.telegram.custom.CustomStrings;
-import org.telegram.custom.Customize;
-import org.telegram.custom.core.ResolvedElement;
+import org.nextgram.engine.EngineColors;
+import org.nextgram.engine.EngineStrings;
+import org.nextgram.engine.NextEngine;
+import org.nextgram.engine.core.ResolvedElement;
 import org.telegram.messenger.FileLog;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
@@ -157,7 +157,7 @@ final class EditorSheet extends BottomSheet {
 
         // Уровень сохранения
         TextSettingsCell scopeCell = new TextSettingsCell(context);
-        scopeCell.setTextAndValue(CustomStrings.get("save_to"), scope.label, true);
+        scopeCell.setTextAndValue(EngineStrings.get("save_to"), scope.label, true);
         scopeCell.setBackground(Theme.getSelectorDrawable(false));
         scopeCell.setOnClickListener(v -> chooseScope(scopes));
         list.addView(scopeCell);
@@ -185,23 +185,23 @@ final class EditorSheet extends BottomSheet {
             }
             if (anyHideable) {
                 TextSettingsCell hide = new TextSettingsCell(context);
-                hide.setText(CustomStrings.get("hide_by_tap"), false);
+                hide.setText(EngineStrings.get("hide_by_tap"), false);
                 hide.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4));
                 hide.setBackground(Theme.getSelectorDrawable(false));
                 hide.setOnClickListener(v -> EditMode.startHideByTap());
                 list.addView(hide);
             }
             TextInfoPrivacyCell hint = new TextInfoPrivacyCell(context);
-            hint.setText(CustomStrings.get("long_press_reset"));
+            hint.setText(EngineStrings.get("long_press_reset"));
             list.addView(hint);
         } else {
             TextInfoPrivacyCell info = new TextInfoPrivacyCell(context);
-            info.setText(CustomStrings.get("no_spec"));
+            info.setText(EngineStrings.get("no_spec"));
             list.addView(info);
             final EditTarget parent = target.parent();
             if (parent != null) {
                 TextSettingsCell up = new TextSettingsCell(context);
-                up.setText(CustomStrings.get("parent") + " (" + parent.title + ")", false);
+                up.setText(EngineStrings.get("parent") + " (" + parent.title + ")", false);
                 up.setBackground(Theme.getSelectorDrawable(false));
                 up.setOnClickListener(v -> EditMode.select(parent));
                 list.addView(up);
@@ -211,30 +211,30 @@ final class EditorSheet extends BottomSheet {
         // Цвета темы
         if (!themeKeys.isEmpty()) {
             HeaderCell h = new HeaderCell(context);
-            h.setText(CustomStrings.get("theme_colors"));
+            h.setText(EngineStrings.get("theme_colors"));
             list.addView(h);
             int n = 0;
             for (Map.Entry<Integer, ArrayList<ThemeDescription>> e : themeKeys.entrySet()) {
                 list.addView(themeColorRow(context, e.getKey(), e.getValue(), ++n < themeKeys.size()));
             }
             TextInfoPrivacyCell info = new TextInfoPrivacyCell(context);
-            info.setText(CustomStrings.get("theme_colors_info"));
+            info.setText(EngineStrings.get("theme_colors_info"));
             list.addView(info);
         }
 
         if (!target.isAuto()) {
             TextSettingsCell reset = new TextSettingsCell(context);
-            reset.setText(CustomStrings.get("reset_element"), false);
+            reset.setText(EngineStrings.get("reset_element"), false);
             reset.setTextColor(Theme.getColor(Theme.key_text_RedRegular));
             reset.setBackground(Theme.getSelectorDrawable(false));
-            reset.setOnClickListener(v -> Customize.edit(c -> c.clearElement(scope.scope, target.elementId)));
+            reset.setOnClickListener(v -> NextEngine.edit(c -> c.clearElement(scope.scope, target.elementId)));
             list.addView(reset);
         }
     }
 
     private View propRow(Context context, EditorSpec.Prop prop, ResolvedElement style, List<ScopeOption> scopes, ScopeOption scope, boolean divider) {
         String source = style.sourceOf(prop.part, prop.key);
-        String from = source == null ? CustomStrings.get("not_set") : CustomStrings.format("from", ScopeOption.labelFor(source, scopes));
+        String from = source == null ? EngineStrings.get("not_set") : EngineStrings.format("from", ScopeOption.labelFor(source, scopes));
         View row;
         if (prop.type == EditorSpec.Prop.Type.BOOL) {
             boolean value = style.getBool(prop.part, prop.key, prop.defaultBool);
@@ -258,7 +258,7 @@ final class EditorSheet extends BottomSheet {
     }
 
     private void write(ScopeOption scope, EditorSpec.Prop prop, Object value) {
-        Customize.edit(c -> c.set(scope.scope, target.elementId, prop.part, prop.key, value));
+        NextEngine.edit(c -> c.set(scope.scope, target.elementId, prop.part, prop.key, value));
         // Сбросили на уровне, а значение всё ещё приходит с более общего — для BOOL это ожидаемо,
         // пользователь видит источник в строке «из: …».
     }
@@ -266,7 +266,7 @@ final class EditorSheet extends BottomSheet {
     private View themeColorRow(Context context, int key, ArrayList<ThemeDescription> descriptions, boolean divider) {
         String name = ThemeColors.getStringName(key);
         int color = descriptions.isEmpty() ? Theme.getColor(key) : descriptions.get(0).getSetColor();
-        boolean overridden = CustomColors.has(key);
+        boolean overridden = EngineColors.has(key);
         TextColorCell cell = new TextColorCell(context);
         cell.setTextAndColor(overridden ? name + " ✎" : name, color, divider);
         cell.setBackground(Theme.getSelectorDrawable(false));
@@ -279,8 +279,8 @@ final class EditorSheet extends BottomSheet {
     }
 
     private void setThemeColor(int key, String name, Integer argb) {
-        final String themeKey = CustomColors.themeKey();
-        Customize.edit(c -> c.setThemeColor(themeKey, name, argb));
+        final String themeKey = EngineColors.themeKey();
+        NextEngine.edit(c -> c.setThemeColor(themeKey, name, argb));
         // Применяем сразу ко всем описаниям экрана с этим ключом, не трогая файл темы.
         for (ThemeDescription d : screenDescriptions) {
             if (d != null && d.getCurrentKey() == key) {
@@ -307,7 +307,7 @@ final class EditorSheet extends BottomSheet {
             items[i] = scopes.get(i).label;
         }
         new AlertDialog.Builder(getContext())
-                .setTitle(CustomStrings.get("save_to"))
+                .setTitle(EngineStrings.get("save_to"))
                 .setItems(items, (dialog, which) -> {
                     EditMode.setPreferredScope(scopes.get(which));
                     rebuild();

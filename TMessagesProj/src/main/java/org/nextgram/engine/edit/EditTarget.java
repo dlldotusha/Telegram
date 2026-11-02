@@ -1,11 +1,11 @@
-package org.telegram.custom.edit;
+package org.nextgram.engine.edit;
 
 import android.graphics.RectF;
 import android.view.View;
 import android.view.ViewParent;
 
-import org.telegram.custom.Customize;
-import org.telegram.custom.core.ResolvedElement;
+import org.nextgram.engine.NextEngine;
+import org.nextgram.engine.core.ResolvedElement;
 
 import java.lang.ref.WeakReference;
 
@@ -42,7 +42,7 @@ public final class EditTarget {
     }
 
     public ResolvedElement style() {
-        return Customize.resolve(account, dialogId, elementId);
+        return NextEngine.resolve(account, dialogId, elementId);
     }
 
     /** Родительский элемент — для авторежима, когда палец попал во вложенный view. */

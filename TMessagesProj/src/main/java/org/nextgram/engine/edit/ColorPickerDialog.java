@@ -1,4 +1,4 @@
-package org.telegram.custom.edit;
+package org.nextgram.engine.edit;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,8 +19,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import org.telegram.custom.CustomStrings;
-import org.telegram.custom.core.Colors;
+import org.nextgram.engine.EngineStrings;
+import org.nextgram.engine.core.Colors;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.Theme;
@@ -45,7 +45,7 @@ final class ColorPickerDialog {
         layout.addView(picker, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 260));
 
         EditText hex = new EditText(context);
-        hex.setHint(CustomStrings.get("hex"));
+        hex.setHint(EngineStrings.get("hex"));
         hex.setSingleLine(true);
         hex.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         hex.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
@@ -83,9 +83,9 @@ final class ColorPickerDialog {
         new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setView(layout)
-                .setPositiveButton(CustomStrings.get("done"), (d, w) -> callback.onPicked(picker.color()))
-                .setNeutralButton(CustomStrings.get("reset"), (d, w) -> callback.onPicked(null))
-                .setNegativeButton(CustomStrings.get("cancel"), null)
+                .setPositiveButton(EngineStrings.get("done"), (d, w) -> callback.onPicked(picker.color()))
+                .setNeutralButton(EngineStrings.get("reset"), (d, w) -> callback.onPicked(null))
+                .setNegativeButton(EngineStrings.get("cancel"), null)
                 .show();
     }
 

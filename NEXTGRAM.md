@@ -12,20 +12,20 @@
 - **Авторежим для всего остального.** Это цвета темы, найденные через `ThemeDescription` текущего экрана. Цвет ключа меняется везде, где этот ключ используется, и сохраняется отдельно для каждой темы и акцента. Файл темы не меняется.
 - **Свой api_id и пуши через свой Firebase** (см. ниже).
 
-Конфиг лежит в `files/customize.json` внутри данных приложения. Формат описан в `ConfigCodec`. Если файл не читается, он переименовывается в `customize.json.broken`, а приложение стартует с пустым конфигом.
+Конфиг лежит в `files/nextengine.json` внутри данных приложения. Формат описан в `ConfigCodec`. Если файл не читается, он переименовывается в `nextengine.json.broken`, а приложение стартует с пустым конфигом.
 
 ## Где что лежит
 
 ```
-TMessagesProj/src/main/java/org/telegram/custom/
+TMessagesProj/src/main/java/org/nextgram/engine/
   core/            чистая Java без Android: модель, уровни, каскад, JSON (покрыто тестами)
-  Customize.java   загрузка/сохранение, кэш каскада, слушатели
+  NextEngine.java   загрузка/сохранение, кэш каскада, слушатели
   ScopeResolver    категория и папки чата
-  CustomColors     переопределение ключей темы (хук в Theme.getColor)
-  CustomStrings    строки ru/en (в strings.xml не лезем — меньше конфликтов)
+  EngineColors     переопределение ключей темы (хук в Theme.getColor)
+  EngineStrings    строки ru/en (в strings.xml не лезем — меньше конфликтов)
   hooks/           хуки для апстримных классов
   edit/            режим редактирования: оверлей, хит-тест, заготовки, панель, пикер цвета
-customize-tests/   тесты ядра на обычной JVM
+nextengine-tests/   тесты ядра на обычной JVM
 ```
 
 ## Правки в апстримных файлах
@@ -47,7 +47,7 @@ customize-tests/   тесты ядра на обычной JVM
 
 1. Класс `EditorSpec` в `custom/edit/`: id элемента, части с границами и свойства. Пример — `MessageCellSpec`.
 2. Строка в `SpecRegistry`.
-3. Хуки в апстримном классе: на каждое свойство одна строка, которая вызывает метод из `custom/hooks/`. Значения берите через `Customize.resolve(account, dialogId, elementId)`: кэш делает этот вызов дешёвым даже в `onDraw`.
+3. Хуки в апстримном классе: на каждое свойство одна строка, которая вызывает метод из `custom/hooks/`. Значения берите через `NextEngine.resolve(account, dialogId, elementId)`: кэш делает этот вызов дешёвым даже в `onDraw`.
 4. Если части нужно скрывать, отдайте их границы в `partBounds`, а в хуке не рисуйте часть и уберите её из раскладки. Спойлер в режиме редактирования оверлей нарисует сам.
 
 ## Пуши — как рекомендует Telegram
@@ -84,7 +84,7 @@ customize-tests/   тесты ядра на обычной JVM
 ## Проверка
 
 ```
-JSON_CP=/path/to/json.jar ./customize-tests/run.sh   # тесты ядра, нужен org.json для JVM
+JSON_CP=/path/to/json.jar ./nextengine-tests/run.sh   # тесты ядра, нужен org.json для JVM
 ```
 
 Сам APK собирается как обычный Telegram-Android, по инструкции из README апстрима (Android Studio + NDK).

@@ -8558,7 +8558,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (org.telegram.custom.edit.EditMode.dispatchTouchEvent(this, ev)) return true; // custom
+        if (org.nextgram.engine.edit.EditMode.dispatchTouchEvent(this, ev)) return true; // nextgram
         return super.dispatchTouchEvent(ev);
     }
 

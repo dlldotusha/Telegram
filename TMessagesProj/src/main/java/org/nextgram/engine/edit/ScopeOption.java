@@ -1,8 +1,8 @@
-package org.telegram.custom.edit;
+package org.nextgram.engine.edit;
 
-import org.telegram.custom.CustomStrings;
-import org.telegram.custom.ScopeResolver;
-import org.telegram.custom.core.Scopes;
+import org.nextgram.engine.EngineStrings;
+import org.nextgram.engine.ScopeResolver;
+import org.nextgram.engine.core.Scopes;
 import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.UserConfig;
@@ -27,7 +27,7 @@ public final class ScopeOption {
     /** Варианты для элемента: Везде → категория → папки чата → этот чат. */
     public static List<ScopeOption> forTarget(EditTarget t) {
         ArrayList<ScopeOption> out = new ArrayList<>();
-        out.add(new ScopeOption(Scopes.Kind.GLOBAL, Scopes.GLOBAL, CustomStrings.get("scope_global")));
+        out.add(new ScopeOption(Scopes.Kind.GLOBAL, Scopes.GLOBAL, EngineStrings.get("scope_global")));
         if (t == null || t.dialogId == 0) {
             return out;
         }
@@ -40,20 +40,20 @@ public final class ScopeOption {
         }
         Scopes.Category category = ScopeResolver.category(t.account, userDialogId);
         if (category != null) {
-            out.add(new ScopeOption(Scopes.Kind.CATEGORY, category.scope(), CustomStrings.get("cat_" + category.id)));
+            out.add(new ScopeOption(Scopes.Kind.CATEGORY, category.scope(), EngineStrings.get("cat_" + category.id)));
         }
         long self = UserConfig.getInstance(t.account).getClientUserId();
         for (MessagesController.DialogFilter f : ScopeResolver.folderObjects(t.account, t.dialogId, userDialogId, category)) {
-            out.add(new ScopeOption(Scopes.Kind.FOLDER, Scopes.folder(self, f.id), CustomStrings.format("scope_folder", f.name)));
+            out.add(new ScopeOption(Scopes.Kind.FOLDER, Scopes.folder(self, f.id), EngineStrings.format("scope_folder", f.name)));
         }
-        out.add(new ScopeOption(Scopes.Kind.CHAT, Scopes.chat(t.dialogId), CustomStrings.get("scope_chat")));
+        out.add(new ScopeOption(Scopes.Kind.CHAT, Scopes.chat(t.dialogId), EngineStrings.get("scope_chat")));
         return out;
     }
 
     /** Подпись для ключа уровня (для строки «из: …»). */
     public static String labelFor(String scope, List<ScopeOption> known) {
         if (scope == null) {
-            return CustomStrings.get("not_set");
+            return EngineStrings.get("not_set");
         }
         for (ScopeOption o : known) {
             if (o.scope.equals(scope)) {
@@ -62,9 +62,9 @@ public final class ScopeOption {
         }
         switch (Scopes.kindOf(scope)) {
             case GLOBAL:
-                return CustomStrings.get("scope_global");
+                return EngineStrings.get("scope_global");
             case CHAT:
-                return CustomStrings.get("scope_chat");
+                return EngineStrings.get("scope_chat");
             default:
                 return scope;
         }

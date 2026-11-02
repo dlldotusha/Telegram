@@ -1,4 +1,4 @@
-package org.telegram.custom.edit;
+package org.nextgram.engine.edit;
 
 import android.graphics.RectF;
 import android.view.View;

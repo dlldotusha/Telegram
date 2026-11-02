@@ -1,8 +1,8 @@
-package org.telegram.custom;
+package org.nextgram.engine;
 
-import org.telegram.custom.core.ConfigCodec;
-import org.telegram.custom.core.ResolvedElement;
-import org.telegram.custom.core.StyleConfig;
+import org.nextgram.engine.core.ConfigCodec;
+import org.nextgram.engine.core.ResolvedElement;
+import org.nextgram.engine.core.StyleConfig;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
@@ -25,13 +25,13 @@ import java.util.List;
  * Все чтения стиля идут через {@link #resolve} — он кэширует результат каскада
  * на чат, так что хуки в отрисовке почти ничего не стоят.
  */
-public final class Customize {
+public final class NextEngine {
 
     public interface Editor {
         void edit(StyleConfig config);
     }
 
-    private static final String FILE_NAME = "customize.json";
+    private static final String FILE_NAME = "nextengine.json";
     /** Членство чата в папках и категория могут меняться — кэш живёт недолго. */
     private static final long CACHE_TTL_MS = 30_000;
 
@@ -52,9 +52,9 @@ public final class Customize {
     }
 
     private static final HashMap<String, CacheEntry> cache = new HashMap<>();
-    private static final Runnable saveRunnable = Customize::saveNow;
+    private static final Runnable saveRunnable = NextEngine::saveNow;
 
-    private Customize() {
+    private NextEngine() {
     }
 
     /** Увеличивается при каждой правке; по нему инвалидируются кэши. */
@@ -66,7 +66,7 @@ public final class Customize {
     public static StyleConfig config() {
         StyleConfig c = config;
         if (c == null) {
-            synchronized (Customize.class) {
+            synchronized (NextEngine.class) {
                 c = config;
                 if (c == null) {
                     c = load();

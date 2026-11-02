@@ -1,4 +1,4 @@
-package org.telegram.custom.core;
+package org.nextgram.engine.core;
 
 import java.util.ArrayList;
 import java.util.List;

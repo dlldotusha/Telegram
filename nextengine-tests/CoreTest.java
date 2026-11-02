@@ -1,8 +1,8 @@
-import org.telegram.custom.core.Colors;
-import org.telegram.custom.core.ConfigCodec;
-import org.telegram.custom.core.ResolvedElement;
-import org.telegram.custom.core.Scopes;
-import org.telegram.custom.core.StyleConfig;
+import org.nextgram.engine.core.Colors;
+import org.nextgram.engine.core.ConfigCodec;
+import org.nextgram.engine.core.ResolvedElement;
+import org.nextgram.engine.core.Scopes;
+import org.nextgram.engine.core.StyleConfig;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Тесты ядра на обычной JVM, без Android.
- * Запуск: customize-tests/run.sh
+ * Запуск: nextengine-tests/run.sh
  */
 public class CoreTest {
 

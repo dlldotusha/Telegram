@@ -1,6 +1,6 @@
-package org.telegram.custom;
+package org.nextgram.engine;
 
-import org.telegram.custom.core.Scopes;
+import org.nextgram.engine.core.Scopes;
 import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.ContactsController;
 import org.telegram.messenger.DialogObject;

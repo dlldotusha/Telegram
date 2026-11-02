@@ -1,4 +1,4 @@
-package org.telegram.custom.edit;
+package org.nextgram.engine.edit;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -16,7 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.telegram.custom.CustomStrings;
+import org.nextgram.engine.EngineStrings;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.LayoutHelper;
@@ -84,7 +84,7 @@ final class EditOverlay extends FrameLayout {
         toolbar.addView(hintView, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1f, Gravity.CENTER_VERTICAL, 0, 8, 8, 8));
 
         doneView = new TextView(context);
-        doneView.setText(CustomStrings.get("done"));
+        doneView.setText(EngineStrings.get("done"));
         doneView.setTextColor(0xFF000000);
         doneView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
         doneView.setTypeface(AndroidUtilities.bold());
@@ -151,11 +151,11 @@ final class EditOverlay extends FrameLayout {
         EditTarget t = EditMode.selected();
         if (EditMode.isHideByTap() && t != null) {
             String scope = EditMode.currentScope(ScopeOption.forTarget(t)).label;
-            hintView.setText(CustomStrings.get("hide_by_tap_hint") + " · " + scope);
+            hintView.setText(EngineStrings.get("hide_by_tap_hint") + " · " + scope);
         } else if (t != null) {
             hintView.setText(t.title);
         } else {
-            hintView.setText(CustomStrings.get("customize_info"));
+            hintView.setText(EngineStrings.get("customize_info"));
         }
     }
 
@@ -174,7 +174,7 @@ final class EditOverlay extends FrameLayout {
             if (spec == null) {
                 return;
             }
-            org.telegram.custom.core.ResolvedElement style = org.telegram.custom.Customize.resolve(spec.account(v), spec.dialogId(v), spec.elementId(v));
+            org.nextgram.engine.core.ResolvedElement style = org.nextgram.engine.NextEngine.resolve(spec.account(v), spec.dialogId(v), spec.elementId(v));
             if (style.isEmpty()) {
                 return;
             }

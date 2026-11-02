@@ -1,4 +1,4 @@
-package org.telegram.custom.edit;
+package org.nextgram.engine.edit;
 
 import android.app.Activity;
 import android.graphics.RectF;
@@ -10,8 +10,8 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import org.telegram.custom.Customize;
-import org.telegram.custom.core.Scopes;
+import org.nextgram.engine.NextEngine;
+import org.nextgram.engine.core.Scopes;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.ui.Components.RecyclerListView;
 
@@ -68,8 +68,8 @@ public final class EditMode {
         ViewGroup decor = (ViewGroup) activity.getWindow().getDecorView();
         overlay = new EditOverlay(activity);
         decor.addView(overlay, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        Customize.addListener(configListener);
-        Customize.invalidateCache();
+        NextEngine.addListener(configListener);
+        NextEngine.invalidateCache();
         refreshAll();
     }
 
@@ -86,7 +86,7 @@ public final class EditMode {
         hideByTap = false;
         AndroidUtilities.cancelRunOnUIThread(longPress);
         gesture = GESTURE_NONE;
-        Customize.removeListener(configListener);
+        NextEngine.removeListener(configListener);
         if (overlay != null) {
             overlay.detach();
             overlay = null;
@@ -212,10 +212,10 @@ public final class EditMode {
             final boolean hidden = t.style().getBool(part.id, "hidden", false);
             final String partId = part.id;
             v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
-            Customize.edit(c -> c.set(scope, t.elementId, partId, "hidden", hidden ? null : Boolean.TRUE));
+            NextEngine.edit(c -> c.set(scope, t.elementId, partId, "hidden", hidden ? null : Boolean.TRUE));
             // Если скрытие пришло с более общего уровня, сброс на текущем его не вернёт — пишем явное false.
             if (hidden && t.style().getBool(partId, "hidden", false)) {
-                Customize.edit(c -> c.set(scope, t.elementId, partId, "hidden", Boolean.FALSE));
+                NextEngine.edit(c -> c.set(scope, t.elementId, partId, "hidden", Boolean.FALSE));
             }
             return;
         }

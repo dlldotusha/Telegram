@@ -1,6 +1,6 @@
-package org.telegram.custom;
+package org.nextgram.engine;
 
-import org.telegram.custom.core.Colors;
+import org.nextgram.engine.core.Colors;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeColors;
 
@@ -14,7 +14,7 @@ import java.util.Map;
  * Цвета хранятся отдельно для каждой темы (и её акцента): цвет, подобранный
  * под тёмную тему, не должен ломать светлую.
  */
-public final class CustomColors {
+public final class EngineColors {
 
     private static final class Snapshot {
         final Object theme;
@@ -34,7 +34,7 @@ public final class CustomColors {
 
     private static volatile Snapshot snapshot;
 
-    private CustomColors() {
+    private EngineColors() {
     }
 
     /** Ключ темы в конфиге. */
@@ -64,12 +64,12 @@ public final class CustomColors {
     }
 
     private static Snapshot current() {
-        if (!Customize.isReady()) {
+        if (!NextEngine.isReady()) {
             return null;
         }
         Theme.ThemeInfo t = Theme.getActiveTheme();
         int accent = t == null ? 0 : t.currentAccentId;
-        int gen = Customize.generation();
+        int gen = NextEngine.generation();
         Snapshot s = snapshot;
         if (s != null && s.theme == t && s.accent == accent && s.generation == gen) {
             return s;
@@ -83,7 +83,7 @@ public final class CustomColors {
         int n = Math.max(Theme.colorsCount, 1);
         boolean[] present = new boolean[n];
         int[] colors = new int[n];
-        Map<String, String> m = Customize.config().themeColors(themeKey());
+        Map<String, String> m = NextEngine.config().themeColors(themeKey());
         for (Map.Entry<String, String> e : m.entrySet()) {
             int key = ThemeColors.stringKeyToInt(e.getKey());
             Integer argb = Colors.parse(e.getValue());

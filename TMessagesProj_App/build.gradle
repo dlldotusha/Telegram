@@ -131,7 +131,13 @@ android {
         }
         afat {
             ndk {
-                abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+                // nextgram: в CI можно собрать только нужные ABI (NG_ABIS=arm64-v8a,armeabi-v7a) — так вдвое быстрее
+                def ngAbis = System.getenv("NG_ABIS")
+                if (ngAbis) {
+                    abiFilters.addAll(ngAbis.split(",").collect { it.trim() })
+                } else {
+                    abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+                }
             }
             sourceSets.debug {
                 manifest.srcFile '../TMessagesProj/config/debug/AndroidManifest_SDK23.xml'
@@ -154,7 +160,10 @@ android {
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
             outputFileName = "app.apk"
-            output.versionCodeOverride = defaultConfig.versionCode * 10 + variant.productFlavors.get(0).abiVersionCode
+            // nextgram: номер сборки CI перед последней цифрой (последняя — ABI, её читает Telegram),
+            // чтобы каждый релиз ставился поверх предыдущего
+            def ngBuild = (System.getenv("NG_BUILD_NUMBER") ?: "0").toInteger() % 1000
+            output.versionCodeOverride = (defaultConfig.versionCode * 1000 + ngBuild) * 10 + variant.productFlavors.get(0).abiVersionCode
         }
     }
 
@@ -168,7 +177,7 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 36
-        versionName APP_VERSION_NAME
+        versionName APP_VERSION_NAME + (System.getenv("NG_VERSION_SUFFIX") ?: "") // nextgram
         ndkVersion "27.2.12479018"
 
         multiDexEnabled true

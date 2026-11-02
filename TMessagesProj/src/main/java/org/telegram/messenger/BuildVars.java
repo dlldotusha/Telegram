@@ -28,7 +28,7 @@ public class BuildVars {
 
     public static int APP_ID = 4;
     public static String APP_HASH = "014b35b6184100b085b0d0572f9b5103";
-    static { // custom: свой api_id из local.properties; без него — тестовый ключ из исходников Telegram
+    static { // nextgram: свой api_id из local.properties; без него — тестовый ключ из исходников Telegram
         if (BuildConfig.CUSTOM_APP_ID != 0 && !BuildConfig.CUSTOM_APP_HASH.isEmpty()) {
             APP_ID = BuildConfig.CUSTOM_APP_ID;
             APP_HASH = BuildConfig.CUSTOM_APP_HASH;

@@ -849,7 +849,7 @@ public class ThemeDescription {
         return ThemeColors.getStringName(currentKey);
     }
 
-    // custom: для поиска цветов темы под пальцем в режиме кастомизации
+    // nextgram: для поиска цветов темы под пальцем в режиме кастомизации
     public View getCustomView() {
         return viewToInvalidate;
     }

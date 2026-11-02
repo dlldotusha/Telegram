@@ -1,4 +1,4 @@
-package org.telegram.custom;
+package org.nextgram.engine;
 
 import org.telegram.messenger.LocaleController;
 
@@ -8,13 +8,13 @@ import java.util.HashMap;
  * Строки кастомизации. Держим их отдельно от strings.xml Telegram,
  * чтобы не ловить конфликты при каждом мердже апстрима.
  */
-public final class CustomStrings {
+public final class EngineStrings {
 
     private static final HashMap<String, String[]> S = new HashMap<>();
 
     static {
         // ключ → { ru, en }
-        put("customize", "Режим кастомизации", "Customization mode");
+        put("customize", "Кастомизация · NextEngine", "Customization · NextEngine");
         put("customize_info", "Зажмите элемент, чтобы изменить его", "Long-press any element to edit it");
         put("done", "Готово", "Done");
         put("save_to", "Сохранять в", "Save to");
@@ -51,7 +51,7 @@ public final class CustomStrings {
         S.put(key, new String[]{ru, en});
     }
 
-    private CustomStrings() {
+    private EngineStrings() {
     }
 
     public static String get(String key) {

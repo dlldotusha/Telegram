@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NextGram: название приложения (ToS Telegram API запрещает слово «Telegram» в названии) -->
+<resources>
+    <string name="AppName">NextGram</string>
+    <string name="AppNameBeta">NextGram Beta</string>
+</resources>
