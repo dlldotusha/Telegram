@@ -5,7 +5,7 @@ name: NextGram release
 on:
   push:
     branches: [nextgram]
-    paths-ignore: ['**.md']
+    paths-ignore: ['**.md', 'backend/**', '.github/workflows/nextgram-backend.yml']
   workflow_dispatch:
 
 permissions:
@@ -21,7 +21,7 @@ env:
 
 jobs:
   check:
-    name: Java + тесты NextEngine
+    name: Kotlin/Java + тесты NextEngine
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -36,12 +36,14 @@ jobs:
 
       - name: Тесты ядра NextEngine
         run: |
+          curl -sSfLo /tmp/kotlinc.zip https://github.com/JetBrains/kotlin/releases/download/v2.1.0/kotlin-compiler-2.1.0.zip
+          unzip -q /tmp/kotlinc.zip -d /tmp
           curl -sSfLo /tmp/json.jar https://repo1.maven.org/maven2/org/json/json/20240303/json-20240303.jar
-          JSON_CP=/tmp/json.jar ./nextengine-tests/run.sh
+          KOTLINC=/tmp/kotlinc/bin/kotlinc JSON_CP=/tmp/json.jar ./nextengine-tests/run.sh
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Компиляция Java (без нативной части)
+      - name: Компиляция Kotlin и Java (без нативной части)
         run: ./gradlew :TMessagesProj:compileReleaseJavaWithJavac --stacktrace
 
   apk:

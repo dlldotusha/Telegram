@@ -1,0 +1,56 @@
+name: NextGram backend
+
+# Тесты и деплой сервера профилей (Cloudflare Worker) при изменениях в backend/.
+# Без секретов Cloudflare деплой пропускается, тесты выполняются всегда.
+on:
+  push:
+    branches: [nextgram]
+    paths: ['backend/**', '.github/workflows/nextgram-backend.yml']
+  workflow_dispatch:
+
+jobs:
+  worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NG_KV_ID: ${{ secrets.NG_KV_ID }}
+      NG_BOT_USERNAME: ${{ secrets.NG_BOT_USERNAME }}
+      NG_BOT_TOKEN: ${{ secrets.NG_BOT_TOKEN }}
+      NG_WEBHOOK_SECRET: ${{ secrets.NG_WEBHOOK_SECRET }}
+      NG_BACKEND_URL: ${{ secrets.NG_BACKEND_URL }}
+    defaults:
+      run:
+        working-directory: backend/worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Тесты
+        run: node test.mjs
+
+      - name: Деплой в Cloudflare
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$NG_KV_ID" ] || [ -z "$NG_BOT_TOKEN" ]; then
+            echo "::notice::Секреты Cloudflare/бота не заданы — деплой пропущен (см. NEXTGRAM.md)"
+            exit 0
+          fi
+          sed -i "s/__NG_KV_ID__/${NG_KV_ID}/; s/__NG_BOT_USERNAME__/${NG_BOT_USERNAME}/" wrangler.toml
+          npx --yes wrangler@4 deploy
+          printf '%s' "$NG_BOT_TOKEN" | npx --yes wrangler@4 secret put BOT_TOKEN
+          printf '%s' "$NG_WEBHOOK_SECRET" | npx --yes wrangler@4 secret put WEBHOOK_SECRET
+
+      - name: Вебхук бота
+        run: |
+          if [ -z "$NG_BOT_TOKEN" ] || [ -z "$NG_BACKEND_URL" ]; then
+            echo "::notice::NG_BOT_TOKEN/NG_BACKEND_URL не заданы — вебхук не настроен"
+            exit 0
+          fi
+          curl -sSf "https://api.telegram.org/bot${NG_BOT_TOKEN}/setWebhook" \
+            --data-urlencode "url=${NG_BACKEND_URL%/}/tg/webhook" \
+            --data-urlencode "secret_token=${NG_WEBHOOK_SECRET}" \
+            --data-urlencode 'allowed_updates=["message"]' | head -c 300

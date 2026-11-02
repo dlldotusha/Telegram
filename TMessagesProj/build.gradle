@@ -1,6 +1,7 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android' // nextgram: код NextGram написан на Kotlin
 apply plugin: 'org.telegram.build-plugin'
 apply plugin: 'idea'
 
@@ -257,6 +258,13 @@ def getProps(String propName) {
     }
 }
 apply plugin: 'com.google.gms.google-services'
+
+// nextgram: Kotlin под ту же цель JVM, что и Java-код Telegram
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+    }
+}
 
 task checkVisibility {
     doFirst {
