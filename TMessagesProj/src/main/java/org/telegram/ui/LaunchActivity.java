@@ -8557,6 +8557,12 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     }
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (org.telegram.custom.edit.EditMode.dispatchTouchEvent(this, ev)) return true; // custom
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         int keyCode = event.getKeyCode();
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {

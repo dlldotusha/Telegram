@@ -848,4 +848,13 @@ public class ThemeDescription {
     public String getTitle() {
         return ThemeColors.getStringName(currentKey);
     }
+
+    // custom: для поиска цветов темы под пальцем в режиме кастомизации
+    public View getCustomView() {
+        return viewToInvalidate;
+    }
+
+    public Class[] getCustomListClasses() {
+        return listClasses;
+    }
 }

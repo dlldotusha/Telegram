@@ -18506,7 +18506,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 }
                 timeString = LocaleController.formatPmEditedDate(editDate);
             } else {
-                timeString = (getString(R.string.EditedMessage) + " " + LocaleController.getInstance().getFormatterDay().format((long) (messageObject.messageOwner.date) * 1000));
+                timeString = (getString(R.string.EditedMessage) + " " + org.telegram.custom.hooks.MessageCellHooks.dayFormatter(messageObject).format((long) (messageObject.messageOwner.date) * 1000));
             }
         } else if (currentMessageObject.isSaved && currentMessageObject.messageOwner.fwd_from != null && (currentMessageObject.messageOwner.fwd_from.date != 0 || currentMessageObject.messageOwner.fwd_from.saved_date != 0)) {
             int date = currentMessageObject.messageOwner.fwd_from.saved_date;
@@ -18515,7 +18515,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             }
             timeString = LocaleController.formatSeenDate(date);
         } else {
-            timeString = LocaleController.getInstance().getFormatterDay().format((long) (messageObject.messageOwner.date) * 1000);
+            timeString = org.telegram.custom.hooks.MessageCellHooks.dayFormatter(messageObject).format((long) (messageObject.messageOwner.date) * 1000);
         }
         if (currentMessageObject.messageOwner.video_processing_pending) {
             timeString = formatString(R.string.ScheduledTimeApprox, timeString);
@@ -18560,6 +18560,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 currentTimeString = TextUtils.concat(formatString(R.string.MessageScheduledRepeatSeconds, period), ", ", currentTimeString);
             }
         }
+        if (org.telegram.custom.hooks.MessageCellHooks.hideTime(messageObject)) currentTimeString = ""; // custom
         timeTextWidth = timeWidth = (int) Math.ceil(Theme.chat_timePaint.measureText(currentTimeString, 0, currentTimeString == null ? 0 : currentTimeString.length()));
         if (currentMessageObject.scheduled && currentMessageObject.messageOwner.date == 0x7FFFFFFE || currentMessageObject.notime) {
             timeWidth -= dp(8);
@@ -24003,6 +24004,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 }
             }
         }
+        Theme.chat_timePaint.setColor(org.telegram.custom.hooks.MessageCellHooks.timeColor(currentMessageObject, Theme.chat_timePaint.getColor())); // custom
         if (getTransitionParams().animateDrawingTimeAlpha) {
             alpha *= getTransitionParams().animateChangeProgress;
         }
@@ -29611,5 +29613,15 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             }
         }
         return text;
+    }
+
+    // custom: границы текста времени (в координатах ячейки) для редактора кастомизации
+    public boolean getCustomTimeBounds(android.graphics.RectF out) {
+        if (timeLayout == null || currentTimeString == null || currentTimeString.length() == 0) {
+            return false;
+        }
+        float y = drawTimeY + (drawPinnedBottom && !shouldDrawTimeOnMedia() ? dp(2) : 0);
+        out.set(drawTimeX, y, drawTimeX + timeTextWidth, y + timeLayout.getHeight());
+        return true;
     }
 }

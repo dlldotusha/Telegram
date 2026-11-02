@@ -138,6 +138,12 @@ android {
         minSdkVersion 23
         targetSdkVersion 36
 
+        // custom: свой api_id с my.telegram.org/apps, берётся из local.properties (в git не попадает)
+        def customApiId = getProps("TELEGRAM_APP_ID")
+        def customApiHash = getProps("TELEGRAM_APP_HASH")
+        buildConfigField "int", "CUSTOM_APP_ID", (customApiId ? customApiId.toString() : "0")
+        buildConfigField "String", "CUSTOM_APP_HASH", "\"" + (customApiHash ? customApiHash.toString() : "") + "\""
+
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
 
         multiDexEnabled true

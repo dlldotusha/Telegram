@@ -147,6 +147,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
 
     @Keep
     private int backgroundRow;
+    private int customizeRow = -1; // custom
     private int textSizeHeaderRow;
     @Keep
     private int textSizeRow;
@@ -580,6 +581,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
 
         textSizeRow = -1;
         backgroundRow = -1;
+        customizeRow = -1; // custom
         changeUserColor = -1;
         settingsRow = -1;
         directShareRow = -1;
@@ -656,6 +658,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
             textSizeHeaderRow = rowCount++;
             textSizeRow = rowCount++;
             backgroundRow = rowCount++;
+            customizeRow = rowCount++; // custom
             changeUserColor = rowCount++;
             newThemeInfoRow = rowCount++;
             themeHeaderRow = rowCount++;
@@ -1113,6 +1116,8 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 if (view instanceof TextCheckCell) {
                     ((TextCheckCell) view).setChecked(!animations);
                 }
+            } else if (position == customizeRow) { // custom
+                org.telegram.custom.edit.EditMode.enter(getParentActivity());
             } else if (position == backgroundRow) {
                 presentFragment(new WallpapersListActivity(WallpapersListActivity.TYPE_ALL));
             } else if (position == changeUserColor) {
@@ -2672,6 +2677,10 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                         cell.setSubtitle(null);
                         cell.setColors(Theme.key_windowBackgroundWhiteBlueText4, Theme.key_windowBackgroundWhiteBlueText4);
                         cell.setTextAndIcon(getString(R.string.ChangeChatBackground), R.drawable.msg_background, changeUserColor >= 0);
+                    } else if (position == customizeRow) { // custom
+                        cell.setSubtitle(null);
+                        cell.setColors(Theme.key_windowBackgroundWhiteBlueText4, Theme.key_windowBackgroundWhiteBlueText4);
+                        cell.setTextAndIcon(org.telegram.custom.CustomStrings.get("customize"), R.drawable.msg_colors, true);
                     } else if (position == editThemeRow) {
                         cell.setSubtitle(null);
                         cell.setColors(Theme.key_windowBackgroundWhiteBlueText4, Theme.key_windowBackgroundWhiteBlueText4);
@@ -2767,7 +2776,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
                 return TYPE_THEME_ACCENT_LIST;
             } else if (position == bubbleRadiusRow) {
                 return TYPE_BUBBLE_RADIUS;
-            } else if (position == backgroundRow || position == editThemeRow || position == createNewThemeRow ||
+            } else if (position == backgroundRow || position == customizeRow || position == editThemeRow || position == createNewThemeRow ||
                         position == liteModeRow || position == stickersRow) {
                 return TYPE_TEXT_PREFERENCE;
             } else if (position == swipeGestureRow) {
