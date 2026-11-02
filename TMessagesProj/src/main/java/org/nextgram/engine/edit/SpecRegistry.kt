@@ -12,19 +12,41 @@ object SpecRegistry {
     fun find(view: View): EditorSpec? = specs.firstOrNull { it.handles(view) }
 
     /**
-     * Цель редактирования для точки экрана: ближайший предок с заготовкой и его
-     * видимая часть под пальцем (части проверяются по порядку — мелкие раньше крупных).
-     * Если заготовки нет — сам view в авторежиме.
+     * Цель редактирования для точки экрана.
+     *
+     * Перебираем всё, что под пальцем, сверху вниз: первый view, у которого
+     * (или у чьего предка) есть заготовка, побеждает — даже если над ним лежит
+     * прозрачный слой на весь экран. Если заготовок нет — первый «непрозрачный»
+     * view в авторежиме.
      */
     @JvmStatic
-    fun targetFor(deepest: View, rawX: Float = Float.NaN, rawY: Float = Float.NaN): EditTarget {
-        var v: View? = deepest
+    fun targetAt(root: View, rawX: Float, rawY: Float, exclude: View?): EditTarget? {
+        val hits = HitTest.allAt(root, rawX.toInt(), rawY.toInt(), exclude)
+        if (hits.isEmpty()) return null
+        for (hit in hits) {
+            // Встретили непрозрачный элемент без заготовки — дальше вглубь не идём,
+            // но сначала проверяем его предков (ячейка могла состоять из детей-view).
+            var v: View? = hit
+            while (v != null && v !== root) {
+                val spec = find(v)
+                if (spec != null) return EditTarget(v, spec, partAt(v, spec, rawX, rawY))
+                v = v.parent as? View
+            }
+            if (HitTest.isSolid(hit, root)) return EditTarget(hit, AutoSpec)
+        }
+        return EditTarget(hits.minByOrNull { it.width.toLong() * it.height } ?: hits.first(), AutoSpec)
+    }
+
+    /** Цель для view (без точки): ближайший предок с заготовкой, иначе сам view в авторежиме. */
+    @JvmStatic
+    fun targetFor(view: View): EditTarget {
+        var v: View? = view
         while (v != null) {
             val spec = find(v)
-            if (spec != null) return EditTarget(v, spec, if (rawX.isNaN()) null else partAt(v, spec, rawX, rawY))
+            if (spec != null) return EditTarget(v, spec)
             v = v.parent as? View
         }
-        return EditTarget(deepest, AutoSpec)
+        return EditTarget(view, AutoSpec)
     }
 
     private fun partAt(view: View, spec: EditorSpec, rawX: Float, rawY: Float): String? {

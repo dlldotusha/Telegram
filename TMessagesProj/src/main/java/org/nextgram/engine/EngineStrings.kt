@@ -10,6 +10,7 @@ object EngineStrings {
 
     // ключ → [ru, en]
     private val strings = hashMapOf(
+        "screen_element" to arrayOf("Элемент экрана", "Screen element"),
         "other_parts" to arrayOf("Другие части элемента", "Other parts of the element"),
         "parts" to arrayOf("Части элемента", "Parts of the element"),
         "parts_hint" to arrayOf("Можно и прямо на экране: зажмите нужную часть.", "Or long-press the part right on the screen."),

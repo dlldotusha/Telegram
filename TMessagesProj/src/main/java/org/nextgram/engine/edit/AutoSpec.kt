@@ -12,7 +12,11 @@ import org.telegram.messenger.UserConfig
 object AutoSpec : EditorSpec {
     override fun handles(view: View) = true
     override fun elementId(view: View) = "auto:" + view.javaClass.name
-    override fun title(view: View): String = view.javaClass.simpleName.ifEmpty { view.javaClass.name }
+    /** В релизе имена классов сокращены R8 до «a», «b»… — тогда показываем общее название. */
+    override fun title(view: View): String {
+        val name = view.javaClass.simpleName
+        return if (name.length < 4 || view.javaClass.name.startsWith("android.")) org.nextgram.engine.EngineStrings.get("screen_element") else name
+    }
     override fun dialogId(view: View) = 0L
     override fun account(view: View) = UserConfig.selectedAccount
     override fun parts(view: View) = emptyList<EditorSpec.Part>()

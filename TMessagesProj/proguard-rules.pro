@@ -58,3 +58,5 @@
 # Use -keep to explicitly keep any other classes shrinking would remove
 #-dontoptimize
 #-dontobfuscate
+# nextgram: NextEngine узнаёт части шапки профиля по имени класса — не сокращать эти имена
+-keepnames class org.telegram.ui.ProfileActivity$* { }

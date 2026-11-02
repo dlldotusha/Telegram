@@ -64,6 +64,10 @@ object EditMode {
         active = true
         activityRef = WeakReference(activity)
         val decor = activity.window.decorView as ViewGroup
+        // Старые слои (если остались от прошлого входа) убираем, чтобы не перехватывали выбор.
+        for (i in decor.childCount - 1 downTo 0) {
+            if (decor.getChildAt(i) is EditOverlay) decor.removeViewAt(i)
+        }
         overlay = EditOverlay(activity).also {
             decor.addView(it, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         }
@@ -152,9 +156,9 @@ object EditMode {
         cancel.recycle()
 
         val root = a.window.decorView
-        val hit = HitTest.deepestAt(root, downX.toInt(), downY.toInt(), overlay) ?: return
+        val target = SpecRegistry.targetAt(root, downX, downY, overlay) ?: return
         root.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-        select(SpecRegistry.targetFor(hit, downX, downY))
+        select(target)
     }
 
     private fun isInside(t: EditTarget, x: Float, y: Float): Boolean {

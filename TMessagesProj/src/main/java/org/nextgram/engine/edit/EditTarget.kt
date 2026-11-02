@@ -33,6 +33,10 @@ class EditTarget internal constructor(view: View, val spec: EditorSpec, part: St
     /** Родительский элемент — для авторежима, когда палец попал во вложенный view. */
     fun parent(): EditTarget? {
         val p = view()?.parent as? View ?: return null
+        // Корень окна (DecorView) и контейнеры на весь экран выбирать бессмысленно.
+        if (p.parent !is View) return null
+        val root = p.rootView
+        if (p.width.toLong() * p.height * 10 > root.width.toLong() * root.height * 9) return null
         return SpecRegistry.targetFor(p)
     }
 
