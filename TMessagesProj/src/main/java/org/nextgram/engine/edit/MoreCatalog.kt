@@ -273,7 +273,6 @@ object MoreCatalog {
 
         // ---------- экран чата
         el("chat_header", "Шапка чата", "Chat header",
-            part("avatar", "Аватар", "Avatar", view { (it as ChatAvatarContainer).avatarImageView }),
             part("title", "Название", "Title", view { (it as ChatAvatarContainer).titleTextView },
                 c(Theme.key_actionBarDefaultTitle, "Цвет названия", "Title color"),
                 c(Theme.key_profile_verifiedBackground, "Галочка верификации — фон", "Verified badge — background"),
@@ -454,7 +453,6 @@ object MoreCatalog {
         ) { it is DialogsEmptyCell },
 
         el("search_chat_row", "Чат в поиске", "Chat in search",
-            part("avatar", "Аватар", "Avatar", avatarArea(72f)),
             part("name", "Название", "Name", lineArea(72f, true),
                 c(Theme.key_chats_name, "Цвет названия", "Name color"),
                 c(Theme.key_chats_secretName, "Секретный чат", "Secret chat"),
@@ -490,7 +488,6 @@ object MoreCatalog {
             part("status", "Статус", "Status",
                 textOf(Theme.key_windowBackgroundWhiteGrayText, Theme.key_windowBackgroundWhiteBlueText, Theme.key_windowBackgroundWhiteGrayText3),
                 *listStatus),
-            part("avatar", "Аватар", "Avatar", first { it is org.telegram.ui.Components.BackupImageView }),
             part("all", "Фон строки", "Row background", whole, *listRow,
                 c(Theme.key_profile_creatorIcon, "Метка «владелец» / «админ»", "“Owner” / “admin” tag")),
         ) { people(it) },

@@ -8,7 +8,6 @@ import org.nextgram.engine.EngineStrings
 import org.nextgram.engine.NextEngine
 import org.nextgram.engine.hooks.SizeHooks
 import org.telegram.messenger.AndroidUtilities
-import org.telegram.messenger.FileLog
 import org.telegram.messenger.R
 import org.telegram.tgnet.ConnectionsManager
 import org.telegram.ui.ActionBar.AlertDialog
@@ -19,7 +18,6 @@ import org.telegram.ui.Components.LayoutHelper
 import org.telegram.ui.Components.UItem
 import org.telegram.ui.Components.UniversalAdapter
 import org.telegram.ui.Components.UniversalRecyclerView
-import org.telegram.ui.LaunchActivity
 import kotlin.math.roundToInt
 
 /**
@@ -48,15 +46,9 @@ internal class EditorSheet(context: Context, private val target: EditTarget) : B
         parts = view?.let { target.spec.parts(it) } ?: emptyList()
         props = view?.let { target.spec.props(it) } ?: emptyList()
         groups = if (target.isAuto) {
-            // Авторежим: цвета из описаний экрана + цвета, которыми view нарисован сейчас (без повторов).
-            val fromScreen = autoGroups(view)
-            val seen = fromScreen.flatMap { g -> g.items.map { it.key } }.toHashSet()
-            fromScreen + (view?.let { AutoSpec.colorGroups(it) } ?: emptyList()).mapNotNull { g ->
-                val items = g.items.filter { seen.add(it.key) }
-                if (items.isEmpty()) null else ThemeCatalog.ColorGroup(g.title, g.title, items)
-            }
+            view?.let { AutoSpec.allGroups(it) } ?: emptyList()
         } else {
-            view?.let { target.spec.colorGroups(it) }?.takeIf { it.isNotEmpty() } ?: autoGroups(view)
+            view?.let { target.spec.colorGroups(it) }?.takeIf { it.isNotEmpty() } ?: (view?.let { AutoSpec.screenGroups(it) } ?: emptyList())
         }
         setTitle(target.title, true)
 
@@ -219,44 +211,5 @@ internal class EditorSheet(context: Context, private val target: EditTarget) : B
                 rebuild()
             }
             .show()
-    }
-
-    // ------------------------------------------------------------------ авторежим
-
-    /** Для элементов без заготовки: цвета темы экрана, которые касаются этого view, с понятными названиями. */
-    private fun autoGroups(view: View?): List<ThemeCatalog.ColorGroup> {
-        if (view == null) return emptyList()
-        val all = try {
-            LaunchActivity.getLastFragment()?.themeDescriptions?.filterNotNull()
-        } catch (e: Throwable) {
-            FileLog.e(e)
-            null
-        } ?: return emptyList()
-        val keys = LinkedHashSet<Int>()
-        var v: View? = view
-        var depth = 0
-        while (depth < 4 && v != null && keys.isEmpty()) {
-            for (d in all) {
-                val key = d.currentKey
-                if (key >= 0 && ThemeColors.getStringName(key) != null && matches(d.customView, d.customListClasses, v)) keys += key
-            }
-            v = v.parent as? View
-            depth++
-        }
-        if (keys.isEmpty()) return emptyList()
-        val items = keys.map { ThemeCatalog.ColorItem(it, ThemeCatalog.humanName(it), ThemeCatalog.humanName(it)) }
-        return listOf(ThemeCatalog.ColorGroup(EngineStrings.get("theme_colors"), EngineStrings.get("theme_colors"), items))
-    }
-
-    private fun matches(owner: View?, classes: Array<out Class<*>?>?, target: View): Boolean {
-        if (classes == null || classes.isEmpty()) return owner === target
-        if (classes.none { it != null && it.isInstance(target) }) return false
-        if (owner == null || owner === target) return true
-        var p = target.parent
-        while (p != null) {
-            if (p === owner) return true
-            p = p.parent
-        }
-        return false
     }
 }

@@ -49,24 +49,26 @@ object SpecRegistry {
             // часть — берём окно с частью, иначе сам view в авторежиме.
             if (HitTest.isSolid(hit, root)) {
                 val hc = hitContainer
-                return if (hc != null && hc.part != null && hc.part != "all") hc else EditTarget(hit, AutoSpec)
+                if (hc != null && hc.part != null && hc.part != "all") return hc
+                // Без заготовки выбираем, только если у view есть что менять (цвета темы).
+                if (AutoSpec.hasColors(hit)) return EditTarget(hit, AutoSpec)
             }
             if (container == null) container = hitContainer
         }
-        container?.let { return it }
-        return EditTarget(hits.minByOrNull { it.width.toLong() * it.height } ?: hits.first(), AutoSpec)
+        // Под пальцем нет ничего, что имеет смысл править, — берём экран целиком или ничего.
+        return container
     }
 
     /** Цель для view (без точки): ближайший предок с заготовкой, иначе сам view в авторежиме. */
     @JvmStatic
-    fun targetFor(view: View): EditTarget {
+    fun targetFor(view: View): EditTarget? {
         var v: View? = view
         while (v != null) {
             val spec = find(v)
             if (spec != null) return EditTarget(v, spec)
             v = v.parent as? View
         }
-        return EditTarget(view, AutoSpec)
+        return if (AutoSpec.hasColors(view)) EditTarget(view, AutoSpec) else null
     }
 
     private fun partAt(view: View, spec: EditorSpec, rawX: Float, rawY: Float): String? {

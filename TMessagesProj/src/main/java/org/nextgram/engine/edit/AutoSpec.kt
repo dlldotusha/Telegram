@@ -46,6 +46,55 @@ object AutoSpec : EditorSpec {
     override fun props(view: View) = emptyList<EditorSpec.Prop>()
     override fun apply(view: View) = view.invalidate()
 
+    /** Есть ли у view что менять. Пустые слои, картинки и контейнеры без своих цветов не выбираются. */
+    fun hasColors(view: View): Boolean = allGroups(view).isNotEmpty()
+
+    /** Цвета из описаний экрана + цвета, которыми view нарисован сейчас (без повторов). */
+    fun allGroups(view: View): List<ThemeCatalog.ColorGroup> {
+        val fromScreen = screenGroups(view)
+        val seen = fromScreen.flatMap { g -> g.items.map { it.key } }.toHashSet()
+        return fromScreen + colorGroups(view).mapNotNull { g ->
+            val items = g.items.filter { seen.add(it.key) }
+            if (items.isEmpty()) null else ThemeCatalog.ColorGroup(g.title, g.title, items)
+        }
+    }
+
+    /** Цвета темы экрана, которые касаются этого view (из ThemeDescription открытого экрана). */
+    fun screenGroups(view: View): List<ThemeCatalog.ColorGroup> {
+        val all = try {
+            org.telegram.ui.LaunchActivity.getLastFragment()?.themeDescriptions?.filterNotNull()
+        } catch (e: Throwable) {
+            org.telegram.messenger.FileLog.e(e)
+            null
+        } ?: return emptyList()
+        val keys = LinkedHashSet<Int>()
+        var v: View? = view
+        var depth = 0
+        while (depth < 4 && v != null && keys.isEmpty()) {
+            for (d in all) {
+                val key = d.currentKey
+                if (key >= 0 && ThemeColors.getStringName(key) != null && matches(d.customView, d.customListClasses, v)) keys += key
+            }
+            v = v.parent as? View
+            depth++
+        }
+        if (keys.isEmpty()) return emptyList()
+        val items = keys.map { ThemeCatalog.ColorItem(it, ThemeCatalog.humanName(it), ThemeCatalog.humanName(it)) }
+        return listOf(ThemeCatalog.ColorGroup(EngineStrings.get("theme_colors"), EngineStrings.get("theme_colors"), items))
+    }
+
+    private fun matches(owner: View?, classes: Array<out Class<*>?>?, target: View): Boolean {
+        if (classes == null || classes.isEmpty()) return owner === target
+        if (classes.none { it != null && it.isInstance(target) }) return false
+        if (owner == null || owner === target) return true
+        var p = target.parent
+        while (p != null) {
+            if (p === owner) return true
+            p = p.parent
+        }
+        return false
+    }
+
     /** Цвета темы, которыми этот view нарисован сейчас (по точному совпадению цвета). */
     override fun colorGroups(view: View): List<ThemeCatalog.ColorGroup> {
         val groups = ArrayList<ThemeCatalog.ColorGroup>()
