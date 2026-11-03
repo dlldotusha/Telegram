@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- NextGram: цвета иконки. Тёмная тема, без акцента: стрелка белая -->
 <resources>
-    <color name="ng_icon_background">#FF000000</color>
+    <color name="ng_icon_background">#00000000</color>
     <color name="ng_icon_letter">#FFFFFFFF</color>
     <color name="ng_icon_diagonal">#FF8E8E93</color>
     <color name="ng_icon_arrow">#FFFFFFFF</color>
