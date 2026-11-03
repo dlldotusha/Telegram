@@ -32,6 +32,13 @@ object SizeHooks {
     const val DIALOG_MESSAGE = "dialogs.message"
     const val DIALOG_TIME = "dialogs.time"
     const val DIALOG_COUNTER = "dialogs.counter"
+    const val SETTINGS_TEXT = "settings.text"
+    const val SETTINGS_SUB = "settings.sub"
+    const val SETTINGS_HEADER = "settings.header"
+    const val SETTINGS_FOOTER = "settings.footer"
+
+    /** Текстовые view, размер которых задаёт NextEngine: view → (базовый размер в dp, id размера). */
+    private val tracked = java.util.WeakHashMap<android.view.View, Pair<Float, String>>()
 
     const val MIN = 0.7f
     const val MAX = 1.6f
@@ -51,6 +58,29 @@ object SizeHooks {
             NextEngine.edit { it.set(org.nextgram.engine.core.Scopes.GLOBAL, ELEMENT, id, PROP, value?.toDouble()) }
         }
         reapply()
+        for ((view, info) in tracked.entries.toList()) {
+            if (info.second == id) applyTracked(view, info.first, id)
+        }
+    }
+
+    /**
+     * Хук в конструкторах ячеек (пункты настроек, заголовки, пояснения): запомнить
+     * базовый размер текста и сразу применить коэффициент. Меняется на лету.
+     */
+    @JvmStatic
+    fun track(view: android.view.View?, baseDp: Float, id: String) {
+        if (view == null) return
+        tracked[view] = baseDp to id
+        if (NextEngine.isReady) applyTracked(view, baseDp, id)
+    }
+
+    private fun applyTracked(view: android.view.View, baseDp: Float, id: String) {
+        val s = scale(id)
+        when (view) {
+            is android.widget.TextView -> view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, baseDp * s)
+            is org.telegram.ui.ActionBar.SimpleTextView -> view.setTextSize((baseDp * s).roundToInt())
+        }
+        view.requestLayout()
     }
 
     /** То же, что делает ползунок «Размер текста» в настройках Telegram. */

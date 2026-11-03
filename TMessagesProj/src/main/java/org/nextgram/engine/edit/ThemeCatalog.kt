@@ -215,12 +215,14 @@ object ThemeCatalog {
         p("switch", "Переключатель", "Switch", c(Theme.key_switchTrack, "Выключен", "Off"), c(Theme.key_switchTrackChecked, "Включён", "On")),
         p("icon", "Иконка", "Icon", c(Theme.key_windowBackgroundWhiteGrayIcon, "Цвет иконок", "Icon color")),
         p("value", "Значение справа", "Value on the right", c(Theme.key_windowBackgroundWhiteValueText, "Цвет значения", "Value color")),
+        p("description", "Описание под текстом", "Description below",
+            c(Theme.key_windowBackgroundWhiteGrayText2, "Цвет описания", "Description color"),
+            size = SizeHooks.SETTINGS_SUB),
         p("text", "Текст пункта", "Row text",
             c(Theme.key_windowBackgroundWhiteBlackText, "Обычный текст", "Regular text"),
             c(Theme.key_windowBackgroundWhiteBlueText4, "Синие пункты («Добавить…»)", "Blue rows (“Add…”)"),
             c(Theme.key_text_RedRegular, "Красные пункты («Удалить…»)", "Red rows (“Delete…”)"),
-            c(Theme.key_windowBackgroundWhiteBlueHeader, "Заголовки разделов", "Section headers"),
-            c(Theme.key_windowBackgroundWhiteGrayText4, "Пояснения под разделами", "Section footers")),
+            size = SizeHooks.SETTINGS_TEXT),
         p("all", "Фон пункта", "Row background",
             c(Theme.key_windowBackgroundWhite, "Фон пункта", "Row background"),
             c(Theme.key_windowBackgroundGray, "Фон между разделами", "Background between sections"),
@@ -228,17 +230,43 @@ object ThemeCatalog {
             c(Theme.key_listSelector, "Подсветка при нажатии", "Press highlight")),
     )
 
+    private val headerParts = listOf(
+        p("text", "Заголовок раздела", "Section header",
+            c(Theme.key_windowBackgroundWhiteBlueHeader, "Цвет заголовка", "Header color"),
+            size = SizeHooks.SETTINGS_HEADER),
+        p("all", "Фон", "Background", c(Theme.key_windowBackgroundWhite, "Фон", "Background")),
+    )
+
+    private val footerParts = listOf(
+        p("text", "Пояснение под разделом", "Section footer",
+            c(Theme.key_windowBackgroundWhiteGrayText4, "Цвет текста", "Text color"),
+            c(Theme.key_windowBackgroundWhiteLinkText, "Ссылки", "Links"),
+            size = SizeHooks.SETTINGS_FOOTER),
+        p("all", "Фон (тень между разделами)", "Background (shadow between sections)",
+            c(Theme.key_windowBackgroundGray, "Фон", "Background"),
+            c(Theme.key_windowBackgroundGrayShadow, "Тень", "Shadow")),
+    )
+
     private val enterParts = listOf(
         p("field", "Поле ввода", "Input field",
             c(Theme.key_chat_messagePanelText, "Текст", "Text"),
             c(Theme.key_chat_messagePanelHint, "Подсказка «Сообщение»", "“Message” hint"),
             c(Theme.key_chat_messagePanelCursor, "Курсор", "Cursor")),
-        p("buttons", "Кнопки (эмодзи, скрепка, отправить)", "Buttons (emoji, attach, send)",
-            c(Theme.key_chat_messagePanelIcons, "Иконки", "Icons"),
+        p("emoji", "Кнопка эмодзи", "Emoji button",
+            c(Theme.key_glass_defaultIcon, "Иконки на «стеклянных» кнопках", "Icons on “glass” buttons")),
+        p("attach", "Скрепка", "Attach button",
+            c(Theme.key_glass_defaultIcon, "Иконки на «стеклянных» кнопках", "Icons on “glass” buttons")),
+        p("send", "Отправить / запись голосового", "Send / voice record",
             c(Theme.key_chat_messagePanelSend, "Кнопка «Отправить»", "Send button"),
-            c(Theme.key_chat_messagePanelVoiceBackground, "Кнопка записи — фон", "Record button — background")),
+            c(Theme.key_chat_messagePanelVoiceBackground, "Кнопка записи — фон", "Record button — background"),
+            c(Theme.key_chat_messagePanelVoicePressed, "Кнопка записи — нажатая", "Record button — pressed"),
+            c(Theme.key_chat_messagePanelVoiceLock, "Замок записи", "Record lock"),
+            c(Theme.key_chat_recordedVoiceDot, "Красная точка записи", "Recording dot"),
+            c(Theme.key_chat_recordTime, "Время записи", "Record time")),
+        p("buttons", "Другие кнопки панели", "Other panel buttons",
+            c(Theme.key_glass_defaultIcon, "Иконки на «стеклянных» кнопках", "Icons on “glass” buttons")),
         p("all", "Фон панели", "Panel background",
-            c(Theme.key_chat_messagePanelBackground, "Фон", "Background"),
+            c(Theme.key_chat_messagePanelBackground, "Фон («стекло»)", "Background (“glass”)"),
             c(Theme.key_chat_messagePanelShadow, "Тень над панелью", "Shadow above panel")),
     )
 
@@ -278,11 +306,14 @@ object ThemeCatalog {
     private fun settingsBounds(root: View, part: String, out: RectF): Boolean {
         val kids = children(root)
         val texts = kids.filter { isText(it) }.sortedBy { it.left }
+        val main = texts.minByOrNull { it.top }
         return when (part) {
             "switch" -> childBounds(root, kids.firstOrNull { it is Switch }, out)
             "icon" -> childBounds(root, kids.firstOrNull { it is ImageView && it !is Switch }, out)
-            "value" -> texts.size > 1 && childBounds(root, texts.last(), out)
-            "text" -> if (texts.isEmpty() && root is TextView) whole(root, out) else childBounds(root, texts.firstOrNull(), out)
+            // справа от основного текста — значение, под ним — описание
+            "value" -> main != null && childBounds(root, texts.lastOrNull { it !== main && it.left >= main.right - 1 }, out)
+            "description" -> main != null && childBounds(root, texts.firstOrNull { it !== main && it.top >= main.bottom - 2 }, out)
+            "text" -> if (texts.isEmpty() && root is TextView) whole(root, out) else childBounds(root, main ?: texts.firstOrNull(), out)
             "all" -> whole(root, out)
             else -> false
         }
@@ -306,8 +337,12 @@ object ThemeCatalog {
             for (c in children(v)) find(c, pred)?.let { return it }
             return null
         }
+        val enter = root as ChatActivityEnterView
         return when (part) {
             "field" -> childBounds(root, find(root) { it is EditText }, out)
+            "emoji" -> childBounds(root, enter.emojiButton, out)
+            "attach" -> childBounds(root, enter.attachButton, out)
+            "send" -> childBounds(root, enter.sendButton, out) || childBounds(root, enter.audioVideoButtonContainer, out)
             // кнопки — объединение всех иконок панели; поле ввода проверяется раньше, поэтому не перекрывается
             "buttons" -> {
                 val icons = ArrayList<View>()
@@ -359,6 +394,11 @@ object ThemeCatalog {
             c(Theme.key_windowBackgroundWhite, "Фон списка", "List background"),
             c(Theme.key_chats_pinnedOverlay, "Подсветка закреплённых", "Pinned chats tint"),
             c(Theme.key_listSelector, "Подсветка при нажатии", "Press highlight")),
+        g("Архив", "Archive",
+            c(Theme.key_chats_archiveBackground, "Фон аватара архива", "Archive avatar background"),
+            c(Theme.key_chats_archiveIcon, "Иконка архива", "Archive icon"),
+            c(Theme.key_chats_archiveText, "Текст на архиве", "Text on archive"),
+            c(Theme.key_chats_archivePinBackground, "Фон закреплённого архива", "Pinned archive background")),
     )
 
     private val serviceMessage = listOf(
@@ -376,7 +416,7 @@ object ThemeCatalog {
             c(Theme.key_chat_messagePanelText, "Текст", "Text"),
             c(Theme.key_chat_messagePanelHint, "Подсказка «Сообщение»", "“Message” hint"),
             c(Theme.key_chat_messagePanelCursor, "Курсор", "Cursor"),
-            c(Theme.key_chat_messagePanelIcons, "Иконки (эмодзи, скрепка)", "Icons (emoji, attach)"),
+            c(Theme.key_glass_defaultIcon, "Иконки (эмодзи, скрепка) — общие для «стеклянных» кнопок", "Icons (emoji, attach) — shared by “glass” buttons"),
             c(Theme.key_chat_messagePanelSend, "Кнопка «Отправить»", "Send button"),
             c(Theme.key_chat_messagePanelVoiceBackground, "Кнопка записи — фон", "Record button — background")),
         g("Ответ и пересылка", "Reply and forward",
@@ -458,9 +498,12 @@ object ThemeCatalog {
         CatalogSpec("profile", "Шапка профиля", "Profile header", profileHeader) {
             it.javaClass.name.startsWith("org.telegram.ui.ProfileActivity$")
         },
+        CatalogSpec("section_header", "Заголовок раздела", "Section header", emptyList(), headerParts, ::settingsBounds) { it is HeaderCell },
+        CatalogSpec("section_footer", "Пояснение под разделом", "Section footer", emptyList(), footerParts, ::settingsBounds) {
+            it is TextInfoPrivacyCell || it is ShadowSectionCell
+        },
         CatalogSpec("settings", "Пункт настроек", "Settings row", settingsCell, settingsParts, ::settingsBounds) {
-            it is TextCell || it is TextSettingsCell || it is TextCheckCell || it is HeaderCell ||
-                it is TextInfoPrivacyCell || it is ShadowSectionCell || it is NotificationsCheckCell ||
+            it is TextCell || it is TextSettingsCell || it is TextCheckCell || it is NotificationsCheckCell ||
                 it is TextDetailSettingsCell || it is RadioCell || it is SettingsActivity.SettingCell
         },
     )
@@ -517,6 +560,7 @@ class CatalogSpec(
     private val groups: List<ThemeCatalog.ColorGroup>,
     private val partList: List<EditorSpec.Part> = emptyList(),
     private val bounds: (View, String, RectF) -> Boolean = { _, _, _ -> false },
+    override val kind: EditorSpec.Kind = EditorSpec.Kind.ELEMENT,
     private val matcher: (View) -> Boolean,
 ) : EditorSpec {
     override fun handles(view: View) = matcher(view)
@@ -527,7 +571,9 @@ class CatalogSpec(
     override fun parts(view: View) = partList
     override fun partBounds(view: View, partId: String, out: RectF) = bounds(view, partId, out)
     override fun props(view: View) = emptyList<EditorSpec.Prop>()
-    override fun colorGroups(view: View) = groups
+    override fun colorGroups(view: View): List<ThemeCatalog.ColorGroup> = groups.ifEmpty {
+        partList.filter { it.colors.isNotEmpty() }.map { ThemeCatalog.ColorGroup(it.title, it.title, it.colors) }
+    }
     override fun apply(view: View) {
         view.requestLayout()
         view.invalidate()

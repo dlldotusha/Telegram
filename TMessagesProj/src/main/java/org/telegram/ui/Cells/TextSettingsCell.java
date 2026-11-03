@@ -80,6 +80,7 @@ public class TextSettingsCell extends FrameLayout {
 
         textView = new TextView(context);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        org.nextgram.engine.hooks.SizeHooks.track(textView, 16f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_TEXT); // nextgram
         textView.setLines(1);
         textView.setMaxLines(1);
         textView.setSingleLine(true);

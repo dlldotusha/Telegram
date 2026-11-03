@@ -103,6 +103,7 @@ public class TextCheckCell extends FrameLayout {
         textView = new TextView(context);
         textView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextBlack : Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        org.nextgram.engine.hooks.SizeHooks.track(textView, 16f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_TEXT); // nextgram
         textView.setLines(1);
         textView.setMaxLines(1);
         textView.setSingleLine(true);
@@ -113,6 +114,7 @@ public class TextCheckCell extends FrameLayout {
         valueTextView = new TextView(context);
         valueTextView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogIcon : Theme.key_windowBackgroundWhiteGrayText2, resourcesProvider));
         valueTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+        org.nextgram.engine.hooks.SizeHooks.track(valueTextView, 13f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_SUB); // nextgram
         valueTextView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
         valueTextView.setLines(1);
         valueTextView.setMaxLines(1);

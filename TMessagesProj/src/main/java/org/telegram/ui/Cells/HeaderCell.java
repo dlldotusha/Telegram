@@ -92,6 +92,7 @@ public class HeaderCell extends FrameLayout {
         } else {
             textView = new TextView(getContext());
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+            org.nextgram.engine.hooks.SizeHooks.track(textView, 14f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_HEADER); // nextgram
             textView.setTypeface(AndroidUtilities.bold());
             textView.setEllipsize(TextUtils.TruncateAt.END);
             textView.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL);

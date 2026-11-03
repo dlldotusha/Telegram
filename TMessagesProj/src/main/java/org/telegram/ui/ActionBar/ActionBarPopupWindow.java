@@ -110,6 +110,12 @@ public class ActionBarPopupWindow extends PopupWindow {
         public boolean swipeBackGravityBottom;
 
         private OnDispatchKeyEventListener mOnDispatchKeyEventListener;
+
+        @Override
+        public boolean dispatchTouchEvent(MotionEvent ev) {
+            if (org.nextgram.engine.edit.EditMode.dispatchWindowTouch(getRootView(), ev)) return true; // nextgram
+            return super.dispatchTouchEvent(ev);
+        }
         private float backScaleX = 1;
         private float backScaleY = 1;
         private boolean startAnimationPending = false;

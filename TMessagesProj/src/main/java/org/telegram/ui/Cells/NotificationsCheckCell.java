@@ -77,6 +77,7 @@ public class NotificationsCheckCell extends FrameLayout {
         textView = new TextView(context);
         textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        org.nextgram.engine.hooks.SizeHooks.track(textView, 16f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_TEXT); // nextgram
         textView.setLines(1);
         textView.setMaxLines(1);
         textView.setSingleLine(true);
@@ -96,6 +97,7 @@ public class NotificationsCheckCell extends FrameLayout {
         multilineValueTextView = new TextView(context);
         multilineValueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2, resourcesProvider));
         multilineValueTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+        org.nextgram.engine.hooks.SizeHooks.track(multilineValueTextView, 13f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_SUB); // nextgram
         multilineValueTextView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
         multilineValueTextView.setLines(0);
         multilineValueTextView.setMaxLines(0);

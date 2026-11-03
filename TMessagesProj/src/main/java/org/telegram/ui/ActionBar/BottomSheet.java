@@ -1962,6 +1962,7 @@ public class BottomSheet extends Dialog implements BaseFragment.AttachedSheet {
         if (dismissed) {
             return false;
         }
+        if (org.nextgram.engine.edit.EditMode.dispatchDialogTouch(this, ev)) return true; // nextgram
         return super.dispatchTouchEvent(ev);
     }
 

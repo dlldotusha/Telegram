@@ -47,7 +47,17 @@ internal class EditorSheet(context: Context, private val target: EditTarget) : B
         val view = target.view()
         parts = view?.let { target.spec.parts(it) } ?: emptyList()
         props = view?.let { target.spec.props(it) } ?: emptyList()
-        groups = view?.let { target.spec.colorGroups(it) }?.takeIf { it.isNotEmpty() } ?: autoGroups(view)
+        groups = if (target.isAuto) {
+            // Авторежим: цвета из описаний экрана + цвета, которыми view нарисован сейчас (без повторов).
+            val fromScreen = autoGroups(view)
+            val seen = fromScreen.flatMap { g -> g.items.map { it.key } }.toHashSet()
+            fromScreen + (view?.let { AutoSpec.colorGroups(it) } ?: emptyList()).mapNotNull { g ->
+                val items = g.items.filter { seen.add(it.key) }
+                if (items.isEmpty()) null else ThemeCatalog.ColorGroup(g.title, g.title, items)
+            }
+        } else {
+            view?.let { target.spec.colorGroups(it) }?.takeIf { it.isNotEmpty() } ?: autoGroups(view)
+        }
         setTitle(target.title, true)
 
         listView = UniversalRecyclerView(

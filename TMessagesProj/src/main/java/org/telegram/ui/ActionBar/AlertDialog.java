@@ -322,6 +322,12 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
     private long shownAt;
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (org.nextgram.engine.edit.EditMode.dispatchDialogTouch(this, ev)) return true; // nextgram
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
     public void show() {
         if (!AndroidUtilities.isSafeToShow(getContext())) return;
         dismissed = false;

@@ -78,6 +78,7 @@ public class TextInfoPrivacyCell extends FrameLayout {
             }
         };
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+        org.nextgram.engine.hooks.SizeHooks.track(textView, 14f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_FOOTER); // nextgram
         textView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
         textView.setPadding(0, AndroidUtilities.dp(10), 0, AndroidUtilities.dp(17));
         textView.setMovementMethod(LinkMovementMethod.getInstance());

@@ -101,16 +101,43 @@ object EditMode {
     @JvmStatic
     fun dispatchTouchEvent(activity: Activity, ev: MotionEvent): Boolean {
         val ov = overlay
-        if (!active || ov == null || activity !== activity()) return false
+        if (!active || ov == null || activity !== activity() || dispatchingCancel) return false
+        if (ev.actionMasked == MotionEvent.ACTION_DOWN && ov.isOnToolbar(ev.rawX, ev.rawY)) {
+            AndroidUtilities.cancelRunOnUIThread(longPress)
+            gesture = Gesture.NONE
+            return false
+        }
+        return handleTouch(activity.window.decorView, ev, activity)
+    }
+
+    /**
+     * Хук из окон поверх экрана: BottomSheet, AlertDialog (root — окно диалога)
+     * и всплывающие меню (root — корень попапа). Пока открыта панель свойств,
+     * окна не трогаем: это наши собственные окна (свойства, выбор цвета).
+     */
+    @JvmStatic
+    fun dispatchWindowTouch(root: View?, ev: MotionEvent): Boolean {
+        if (!active || root == null || overlay == null || sheet != null || dispatchingCancel) return false
+        val a = activity() ?: return false
+        // Меню, показанное внутри окна приложения, уже обработано хуком активности.
+        if (root === a.window.decorView) return false
+        return handleTouch(root, ev, a)
+    }
+
+    @JvmStatic
+    fun dispatchDialogTouch(dialog: android.app.Dialog, ev: MotionEvent): Boolean =
+        if (!active) false else dispatchWindowTouch(dialog.window?.decorView, ev)
+
+    private var gestureRoot: WeakReference<View>? = null
+    private var dispatchingCancel = false
+
+    private fun handleTouch(root: View, ev: MotionEvent, activity: Activity): Boolean {
         val x = ev.rawX
         val y = ev.rawY
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 AndroidUtilities.cancelRunOnUIThread(longPress)
-                if (ov.isOnToolbar(x, y)) {
-                    gesture = Gesture.NONE
-                    return false
-                }
+                gestureRoot = WeakReference(root)
                 downX = x
                 downY = y
                 downTime = ev.downTime
@@ -148,14 +175,21 @@ object EditMode {
 
     private fun onLongPress() {
         val a = activity()
-        if (!active || a == null || gesture != Gesture.PENDING) return
+        val root = gestureRoot?.get()
+        if (!active || a == null || root == null || gesture != Gesture.PENDING) return
         gesture = Gesture.CONSUMED
         // Отменяем жест у интерфейса, чтобы не сработал клик или меню сообщения.
         val cancel = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, downX, downY, 0)
-        a.window.superDispatchTouchEvent(cancel)
-        cancel.recycle()
+        dispatchingCancel = true
+        try {
+            if (root === a.window.decorView) a.window.superDispatchTouchEvent(cancel) else root.dispatchTouchEvent(cancel)
+        } catch (e: Throwable) {
+            org.telegram.messenger.FileLog.e(e)
+        } finally {
+            dispatchingCancel = false
+            cancel.recycle()
+        }
 
-        val root = a.window.decorView
         val target = SpecRegistry.targetAt(root, downX, downY, overlay) ?: return
         root.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
         select(target)

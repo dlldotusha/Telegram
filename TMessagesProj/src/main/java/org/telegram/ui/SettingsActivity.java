@@ -1207,10 +1207,12 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
 
             titleView = new TextView(context);
             titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+            org.nextgram.engine.hooks.SizeHooks.track(titleView, 16f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_TEXT); // nextgram
             textLayout.addView(titleView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 0));
 
             subtitleView = new TextView(context);
             subtitleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
+            org.nextgram.engine.hooks.SizeHooks.track(subtitleView, 13f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_SUB); // nextgram
             textLayout.addView(subtitleView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 4, 0, 0));
 
             valueView = new TextView(context);

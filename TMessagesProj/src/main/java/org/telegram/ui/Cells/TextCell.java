@@ -98,6 +98,7 @@ public class TextCell extends FrameLayout {
         textView = new SimpleTextView(context);
         textView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextBlack : Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));
         textView.setTextSize(16);
+        org.nextgram.engine.hooks.SizeHooks.track(textView, 16f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_TEXT); // nextgram
         textView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
         textView.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT));
@@ -105,6 +106,7 @@ public class TextCell extends FrameLayout {
         subtitleView = new SimpleTextView(context);
         subtitleView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextGray : Theme.key_windowBackgroundWhiteGrayText, resourcesProvider));
         subtitleView.setTextSize(13);
+        org.nextgram.engine.hooks.SizeHooks.track(subtitleView, 13f, org.nextgram.engine.hooks.SizeHooks.SETTINGS_SUB); // nextgram
         subtitleView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
         subtitleView.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         addView(subtitleView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT));
