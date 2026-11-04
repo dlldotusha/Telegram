@@ -1,6 +1,7 @@
 import json, os, sys, datetime
 sys.path.insert(0, os.path.dirname(__file__))
 from gen_shapes import css as shapes_css, svgpath
+import motion
 
 OUT = os.path.join(os.path.dirname(__file__), 'ds', 'project')
 def w(path, text):
@@ -185,8 +186,8 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-appbar h1.hero{font-size:40px;line-height:44px;font-weight:850;letter-spacing:-1px;font-variation-settings:"wdth" 140,"opsz" 48}
 .dg-appbar .sub{margin:0 12px;color:var(--on-surface-variant);font:400 14px/20px var(--font-sans)}
 .dg-appbar.small{padding:4px;flex-direction:row;align-items:center;background:var(--surface-container);border-radius:0 0 var(--shape-xl) var(--shape-xl)}
-.dg-appbar.small .t{flex:1;min-width:0;font:500 22px/28px var(--font-sans)}
-.dg-appbar.small .t small{display:block;font:500 12.5px/16px var(--font-sans);color:var(--primary)}
+.dg-appbar.small .ttl{flex:1;min-width:0;font:500 22px/28px var(--font-sans)}
+.dg-appbar.small .ttl small{display:block;font:500 12.5px/16px var(--font-sans);color:var(--primary)}
 /* Search bar */
 .dg-search{height:56px;border-radius:28px;background:var(--surface-container-highest);display:flex;align-items:center;gap:12px;padding:0 8px 0 16px;color:var(--on-surface-variant);font:400 16px/24px var(--font-sans)}
 .dg-search .ph{flex:1}
@@ -307,7 +308,7 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-ghost{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 8px;border-radius:16px;background:var(--ghost);color:var(--on-ghost);font:700 12.5px/16px var(--font-sans);border:0;cursor:pointer}
 .dg-ghost .dg-ic{font-size:18px}
 """
-bundle = bundle.replace('%%', '%')
+bundle = bundle.replace('%%', '%') + motion.MOTION_CSS
 w('components/bundle.css', bundle)
 
 # ---------------------------------------------------------------- helpers for previews
@@ -469,7 +470,7 @@ comps['TopAppBar'] = (card('Навигация', 330, f'''<div class="dg-stage c
  <div class="dg-phone"><div class="dg-appbar small">
   <button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button>
   <span class="dg-av s t sh-cookie12">А</span>
-  <span class="t">Аня<small>в сети</small></span>
+  <span class="ttl">Аня<small>в сети</small></span>
   <button class="dg-ib" aria-label="Звонок">{ic("call")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button>
  </div></div>
 </div>'''), '''# TopAppBar
@@ -513,6 +514,7 @@ comps['FolderChips'] = (card('Навигация', 90, f'''<div class="dg-stage"
 - Свайп по списку чатов влево-вправо переключает папки, чипы едут следом.
 - Долгий тап по чипу: прочитать всё, изменить, порядок.
 - Счётчик скрывается, если в папке нет непрочитанных.
+- Настройки вида (фича 38): чипы (по умолчанию) или вкладки с подчёркиванием-пилюлей; иконки папок слева от названия, только иконки или только текст; скрыть «Все чаты».
 
 **Android:** перерисовка `FilterTabsView` в стиле чипов.
 ''')
@@ -576,7 +578,7 @@ comps['Avatar'] = (card('Идентичность', 200, f'''<div class="dg-stag
 - Форма одна на всё приложение (выбор пользователя), кроме: Избранное всегда `cookie4`, свой аватар в шапке всегда `cookie9`.
 - Профиль: `avatar-xl` медленно перетекает между формами (9 с цикл); при «Меньше движения» стоит на месте.
 - «В сети»: точка `online` с обводкой цветом фона, плюс текст статуса рядом.
-- История: кольцо `primary` → `tertiary`, просмотренная `outline-variant`.
+- История: кольцо `primary` → `tertiary`, просмотренная `outline-variant`. Истории можно скрыть целиком (фича 39): пропадают кольца, лента историй над списком и пункты в профиле.
 
 **Android:** `DgAvatarDrawable` оборачивает `AvatarDrawable`/`ImageReceiver`; форма через `Path` из `RoundedPolygon` (androidx.graphics.shapes), морфинг через `Morph`.
 ''')
@@ -606,6 +608,8 @@ comps['ChatRow'] = (card('Списки', 330, f'''<div class="dg-stage col" styl
 - Превью: «печатает…» и черновик `primary`, автор в группе `on-surface` 500, остальное `on-surface-variant`.
 - Галочки прочтения справа рядом со временем, `primary`.
 - Долгий тап: выделение (аватар морфит в галочку), панель действий снизу.
+- Свайпы влево и вправо настраиваются отдельно: архив, закрепить, прочитать, без звука, удалить, ничего (см. MotionSwipe).
+- Архив прячется над списком и вытягивается свайпом вниз, либо показан всегда, либо скрыт (см. MotionPull).
 
 **Android:** перерисовка `DialogCell` по этим токенам; верстка ячейки остаётся телеграмовской, меняются отступы, цвета, форма аватара и бейджи.
 ''')
@@ -716,6 +720,9 @@ comps['Snackbar'] = (card('Обратная связь', 90, f'''<div class="dg-
 **Android:** `DgSnackbar` на базе `BulletinFactory` Telegram (перекраска и форма `shape-m`).
 ''')
 
+for name, (h, sub, body, js, readme) in motion.CARDS.items():
+    comps[name] = (card('Движение', h, body, motion.ENGINE + js, sub), readme)
+
 for name, (prev, readme) in comps.items():
     w(f'components/{name}/preview.html', prev)
     w(f'components/{name}/README.md', readme)
@@ -807,13 +814,36 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 - Чат: `message` (16/22, размер меняется ползунком), `message-meta`, `chat-name`, `chat-preview`.
 - Цифры в счётчиках, времени и размерах — моноширинные (`tnum`).
 
-## Движение
+## Движение — главное в DelushaGram
 
-- **Только пружины**, никаких фиксированных длительностей (`spring` в `tokens.json`).
-- `spatial-*` (с отскоком) — позиция, размер, форма: морфинг кнопок `spatial-fast`, открытие меню и смена вкладки `spatial-default`, переходы экранов и развёртывание шапки `spatial-slow`.
-- `effects-*` (без отскока) — цвет и прозрачность.
-- Анимация прерываема: новый жест подхватывает пружину с текущей скорости, ничего не ждёт окончания.
-- Одновременно движется одна главная вещь; остальное следует или стоит.
+Анимации здесь не украшение, а характер приложения. Каждое действие отвечает движением, которое видно, чувствуется пальцем и никогда не тормозит само действие.
+
+- **Только пружины**, никаких фиксированных длительностей и кривых (`spring` в `tokens.json`). Длительность получается сама из расстояния и скорости пальца.
+- `spatial-*` (с перелётом) — позиция, размер, форма. `effects-*` (без перелёта) — цвет и прозрачность.
+- **Прерываемость.** Любую анимацию можно перехватить: новый тап или жест подхватывает пружину с текущей скоростью и разворачивает её. Ничего не ждёт окончания.
+- **Жест управляет напрямую.** Пока палец на экране, элемент едет за ним 1:1 (свайп чата, архив, назад). Отпустил — пружина стартует со скоростью пальца.
+- **Пороги чувствуются.** Перешёл порог жеста: вибрация, иконка подпрыгивает, цвет заливает фон. За порогом сопротивление (резинка).
+- **Вход медленнее выхода.** Открытие `spatial-slow`/`spatial-default`, закрытие на ступень быстрее. Уходящее не задерживает.
+- **Лесенка для групп.** Пункты списка и меню появляются с шагом 35–40 мс, исчезают обратным порядком быстрее.
+- **Одна главная вещь движется**, остальное следует за ней или стоит.
+- **Действие мгновенно, анимация поверх.** Сообщение уходит в сеть в момент нажатия, экран открывается сразу, анимация только показывает это.
+- **Производительность.** Анимируются только свойства RenderThread (`translation`, `scale`, `alpha`, `rotation`) и отрисовка в `onDraw`; ни одной перекладки на кадр. Цель — 120 Гц без пропусков на Snapdragon 7-й серии, 60 Гц на старых.
+- **«Меньше движения»:** пружины `spatial-*` → `spatial-calm` (без перелёта), морфинг аватаров, частицы и волны выключены, переходы остаются, но короче.
+
+### Фирменные анимации
+
+| Где | Что происходит | Карточка |
+|---|---|---|
+| Отправка | Поле ввода превращается в пузырь и встаёт в ленту | MotionSend |
+| Открытие чата | Строка раскрывается в экран, аватар перелетает в шапку | MotionOpen |
+| Разделы | Вкладка панели перетекает в пилюлю, список лесенкой | MotionTabs |
+| Свайпы по чатам | Заливка от иконки, порог с вибрацией, схлопывание | MotionSwipe |
+| Архив | Вытягивается вниз, печенька крутится и морфит | MotionPull |
+| Призрак | Цвет заливает шапку кругом, глаз закрывается | MotionGhost |
+| Новый чат | FAB морфит в круг, пункты вылетают лесенкой | MotionFab |
+| Реакции | Сердце и частицы-формы, число прокручивается | MotionReactions |
+| История | Удалённое вздрагивает, изменённое перетекает | MotionHistory |
+| Нажатие | Углы кнопок и иконок сжимаются, отпускание с отскоком | Button, IconButton |
 
 ## Отступы и слои
 

@@ -1,0 +1,52 @@
+<!-- @dsCard group="Движение" height=420 subtitle="Удалённые и изменённые сообщения" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"></head>
+<body>
+<div class="mo-wrap">
+<div class="mo-phone mo-hist" id="ph"><div class="dg-msgs" style="position:absolute;left:0;right:0;bottom:0">
+ <div class="dg-b out first last">Во сколько встречаемся?<span class="meta">9:30 <span class="dg-ic">done_all</span></span></div>
+ <div class="dg-b in first" id="del"><div class="mo-tagrow" id="dtag"><span class="tag"><span class="dg-ic">delete</span>удалено</span></div>ой, это не тебе<span class="meta">9:33</span></div>
+ <div class="dg-b in last" id="ed"><div class="mo-tagrow" id="etag"><span class="tag" style="cursor:pointer"><span class="dg-ic">history</span>изменено · 2 версии</span></div><span id="etx">Приду к семи</span><span class="meta">9:35</span><div class="mo-ver" id="ver"><div><s>Приду к семи</s> 9:35</div><div>Приду к восьми · сейчас</div></div></div>
+</div></div>
+<div class="mo-side"><span class="mo-hint"><span class="dg-ic">touch_app</span>Сыграй, что сделал собеседник</span>
+<div class="mo-btns"><button class="dg-btn tonal" id="bd"><span class="dg-ic">delete</span>Удалил</button><button class="dg-btn tonal" id="be"><span class="dg-ic">edit</span>Изменил</button><button class="dg-btn text" id="br">Сначала</button></div>
+<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается, сверху выезжает метка. <b>Изменённое</b> плавно меняет текст, метка «изменено» открывает все версии.</p>
+<p><span class="mo-tok">spatial-fast</span> встряска · <span class="mo-tok">spatial-default</span> метки и текст · <span class="mo-tok">effects-default</span> цвет</p></div>
+</div>
+<script>
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var SPR={'spatial-fast':[.6,800],'spatial-default':[.8,380],'spatial-slow':[.8,200],'effects-fast':[1,3800],'effects-default':[1,1600],'effects-slow':[1,800],'spatial-calm':[1,380]};
+function Spring(x,cb,name,eps){this.x=x;this.v=0;this.t=x;this.cb=cb;this.eps=eps||0.001;this.use(name||'spatial-default');}
+Spring.prototype.use=function(n){var s=SPR[n];this.z=s[0];this.k=s[1];return this};
+Spring.prototype.set=function(x){this.x=this.t=x;this.v=0;if(this.r){cancelAnimationFrame(this.r);this.r=0}this.cb(x);return this};
+Spring.prototype.kick=function(v){this.v=v;return this};
+Spring.prototype.to=function(t,n,done){if(n)this.use(n);this.t=t;this.done=done||null;var me=this;
+ if(RM){this.set(t);if(done)done();return this}
+ if(!this.r){this.l=performance.now();this.r=requestAnimationFrame(function f(now){var dt=Math.min(.05,(now-me.l)/1000);me.l=now;var c=2*me.z*Math.sqrt(me.k),steps=Math.max(1,Math.ceil(dt/.002)),h=dt/steps;
+  for(var i=0;i<steps;i++){var a=-me.k*(me.x-me.t)-c*me.v;me.v+=a*h;me.x+=me.v*h}
+  if(Math.abs(me.v)<me.eps*10&&Math.abs(me.x-me.t)<me.eps){me.x=me.t;me.v=0;me.r=0;me.cb(me.x);var d=me.done;me.done=null;if(d)d();return}
+  me.cb(me.x);me.r=requestAnimationFrame(f)})}
+ return this};
+function L(a,b,p){return a+(b-a)*p}
+function C(p){return Math.max(0,Math.min(1,p))}
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function rel(el,root){var a=el.getBoundingClientRect(),b=root.getBoundingClientRect();return{x:a.left-b.left,y:a.top-b.top,w:a.width,h:a.height}}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}
+
+var del=$('#del'),dtag=$('#dtag'),ed=$('#ed'),etag=$('#etag'),etx=$('#etx'),ver=$('#ver');
+del.style.transition='background-color 300ms cubic-bezier(.2,0,0,1),color 300ms cubic-bezier(.2,0,0,1)';
+var th=dtag.firstChild.offsetHeight+2,eh=etag.firstChild.offsetHeight+2,vh=ver.scrollHeight;dtag.style.height=etag.style.height='0px';
+var shake=new Spring(0,function(x){del.style.transform='translateX('+x+'px)'},'spatial-fast',.05);
+var dt=new Spring(0,function(a){dtag.style.height=Math.max(0,a*th)+'px';dtag.style.opacity=C(a)},'spatial-default');
+var et=new Spring(0,function(a){etag.style.height=Math.max(0,a*eh)+'px';etag.style.opacity=C(a)},'spatial-default');
+var vs=new Spring(0,function(a){ver.style.height=Math.max(0,a*vh)+'px';ver.style.opacity=C(a)},'spatial-default');ver.style.height='0px';
+var tx=new Spring(1,function(a){etx.style.opacity=C(a);etx.style.filter='blur('+((1-C(a))*4)+'px)'},'effects-default');
+$('#bd').addEventListener('click',function(){buzz();del.classList.add('deleted');shake.set(0).kick(-700).to(0);dt.to(1)});
+$('#be').addEventListener('click',function(){if(etx.textContent==='Приду к восьми')return;buzz();tx.to(0,'effects-fast',function(){etx.textContent='Приду к восьми';tx.to(1,'effects-default')});et.to(1)});
+etag.addEventListener('click',function(){vs.to(vs.t?0:1)});
+$('#br').addEventListener('click',function(){del.classList.remove('deleted');dt.to(0);et.to(0);vs.to(0);etx.textContent='Приду к семи'});
+</script>
+</body>
+</html>

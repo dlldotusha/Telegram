@@ -1,0 +1,48 @@
+<!-- @dsCard group="Движение" height=520 subtitle="Шкала пружин: позиция и форма с отскоком, цвет без" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"></head>
+<body>
+<div class="dg-stage col" style="gap:14px">
+ <canvas id="cv" width="1600" height="360" style="width:100%;max-width:800px;height:auto;aspect-ratio:1600/360"></canvas>
+ <div class="mo-lanes" id="lanes"></div>
+ <div><button class="dg-btn filled" id="go"><span class="dg-ic fill">play_arrow</span>Запустить</button></div>
+</div>
+<script>
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var SPR={'spatial-fast':[.6,800],'spatial-default':[.8,380],'spatial-slow':[.8,200],'effects-fast':[1,3800],'effects-default':[1,1600],'effects-slow':[1,800],'spatial-calm':[1,380]};
+function Spring(x,cb,name,eps){this.x=x;this.v=0;this.t=x;this.cb=cb;this.eps=eps||0.001;this.use(name||'spatial-default');}
+Spring.prototype.use=function(n){var s=SPR[n];this.z=s[0];this.k=s[1];return this};
+Spring.prototype.set=function(x){this.x=this.t=x;this.v=0;if(this.r){cancelAnimationFrame(this.r);this.r=0}this.cb(x);return this};
+Spring.prototype.kick=function(v){this.v=v;return this};
+Spring.prototype.to=function(t,n,done){if(n)this.use(n);this.t=t;this.done=done||null;var me=this;
+ if(RM){this.set(t);if(done)done();return this}
+ if(!this.r){this.l=performance.now();this.r=requestAnimationFrame(function f(now){var dt=Math.min(.05,(now-me.l)/1000);me.l=now;var c=2*me.z*Math.sqrt(me.k),steps=Math.max(1,Math.ceil(dt/.002)),h=dt/steps;
+  for(var i=0;i<steps;i++){var a=-me.k*(me.x-me.t)-c*me.v;me.v+=a*h;me.x+=me.v*h}
+  if(Math.abs(me.v)<me.eps*10&&Math.abs(me.x-me.t)<me.eps){me.x=me.t;me.v=0;me.r=0;me.cb(me.x);var d=me.done;me.done=null;if(d)d();return}
+  me.cb(me.x);me.r=requestAnimationFrame(f)})}
+ return this};
+function L(a,b,p){return a+(b-a)*p}
+function C(p){return Math.max(0,Math.min(1,p))}
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function rel(el,root){var a=el.getBoundingClientRect(),b=root.getBoundingClientRect();return{x:a.left-b.left,y:a.top-b.top,w:a.width,h:a.height}}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}
+
+var names=['spatial-fast','spatial-default','spatial-slow','effects-fast','effects-default','effects-slow'];
+var lanes=$('#lanes'),springs=[],on=0;
+names.forEach(function(n,i){var d=document.createElement('div');d.className='mo-lane';d.innerHTML='<span class="nm">'+n+'</span><div class="mo-track"><i class="mo-dot sh-cookie9'+(i>2?' fx':'')+'"></i></div>';lanes.appendChild(d);
+ var dot=d.querySelector('.mo-dot'),tr=d.querySelector('.mo-track');
+ springs.push(new Spring(0,function(p){dot.style.transform='translateX('+(p*(tr.clientWidth-40))+'px) rotate('+(p*120)+'deg)'},n));});
+function draw(){var cv=$('#cv'),g=cv.getContext('2d'),cs=getComputedStyle(document.documentElement);var W=cv.width,H=cv.height,pad=40,top=30,bot=50;
+ g.clearRect(0,0,W,H);var y0=H-bot,y1=top+40;g.strokeStyle=cs.getPropertyValue('--outline-variant');g.lineWidth=2;
+ [0,1].forEach(function(v){var y=L(y0,y1,v);g.beginPath();g.moveTo(pad,y);g.lineTo(W-pad,y);g.stroke()});
+ g.fillStyle=cs.getPropertyValue('--on-surface-variant');g.font='500 22px system-ui';g.fillText('0',8,y0+8);g.fillText('1',8,y1+8);g.fillText('0 мс',pad,H-12);g.fillText('600 мс',W-pad-80,H-12);
+ names.forEach(function(n,i){var s=SPR[n],x=0,v=0,c=2*s[0]*Math.sqrt(s[1]),h=.001;g.beginPath();
+  for(var t=0;t<=.6;t+=h){var a=-s[1]*(x-1)-c*v;v+=a*h;x+=v*h;var px=L(pad,W-pad,t/.6),py=L(y0,y1,x);if(t===0)g.moveTo(px,py);else g.lineTo(px,py)}
+  g.strokeStyle=cs.getPropertyValue(i>2?'--tertiary':'--primary');g.globalAlpha=1-(i%3)*.28;g.lineWidth=5;g.stroke();g.globalAlpha=1});}
+draw();new MutationObserver(draw).observe(document.documentElement,{attributes:true});
+$('#go').addEventListener('click',function(){on=1-on;springs.forEach(function(s){s.to(on)});});
+</script>
+</body>
+</html>

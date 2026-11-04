@@ -1,0 +1,58 @@
+<!-- @dsCard group="Движение" height=480 subtitle="FAB-меню: новый чат, группа, канал" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"></head>
+<body>
+<div class="mo-wrap">
+<div class="mo-phone mo-fab" id="ph">
+ <div class="dg-appbar" style="padding-bottom:6px"><h1 style="margin-top:4px">Чаты</h1></div>
+ <div class="mo-list" id="rest"></div>
+ <div class="mo-scrim" id="scrim"></div>
+ <div class="mo-fabzone" id="zone">
+  <button class="item"><span class="dg-ic">lock</span>Секретный чат</button>
+  <button class="item"><span class="dg-ic">campaign</span>Канал</button>
+  <button class="item"><span class="dg-ic">group</span>Группа</button>
+  <button class="item"><span class="dg-ic">person_add</span>Контакт</button>
+  <button class="mo-fabbtn" id="fab" aria-label="Новый чат" aria-expanded="false"><span class="dg-ic fill" id="fi">edit</span></button>
+ </div>
+</div>
+<div class="mo-side"><span class="mo-hint"><span class="dg-ic">touch_app</span>Нажми на карандаш</span>
+<p><b>Пункты вылетают из кнопки лесенкой</b> снизу вверх через 35 мс, каждый с отскоком. Кнопка морфит из скруглённого квадрата в круг, карандаш поворачивается в крестик.</p>
+<p>Тап мимо закрывает, пункты убегают обратно быстрее, сверху вниз.</p>
+<p><span class="mo-tok">spatial-default</span> пункты · <span class="mo-tok">spatial-fast</span> кнопка · <span class="mo-tok">effects-slow</span> затемнение</p></div>
+</div>
+<script>
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var SPR={'spatial-fast':[.6,800],'spatial-default':[.8,380],'spatial-slow':[.8,200],'effects-fast':[1,3800],'effects-default':[1,1600],'effects-slow':[1,800],'spatial-calm':[1,380]};
+function Spring(x,cb,name,eps){this.x=x;this.v=0;this.t=x;this.cb=cb;this.eps=eps||0.001;this.use(name||'spatial-default');}
+Spring.prototype.use=function(n){var s=SPR[n];this.z=s[0];this.k=s[1];return this};
+Spring.prototype.set=function(x){this.x=this.t=x;this.v=0;if(this.r){cancelAnimationFrame(this.r);this.r=0}this.cb(x);return this};
+Spring.prototype.kick=function(v){this.v=v;return this};
+Spring.prototype.to=function(t,n,done){if(n)this.use(n);this.t=t;this.done=done||null;var me=this;
+ if(RM){this.set(t);if(done)done();return this}
+ if(!this.r){this.l=performance.now();this.r=requestAnimationFrame(function f(now){var dt=Math.min(.05,(now-me.l)/1000);me.l=now;var c=2*me.z*Math.sqrt(me.k),steps=Math.max(1,Math.ceil(dt/.002)),h=dt/steps;
+  for(var i=0;i<steps;i++){var a=-me.k*(me.x-me.t)-c*me.v;me.v+=a*h;me.x+=me.v*h}
+  if(Math.abs(me.v)<me.eps*10&&Math.abs(me.x-me.t)<me.eps){me.x=me.t;me.v=0;me.r=0;me.cb(me.x);var d=me.done;me.done=null;if(d)d();return}
+  me.cb(me.x);me.r=requestAnimationFrame(f)})}
+ return this};
+function L(a,b,p){return a+(b-a)*p}
+function C(p){return Math.max(0,Math.min(1,p))}
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function rel(el,root){var a=el.getBoundingClientRect(),b=root.getBoundingClientRect();return{x:a.left-b.left,y:a.top-b.top,w:a.width,h:a.height}}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}
+
+var rest=$('#rest');[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','Приду к восьми','9:40','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['К','Кофе по пятницам','Даша: кто завтра?','Вс','','sh-pent']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
+var items=$$('.item').reverse(),fab=$('#fab'),fi=$('#fi'),scrim=$('#scrim'),on=false;
+var ss=items.map(function(it){return new Spring(0,function(p){it.style.opacity=C(p*1.4);it.style.transform='translateY('+((1-p)*24)+'px) scale('+L(.6,1,p)+')';it.style.pointerEvents=p>.5?'auto':'none'},'spatial-default')});
+var fs=new Spring(0,function(p){fab.style.borderRadius=L(16,28,p)+'px';fi.style.transform='rotate('+(p*90)+'deg)'},'spatial-fast');
+var sc=new Spring(0,function(p){scrim.style.opacity=C(p)*.32},'effects-slow');
+fs.set(0);ss.forEach(function(s){s.set(0)});
+var swapT;function toggle(v){on=v;buzz();fab.classList.toggle('on',on);fab.setAttribute('aria-expanded',on);scrim.classList.toggle('on',on);fs.to(on?1:0);sc.to(on?1:0,on?'effects-slow':'effects-default');
+ clearTimeout(swapT);swapT=setTimeout(function(){fi.textContent=on?'close':'edit'},60);
+ ss.forEach(function(s,i){var d=on?i*35:(ss.length-1-i)*20;setTimeout(function(){s.to(on?1:0,on?'spatial-default':'spatial-fast')},d)})}
+fab.addEventListener('click',function(){toggle(!on)});scrim.addEventListener('click',function(){toggle(false)});
+items.forEach(function(it){it.addEventListener('click',function(){toggle(false)})});
+</script>
+</body>
+</html>

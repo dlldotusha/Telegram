@@ -1,0 +1,66 @@
+<!-- @dsCard group="Движение" height=420 subtitle="Свайпы по чатам: закрепить и архив" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"></head>
+<body>
+<div class="mo-wrap">
+<div class="mo-phone" id="ph" style="height:350px"><div class="mo-list" id="list"></div><div class="mo-snack" id="snk" style="display:none"><div class="dg-snack"><span class="tx">Чат в архиве</span><button id="undo">Отменить</button></div></div></div>
+<div class="mo-side"><span class="mo-hint"><span class="dg-ic">swipe</span>Тяни строку влево или вправо</span>
+<p><b>Влево — в архив, вправо — закрепить.</b> Пока не дотянул до порога, под строкой серый фон. За порогом цвет заливает фон кругом от иконки, иконка подпрыгивает, телефон коротко вибрирует.</p>
+<p>Отпустил раньше — строка возвращается пружиной со скоростью пальца. Дальше порога строка тянется туже.</p>
+<p><span class="mo-tok">spatial-fast</span> иконка · <span class="mo-tok">spatial-default</span> возврат и схлопывание</p></div>
+</div>
+<script>
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var SPR={'spatial-fast':[.6,800],'spatial-default':[.8,380],'spatial-slow':[.8,200],'effects-fast':[1,3800],'effects-default':[1,1600],'effects-slow':[1,800],'spatial-calm':[1,380]};
+function Spring(x,cb,name,eps){this.x=x;this.v=0;this.t=x;this.cb=cb;this.eps=eps||0.001;this.use(name||'spatial-default');}
+Spring.prototype.use=function(n){var s=SPR[n];this.z=s[0];this.k=s[1];return this};
+Spring.prototype.set=function(x){this.x=this.t=x;this.v=0;if(this.r){cancelAnimationFrame(this.r);this.r=0}this.cb(x);return this};
+Spring.prototype.kick=function(v){this.v=v;return this};
+Spring.prototype.to=function(t,n,done){if(n)this.use(n);this.t=t;this.done=done||null;var me=this;
+ if(RM){this.set(t);if(done)done();return this}
+ if(!this.r){this.l=performance.now();this.r=requestAnimationFrame(function f(now){var dt=Math.min(.05,(now-me.l)/1000);me.l=now;var c=2*me.z*Math.sqrt(me.k),steps=Math.max(1,Math.ceil(dt/.002)),h=dt/steps;
+  for(var i=0;i<steps;i++){var a=-me.k*(me.x-me.t)-c*me.v;me.v+=a*h;me.x+=me.v*h}
+  if(Math.abs(me.v)<me.eps*10&&Math.abs(me.x-me.t)<me.eps){me.x=me.t;me.v=0;me.r=0;me.cb(me.x);var d=me.done;me.done=null;if(d)d();return}
+  me.cb(me.x);me.r=requestAnimationFrame(f)})}
+ return this};
+function L(a,b,p){return a+(b-a)*p}
+function C(p){return Math.max(0,Math.min(1,p))}
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function rel(el,root){var a=el.getBoundingClientRect(),b=root.getBoundingClientRect();return{x:a.left-b.left,y:a.top-b.top,w:a.width,h:a.height}}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}
+
+var data=[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','печатает…','9:40','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['К','Кофе по пятницам','Даша: кто завтра?','Вс','','sh-pent']];
+var list=$('#list'),snk=$('#snk'),last=null;
+data.forEach(function(d){var w=document.createElement('div');w.className='mo-sw';
+ w.innerHTML='<div class="mo-act"><span class="wash"></span><span class="ico l"><span class="dg-ic">push_pin</span></span><span class="ico r"><span class="dg-ic">archive</span></span></div><div class="dg-chat"><span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'<span class="dg-ic fill pin" style="display:none">push_pin</span></div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div></div>';
+ list.appendChild(w);setup(w)});
+function setup(w){var row=w.querySelector('.dg-chat'),wash=w.querySelector('.wash'),il=w.querySelector('.ico.l'),ir=w.querySelector('.ico.r'),pin=w.querySelector('.pin'),act=w.querySelector('.mo-act');
+ var W=function(){return w.clientWidth},T=function(){return W()*.32};var dir=0,armed=false;
+ var x=new Spring(0,function(v){row.style.transform='translateX('+v+'px)';var d=v>0?1:v<0?-1:0;if(d!==dir){dir=d;wash.style.background=d>0?'var(--primary-container)':'var(--tertiary-container)';}
+  il.style.opacity=v>0?C(v/40):0;ir.style.opacity=v<0?C(-v/40):0;},'spatial-default',.1);
+ var wr=new Spring(0,function(r){var ic=dir>0?il:ir,a=rel(ic,w);wash.style.clipPath='circle('+Math.max(0,r)+'px at '+(a.x+a.w/2)+'px '+(a.y+a.h/2)+'px)'},'spatial-default',.1);
+ var sc=new Spring(1,function(s){il.style.transform=ir.style.transform='scale('+s+')'},'spatial-fast');
+ var col=function(on){il.style.color=on?'var(--on-primary-container)':'var(--on-surface-variant)';ir.style.color=on?'var(--on-tertiary-container)':'var(--on-surface-variant)'};
+ wash.style.clipPath='circle(0px at 0 0)';
+ var sx=0,dx=0,lastX=0,lastT=0,vel=0,drag=false;
+ row.addEventListener('pointerdown',function(e){drag=true;sx=e.clientX-x.x;lastX=e.clientX;lastT=performance.now();row.setPointerCapture(e.pointerId)});
+ row.addEventListener('pointermove',function(e){if(!drag)return;var now=performance.now();vel=(e.clientX-lastX)/Math.max(1,now-lastT)*1000;lastX=e.clientX;lastT=now;
+  var raw=e.clientX-sx,t=T(),a=Math.abs(raw),v=a<=t?a:t+(a-t)*.35;v*=raw<0?-1:1;x.set(v);
+  var on=a>t;if(on!==armed){armed=on;buzz();sc.set(on?.6:1.2).to(1,'spatial-fast');col(on);wr.to(on?W()*1.2:0,'spatial-default')}});
+ function up(){if(!drag)return;drag=false;
+  if(armed&&x.x<0){x.kick(vel).to(-W()-20,'spatial-default',function(){collapse(w,true)});}
+  else if(armed&&x.x>0){x.kick(vel).to(0,'spatial-default');w.querySelector('.dg-chat').classList.toggle('pinned');var on=row.classList.contains('pinned');pin.style.display=on?'':'none';if(on){var ps=new Spring(0,function(s){pin.style.transform='scale('+s+')'},'spatial-fast');ps.to(1)}}
+  else x.kick(vel).to(0,'spatial-default');
+  armed=false;col(false);wr.to(0,'effects-default')}
+ row.addEventListener('pointerup',up);row.addEventListener('pointercancel',up);
+ w._reset=function(){x.set(-W()-20);wr.set(0);x.to(0,'spatial-default')}}
+function collapse(w,out){var h=w.offsetHeight;var s=new Spring(out?1:0,function(p){w.style.height=Math.max(0,p*h)+'px';w.style.opacity=C(p)},'spatial-default',.002);
+ if(out){s.to(0,null,function(){w.style.display='none'});last={w:w,h:h};snk.style.display='';var ss=new Spring(0,function(p){snk.style.transform='translateY('+(1-p)*80+'px)'},'spatial-default');ss.to(1);clearTimeout(window._sk);window._sk=setTimeout(restore,3000)}}
+function restore(){if(!last)return;var w=last.w,h=last.h;last=null;w.style.display='';var s=new Spring(0,function(p){w.style.height=Math.max(0,p*h)+'px';w.style.opacity=C(p)},'spatial-default',.002);s.to(1,null,function(){w.style.height=''});w._reset();
+ var ss=new Spring(1,function(p){snk.style.transform='translateY('+(1-p)*80+'px)'},'spatial-default');ss.to(0,null,function(){snk.style.display='none'})}
+$('#undo').addEventListener('click',restore);
+</script>
+</body>
+</html>
