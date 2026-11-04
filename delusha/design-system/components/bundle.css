@@ -578,3 +578,28 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .pxrec i{width:10px;height:10px;border-radius:3px;background:var(--error);animation:px-blink 1s steps(2) infinite}
 @keyframes px-blink{50%{opacity:.2}}
 @media (prefers-reduced-motion:reduce){.fp.gw{animation:none}}
+
+/* ---------- pixel filter II ---------- */
+.dg-av.pxav{position:relative;display:block;background:none!important;clip-path:none!important;border-radius:0!important;flex:none}
+.pxav i{position:absolute;border-radius:22%}
+.pxav i.b{background:color-mix(in srgb,var(--av-bg,var(--primary-container)) 72%,var(--av-fg,var(--on-primary-container)))}
+.pxav i.l{background:var(--av-fg,var(--on-primary-container))}
+.pxav i.gl{background:color-mix(in srgb,var(--av-bg,var(--primary-container)) 55%,transparent);box-shadow:inset 0 0 0 .5px color-mix(in srgb,#fff 60%,transparent)}
+.pxav i.rg{background:transparent;box-shadow:inset 0 0 0 1px var(--av-bg,var(--primary-container))}
+.pxav i.c{border-radius:50%}
+.pxd{position:relative;display:inline-block;flex:none}
+.pxd i{position:absolute;border-radius:1px;background:currentColor}
+.pxun{display:inline-flex;align-items:center;gap:8px;color:var(--primary);height:44px;padding:0 4px}
+/* mosaic glass = pixel blur */
+.mz{position:absolute;left:0;top:0;pointer-events:none}
+.mz i{position:absolute;border-radius:2px;background:color-mix(in srgb,var(--surface) 52%,transparent);-webkit-backdrop-filter:blur(7px) saturate(1.6);backdrop-filter:blur(7px) saturate(1.6)}
+.mz i.hi{background:color-mix(in srgb,var(--surface) 30%,transparent)}
+.mz i.lo{background:color-mix(in srgb,var(--surface) 72%,transparent)}
+.mz.scrim i{background:color-mix(in srgb,var(--scrim) 22%,transparent);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}
+.mz.scrim i.hi{background:color-mix(in srgb,var(--scrim) 10%,transparent)}
+.mz.scrim i.lo{background:color-mix(in srgb,var(--scrim) 34%,transparent)}
+/* bar tiles become pixel glass too */
+.px-bar .pt{-webkit-backdrop-filter:blur(6px) saturate(1.6);backdrop-filter:blur(6px) saturate(1.6);background:color-mix(in srgb,var(--surface-container-highest) 82%,transparent)}
+.px-bar .blur{display:block;inset:4px 2px;border-radius:24px;background:color-mix(in srgb,var(--surface) 35%,transparent)}
+@keyframes px-twinkle{0%,100%{filter:none}40%{filter:brightness(1.6) drop-shadow(0 0 3px var(--primary))}}
+.px-bar .pt.tw{animation:px-twinkle 1.4s ease-in-out}

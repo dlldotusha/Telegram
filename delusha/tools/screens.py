@@ -6,6 +6,7 @@ sys.path.insert(0, D)
 import expressive
 import pixel as PX
 import pixel_fx as FX
+import pixel2 as P2
 from logo import badge_inline, pixels_varied
 P = os.path.join(D, 'ds', 'project')
 T = json.load(open(os.path.join(P, 'tokens.json')))
@@ -69,7 +70,7 @@ SEG = '''<div class="dg-seg"><button aria-pressed="true">Все <span class="n">
 
 def topbar(ghost=False):
     g = f'<button class="dg-ghost on">{PX.glyph_svg("ghost",20)}Призрак</button>' if ghost else ''
-    return f'<div class="dbar">{logo(24)}{g}<span class="grow"></span><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>'
+    return f'<div class="dbar">{logo(24)}{g}<span class="grow"></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>'
 
 def tabs(active):
     items = [('chats', ic('chat_bubble', active == 'chats'), 'Чаты', '<span class="tbn">12</span>'),
@@ -78,7 +79,7 @@ def tabs(active):
     out = ''.join(f'<button class="tb{" on" if k == active else ""}">{i}<span class="tl">{l}</span>{n}</button>' for k, i, l, n in items)
     return f'<div class="tabs dg-glass">{out}</div>'
 
-PXBOTTOM = f'''<div class="px-cam">{PX.glyph_svg('camera',24)}</div><div class="px-bottom"><div class="px-bar"><div class="blur"></div><div class="tiles">{FX.bar_fx(39,7)}</div><div class="content">{dav('Д','me','sh-cookie9')}{PX.glyph_svg('search',24)}<span>Поиск</span></div></div><div class="px-fab">{FX.fab_fx('edit')}</div></div>'''
+PXBOTTOM = f'''<div class="px-cam">{PX.glyph_svg('camera',24)}</div><div class="px-bottom"><div class="px-bar"><div class="blur"></div><div class="tiles">{FX.bar_fx(39,7)}</div><div class="content">{P2.avatar_px('Д','cookie9','persona persona-me')}{P2.unread_px(12)}</div></div><div class="px-fab">{FX.fab_fx('edit')}</div></div>'''
 FABS = f'''<div class="fabs"><button class="sfab" aria-label="История">{ic("photo_camera",1,22)}</button><span class="dg-fabwrap"><button class="dg-fabx sh-cookie9" aria-label="Новое сообщение">{ic("edit",1)}</button></span></div>'''
 
 def wave(width=150, progress=.4, amp=3.5, period=20):
@@ -87,7 +88,7 @@ def wave(width=150, progress=.4, amp=3.5, period=20):
     act = "M" + " L".join(p for p in pts if float(p.split(',')[0]) - 2 <= cut)
     return f'<svg class="dg-wave" width="{width+4}" height="24" viewBox="0 0 {width+4} 24"><path class="trk" d="M{cut+8},12 L{width+2},12"/><path class="act" d="{act}"/></svg>'
 
-CHATHEAD = f'''<div class="chead dg-glass"><div class="dg-appbar small" style="padding-top:0;background:transparent"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button>{dav('А','anya','sh-cookie12','s')}<span class="ttl">Аня{SUP(True)}<small>в сети</small></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><button class="dg-ib" aria-label="Звонок">{ic("call")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>
+CHATHEAD = f'''<div class="chead mzh">{P2.mosaic(412,156,10,9.2)}<div class="dg-appbar small" style="padding-top:0;background:transparent"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button>{dav('А','anya','sh-cookie12','s')}<span class="ttl">Аня{SUP(True)}<small>в сети</small></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><button class="dg-ib" aria-label="Звонок">{ic("call")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>
 <div class="pinbar"><span class="pl"><b>Закреплённое сообщение</b><span>Встречаемся в восемь у кофейни</span></span>{ic("push_pin",0,20)}</div></div>'''
 A = 'persona persona-anya'
 MSGS = f'''<div class="dg-msgs chatmsgs">
@@ -102,7 +103,7 @@ MSGS = f'''<div class="dg-msgs chatmsgs">
  <div class="dg-b in last edited {A}"><span class="tag">{ic("history")}изменено, 2 раза</span>Приду к восьми<span class="meta">9:40</span></div>
  <div class="dg-b out first last dg-voice"><span class="play sh-cookie7">{ic("play_arrow",1)}</span>{wave()}<span class="len">0:17</span></div>
 </div>'''
-COMPOSER = f'''<div class="dg-composer comp"><div class="dg-field dg-glass"><button class="dg-ib" aria-label="Эмодзи">{ic("mood")}</button><span class="ph">Сообщение</span><button class="dg-ib" aria-label="Прикрепить">{ic("attach_file")}</button></div><div class="px-fab sm">{FX.fab_fx('mic', pitch=3.06, size=2.6)}</div></div>'''
+COMPOSER = f'''<div class="dg-composer comp"><div class="dg-field mzf">{P2.mosaic(300,52,8,6.8,radius=2.6)}<button class="dg-ib" aria-label="Эмодзи">{ic("mood")}</button><span class="ph">Сообщение</span><button class="dg-ib" aria-label="Прикрепить">{ic("attach_file")}</button></div><div class="px-fab sm">{FX.fab_fx('mic', pitch=3.06, size=2.6)}</div></div>'''
 CHAT = WALL + MSGS + CHATHEAD + COMPOSER
 
 MENU = f'''<div class="dg-menuwrap ctx"><div class="dg-reacts"><span>❤</span><span>👍</span><span>😂</span><span>🔥</span><span>🥲</span><span style="font-size:20px">{ic("expand_more")}</span></div></div>
@@ -114,7 +115,7 @@ MENU = f'''<div class="dg-menuwrap ctx"><div class="dg-reacts"><span>❤</span><
 </div>
 <div class="dg-b out first last lifted">И удалённые теперь не пропадают<span class="meta">9:32 {ic("done_all")}</span><br><span class="react">❤ 2</span></div>'''
 
-CAR = f'''<div class="dg-scrim zs"></div><div class="carv">
+CAR = f'''<div class="zs" style="position:absolute;inset:0">{P2.mosaic(412,915,14,13.2,cls='mz scrim')}</div><div class="carv">
  <div class="cv" style="top:0;transform:scale(.9);opacity:.45"><span class="tm">9:35</span><div class="dg-b in first last {A}">Приду к семи</div></div>
  <div class="cv" style="top:150px"><span class="tm">9:37</span><div class="dg-b in first last {A}">Приду к половине восьмого</div></div>
  <div class="cv" style="top:300px;transform:scale(.9);opacity:.45"><span class="tm">9:40</span><div class="dg-b in first last {A}">Приду к восьми</div></div>
@@ -264,7 +265,7 @@ ABOUT = f'''<div class="dbar"><button class="dg-ib" aria-label="Назад">{ic(
 S = {
  '01-chats': screen('light', topbar() + STORIES + SEG + CHATS + PXBOTTOM),
  '02-chat': screen('light', CHAT, 'chat'),
- '03-menu': screen('dark', CHAT + '<div class="dg-scrim zs"></div>' + MENU, 'chat'),
+ '03-menu': screen('dark', CHAT + '<div class="zs" style="position:absolute;inset:0">' + P2.mosaic(412,915,14,13.2,cls='mz scrim') + '</div>' + MENU, 'chat'),
  '04-history': screen('dark', CHAT + CAR, 'chat'),
  '05-profile': screen('light', PROFILE),
  '06-settings': screen('dark', SETTINGS),
@@ -318,7 +319,10 @@ body{display:flex;flex-wrap:wrap;gap:40px;padding:40px;font-family:var(--font-sa
 .sfab{width:44px;height:44px;border:0;border-radius:16px;background:var(--surface-container-highest);color:var(--on-surface);display:grid;place-items:center;box-shadow:var(--elevation-2)}
 /* chat */
 .chat .sb{position:absolute;top:0;left:0;right:0}
-.chead{position:absolute;left:0;right:0;top:0;z-index:6;padding-top:36px;border-radius:0 0 28px 28px}
+.chead{position:absolute;left:0;right:0;top:0;z-index:6;padding-top:36px}
+.chead>*:not(.mz){position:relative}
+.mzf{position:relative;overflow:visible;background:none!important}
+.mzf>*:not(.mz){position:relative}
 .chead .ttl{font-weight:600}
 .pinbar{display:flex;align-items:center;gap:10px;margin:0 12px 10px;padding:8px 14px;border-radius:16px;background:color-mix(in srgb,var(--primary-container) 55%,transparent);color:var(--on-surface)}
 .pinbar .pl{flex:1;min-width:0;display:flex;flex-direction:column}
@@ -371,6 +375,6 @@ body{display:flex;flex-wrap:wrap;gap:40px;padding:40px;font-family:var(--font-sa
 """
 
 FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block">'
-html = f'<!doctype html><html><head><meta charset="utf-8">{FONTS}<style>{tokcss}{bundle}{expressive.all_css()}{PX.CSS}{FX.FX_CSS}{CSS}</style></head><body>' + ''.join(f'<div id="s-{k}">{v_}</div>' for k, v_ in S.items()) + '</body></html>'
+html = f'<!doctype html><html><head><meta charset="utf-8">{FONTS}<style>{tokcss}{bundle}{expressive.all_css()}{PX.CSS}{FX.FX_CSS}{P2.CSS}{CSS}</style></head><body>' + ''.join(f'<div id="s-{k}">{v_}</div>' for k, v_ in S.items()) + '</body></html>'
 open(os.path.join(D, 'screens.html'), 'w').write(html)
 print(list(S))

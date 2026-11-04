@@ -1,5 +1,6 @@
 # Pixel motion cards appended to motion.CARDS
 import pixel as _px
+import pixel2 as _p2
 from motion import CARDS, ic
 
 CARDS.pop('MotionMenu', None)
@@ -8,15 +9,15 @@ CARDS['MotionPixelBar'] = (620, 'Нижняя панель из пикселей
 <div class="mo-phone" id="ph" style="height:560px">
  <div class="mo-list" id="rest" style="padding-bottom:110px"></div>
  <div class="px-top" id="top"></div>
- <div class="px-bottom" id="bb" style="bottom:16px"><div class="px-bar" id="bar"><div class="blur"></div><div class="content" id="cnt"><span class="dg-av persona persona-me sh-cookie9" id="me">Д</span>{_px.glyph_svg('search',24)}<span>Поиск</span></div></div><div class="px-fab" id="fab">{_px.fab_pixels('edit')}</div></div>
+ <div class="px-bottom" id="bb" style="bottom:16px"><div class="px-bar" id="bar"><div class="blur"></div><div class="content" id="cnt">{_p2.avatar_px('Д','cookie9','persona persona-me')}<span class="pxun" id="un">{_px.glyph_svg('unread',22)}<span class="pxd" id="dg"></span></span></div></div><div class="px-fab" id="fab">{_px.fab_pixels('edit')}</div></div>
 </div>
-<div class="mo-side"><span class="mo-hint">{ic("touch_app")}Прокрути список, нажми «новое сообщение», нажми «Поиск»</span>
+<div class="mo-side"><span class="mo-hint">{ic("touch_app")}Прокрути список, нажми «новое сообщение», нажми на счётчик непрочитанных</span>
 <div class="mo-btns"><button class="dg-btn tonal" id="again">{ic("refresh")}Собрать заново</button></div>
 <p><b>Панель сделана из тех же пикселей, что и знак.</b> При запуске она собирается из аватара, при прокрутке вниз пиксели стягиваются к аватару и кнопке, при прокрутке вверх разлетаются обратно.</p>
-<p>Нажатие пускает по пикселям волну. «Поиск» рассыпается и собирается полем наверху.</p>
+<p>Нажатие пускает по пикселям волну. Тап по счётчику непрочитанных листает к следующему непрочитанному, цифры пересобираются из пикселей. Пиксели панели время от времени вспыхивают.</p>
 <p><span class="mo-tok">spatial-default</span> сборка, <span class="mo-tok">spatial-fast</span> волна и сжатие</p></div>
-</div>''', _px.JS + r"""
-var ph=$('#ph'),bar=$('#bar'),cnt=$('#cnt'),fab=$('#fab'),topEl=$('#top'),rest=$('#rest');
+</div>''', _px.JS + _p2.JSDATA + _p2.JS + r"""
+var ph=$('#ph'),bar=$('#bar'),cnt=$('#cnt'),fab=$('#fab'),topEl=$('#top'),rest=$('#rest'),unread=12;pxDigits($('#dg'),'12');
 for(var k=0;k<14;k++){var d=[['А','Аня','печатает…','t'],['М','Мама','Купи хлеба по дороге','e'],['Л','Лёха','Голосовое, 0:42','sc'],['К','Кофе по пятницам','Даша: кто завтра?','']][k%4];var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[3]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">9:4'+(k%10)+'</div>';rest.appendChild(r)}
 rest.style.overflowY='auto';rest.style.height='560px';rest.style.scrollbarWidth='none';
 var tiles=pxBar(bar,{rows:7});
@@ -25,20 +26,16 @@ var cs=new Spring(1,function(p){cnt.style.opacity=C((p-.4)/.6)},'effects-default
 function assemble(){pxGather(tiles,26,30,true,.9);cs.set(0);cs.to(1);fps.forEach(function(f){f.s.set(0);setTimeout(function(){f.s.to(1)},120+Math.hypot(f.x-30,f.y-30)*6)})}
 assemble();$('#again').addEventListener('click',assemble);
 var collapsed=false,lastY=0;
-rest.addEventListener('scroll',function(){var y=rest.scrollTop,d=y-lastY;lastY=y;if(d>4&&!collapsed){collapsed=true;squeeze(true)}else if(d<-4&&collapsed){collapsed=false;squeeze(false)}});
+var auto=false;rest.addEventListener('scroll',function(){var y=rest.scrollTop,d=y-lastY;lastY=y;if(auto)return;if(d>4&&!collapsed){collapsed=true;squeeze(true)}else if(d<-4&&collapsed){collapsed=false;squeeze(false)}});
 function squeeze(on){var meX=26,fx=bar.clientWidth+40;tiles.forEach(function(t){var toMe=t._tx<bar.clientWidth/2;t._fx=toMe?meX:fx;t._fy=24;var d=Math.abs(t._tx-(toMe?meX:fx));
  if(on)setTimeout(function(){t._s.to(0,'spatial-fast')},Math.max(0,200-d*.6));else setTimeout(function(){t._s.to(1,'spatial-default')},d*.6)});
  $$('.pg,span:not(.dg-av)',cnt).forEach(function(e){e.style.transition='opacity .18s';e.style.opacity=on?0:1})}
 fab.addEventListener('click',function(e){buzz();var b=fab.getBoundingClientRect();var cx=e.clientX-b.left,cy=e.clientY-b.top;
  fps.forEach(function(f){var d=Math.hypot(f.x+3-cx,f.y+3-cy);setTimeout(function(){f.s.set(1).kick(-14).to(1)},d*5)});
  pxRipple(tiles,bar.clientWidth+30,30,260)});
-bar.addEventListener('click',function(e){if(e.target.closest('#me'))return;buzz();var r=rel(bar,ph);
- tiles.forEach(function(t){t._s.to(0,'effects-fast')});cnt.style.opacity=0;
- var cols=39,G=8;topEl.innerHTML='';topEl.style.display='block';
- for(var j=0;j<6;j++)for(var i=0;i<cols;i++){var d=document.createElement('i');d.className='pt';topEl.appendChild(d);var tx=i*G,ty=j*G;
-  (function(d,tx,ty){var sx=r.x-28+Math.random()*r.w,sy=r.y-20+Math.random()*50;var s=new Spring(0,function(p){d.style.transform='translate('+L(sx,tx,p)+'px,'+L(sy,ty,p)+'px)';d.style.opacity=C(p*1.5)},'spatial-default');s.set(0);setTimeout(function(){s.to(1)},Math.random()*160)})(d,tx,ty)}
- setTimeout(function(){topEl.insertAdjacentHTML('beforeend','<div class="px-topc">'+$('#cnt .pg').outerHTML+'<span>а</span></div>')},320);
- setTimeout(function(){topEl.style.transition='opacity .25s';topEl.style.opacity=0;setTimeout(function(){topEl.style.display='none';topEl.style.opacity=1;topEl.style.transition='';assemble()},260)},1600)});
+$('#un').addEventListener('click',function(){buzz();unread=unread>1?unread-1:12;pxDigits($('#dg'),String(unread));var r=$$('.dg-chat',rest)[(12-unread)%14];if(r){var y=r.offsetTop-20;var s0=rest.scrollTop;auto=true;var s=new Spring(0,function(p){rest.scrollTop=L(s0,y,p)},'spatial-default');s.to(1,null,function(){setTimeout(function(){auto=false;lastY=rest.scrollTop},50)});r.style.transition='background-color .3s';r.style.background='var(--secondary-container)';setTimeout(function(){r.style.background=''},700)}
+ var b=$('#un').getBoundingClientRect(),bb=bar.getBoundingClientRect();pxRipple(tiles,b.left-bb.left+40,30,200)});
+pxTwinkle(tiles,450);
 """, '''# MotionPixelBar
 
 Нижняя панель главного экрана, собранная из тех же пикселей, что и знак.
@@ -46,7 +43,9 @@ bar.addEventListener('click',function(e){if(e.target.closest('#me'))return;buzz(
 - **Сборка:** при запуске пиксели вылетают из аватара лесенкой по расстоянию (`spatial-default`), затем проявляется содержимое; пиксели FAB-печеньки появляются от центра.
 - **Прокрутка вниз:** пиксели левой половины стягиваются в аватар, правой — в FAB (`spatial-fast`), подписи гаснут. Остаются только аватар и кнопка. Прокрутка вверх разворачивает панель обратно.
 - **Нажатие:** вместо ряби — пиксельная волна. Пиксели вокруг точки касания и пиксели FAB вздрагивают от толчка с задержкой по расстоянию.
-- **Поиск:** панель рассыпается, пиксели взлетают наверх и складываются в поле поиска; при закрытии поиск рассыпается и панель собирается снова.
+- **Непрочитанные:** счётчик из пиксельных цифр. Тап листает к следующему непрочитанному чату (пружина `spatial-default`), старые цифры осыпаются вниз, новые собираются сверху; по панели проходит волна.
+- **Жизнь в покое:** пиксели панели по одному коротко вспыхивают, как в знаке.
+- **Аватар** тоже проходит через пиксельный фильтр: исходная форма и буква, растеризованные в 13 × 13.
 - При «Меньше движения» пиксели не летают: панель просто появляется и исчезает.
 
 **Android:** `DgPixelBar` рисует пиксели одним `View` на `Canvas`, у каждого пикселя `SpringAnimation` по позиции и масштабу; состояние «сжата» следит за `RecyclerView.OnScrollListener`.

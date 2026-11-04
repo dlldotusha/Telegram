@@ -5,6 +5,7 @@ import motion
 import motion_px
 import pixel
 import pixel_fx
+import pixel2
 import expressive
 import logo_js
 from logo import badge_inline
@@ -363,7 +364,7 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-ghost{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 8px;border-radius:16px;background:var(--ghost);color:var(--on-ghost);font:700 12.5px/16px var(--font-sans);border:0;cursor:pointer}
 .dg-ghost .dg-ic{font-size:18px}
 """
-bundle = bundle.replace('%%', '%') + motion.MOTION_CSS + expressive.all_css() + pixel.CSS + pixel_fx.FX_CSS
+bundle = bundle.replace('%%', '%') + motion.MOTION_CSS + expressive.all_css() + pixel.CSS + pixel_fx.FX_CSS + pixel2.CSS
 w('components/bundle.css', bundle)
 
 # ---------------------------------------------------------------- helpers for previews
@@ -492,21 +493,21 @@ comps['Fab'] = (card('Действия', 300, f'''<div class="dg-stage" style="a
 ''')
 
 comps['PixelBar'] = (card('Навигация', 150, f'''<div class="dg-stage" style="max-width:420px;position:relative;height:110px;padding:0">
- <div class="px-bottom" style="position:absolute;left:12px;right:12px;bottom:20px"><div class="px-bar"><div class="blur"></div><div class="tiles">{pixel_fx.bar_fx(39,7)}</div><div class="content"><span class="dg-av persona persona-me sh-cookie9">Д</span>{pixel.glyph_svg('search',24)}<span>Поиск</span></div></div><div class="px-fab">{pixel_fx.fab_fx('edit')}</div></div>
+ <div class="px-bottom" style="position:absolute;left:12px;right:12px;bottom:20px"><div class="px-bar"><div class="blur"></div><div class="tiles">{pixel_fx.bar_fx(39,7)}</div><div class="content">{pixel2.avatar_px('Д','cookie9','persona persona-me')}{pixel2.unread_px(12)}</div></div><div class="px-fab">{pixel_fx.fab_fx('edit')}</div></div>
 </div>'''), '''# PixelBar
 
 Нижняя панель главного экрана, **собранная из пикселей знака**: фон — мозаика пикселей 6,6 × 6,6 с шагом 8 (залитые, рамки, с точкой, круглые), иконки — пиксельные глифы 13 × 13, кнопка «новое сообщение» — FAB M3 (скруглённый квадрат), пропущенный через пиксельный фильтр, с карандашом.
 
 **Что на ней:** только то, что нужно каждый день.
 
-- **Аватар** — тап открывает твой профиль (там аккаунты, «Оформление», шестерёнка настроек), долгий тап переключает аккаунт.
-- **Поиск** — тап превращает панель в поле поиска наверху (фильтры: Чаты, Каналы, Медиа, Ссылки, Звонки).
+- **Аватар** (тоже через пиксельный фильтр) — тап открывает твой профиль (там аккаунты, «Оформление», шестерёнка настроек), долгий тап переключает аккаунт.
+- **Непрочитанные** — пиксельные цифры счётчика; тап листает к следующему непрочитанному чату. Поиск — иконкой в шапке.
 - **Пиксельный FAB** — новое сообщение: контакты, новая группа, канал.
 - Выше справа маленькая камера историй (пиксельный глиф).
 
 Всё остальное лежит на своих местах, отдельного меню нет (см. «Где что живёт» в README).
 
-- Под пикселями лёгкое размытие `blur-glass`; пиксели `surface-container-highest` 90%, рамки `outline-variant`.
+- Каждый пиксель — кусочек стекла: сам размывает то, что под ним (пиксельный блюр), поэтому список под панелью выглядит мозаикой.
 - Анимации: сборка, сжатие при прокрутке, пиксельная волна вместо ряби, превращение в поиск (MotionPixelBar).
 
 **Android:** `DgPixelBar` поверх `DialogsActivity` вместо `MainTabsActivity`.
@@ -1049,6 +1050,14 @@ Material 3 Expressive отличается от обычного M3 смелос
 - **Переходы** — элементы рассыпаются на пиксели и собираются в новом месте (панель → поиск), удалённое своё сообщение рассыпается (MotionShatter).
 - **Значки** — пиксельная D (поддержавшие, пользователи, онлайн).
 - Пиксели всегда со скруглением 20–30%, шаг сетки кратен 2, внутри одного элемента 1–3 вида пикселей. Остальной интерфейс — обычный M3 Expressive, пиксели не лезут в текст и списки.
+
+## Пиксельный блюр
+
+Размытие в стиле пиксельного фильтра: поверхность — сетка пикселей-стёкол, каждый размывает и подкрашивает только то, что под ним. Получается мозаика, а не туман.
+
+- Шапка чата и поле ввода: пиксели 9 на шаге 10, подкраска `surface` 52%.
+- Под меню сообщения, каруселью правок, листами: пиксели 13 на шаге 14, затемнение `scrim` 22%, у части пикселей светлее и темнее.
+- **Android:** один AGSL-шейдер (`RuntimeShader` через `RenderEffect`, Android 13+): усреднение фона по ячейке + лёгкое размытие + скругление ячейки. Ниже Android 13 — обычный `RenderEffect.createBlurEffect` с пиксельной маской поверх.
 
 ## Профиль Delusha
 
