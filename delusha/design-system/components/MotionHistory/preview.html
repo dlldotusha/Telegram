@@ -14,7 +14,7 @@
 </div>
 <div class="mo-side"><span class="mo-hint"><span class="dg-ic">touch_app</span>Сыграй, что сделал собеседник, потом нажми на изменённое</span>
 <div class="mo-btns"><button class="dg-btn tonal" id="bd"><span class="dg-ic">delete</span>Удалил</button><button class="dg-btn tonal" id="be"><span class="dg-ic">edit</span>Изменил</button><button class="dg-btn text" id="br">Сначала</button></div>
-<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается. <b>Тап по изменённому</b> раскрывает карусель: те же пузыри, листаешь версии свайпом, изменённые слова подсвечены.</p>
+<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается. <b>Тап по изменённому</b> раскрывает вертикальную карусель: те же пузыри, сверху старые версии, снизу новые, листаешь вверх-вниз, изменённые слова подсвечены.</p>
 <p><span class="mo-tok">spatial-fast</span> встряска, <span class="mo-tok">spatial-default</span> карусель, <span class="mo-tok">effects-slow</span> размытие</p></div>
 </div>
 <script>
@@ -46,17 +46,17 @@ var shake=new Spring(0,function(x){del.style.transform='translateX('+x+'px)'},'s
 var dt=new Spring(0,function(a){dtag.style.height=Math.max(0,a*th)+'px';dtag.style.opacity=C(a)},'spatial-default');
 var tx=new Spring(1,function(a){etx.style.opacity=C(a);etx.style.filter='blur('+((1-C(a))*4)+'px)'},'effects-default');
 function diff(prev,cur){var pw=prev?prev.split(' '):[];return cur.split(' ').map(function(w){return pw.indexOf(w)<0&&prev?'<mark>'+w+'</mark>':w}).join(' ')}
-var cards=[],W=240,G=16,pos=new Spring(0,layout,'spatial-default',.001),op=new Spring(0,function(p){cw.style.opacity=C(p);cw.style.transform='translateY('+((1-p)*60)+'px) scale('+L(.85,1,p)+')';scrim.style.opacity=C(p);scrim.style.pointerEvents=cw.style.pointerEvents=p>.5?'auto':'none'},'spatial-default');
+var cards=[],W=86,G=20,pos=new Spring(0,layout,'spatial-default',.001),op=new Spring(0,function(p){cw.style.opacity=C(p);cw.style.transform='translateY('+((1-p)*60)+'px) scale('+L(.85,1,p)+')';scrim.style.opacity=C(p);scrim.style.pointerEvents=cw.style.pointerEvents=p>.5?'auto':'none'},'spatial-default');
 function build(){car.innerHTML='';dots.innerHTML='';cards=V.slice(0,n).map(function(v,k){var d=document.createElement('div');d.className='v';d.innerHTML='<span class="tm">'+v[0]+'</span><div class="dg-b in first last">'+diff(k?V[k-1][1]:null,v[1])+'</div>';car.appendChild(d);var dd=document.createElement('i');dots.appendChild(dd);return d})}
-function layout(p){var cx=ph.clientWidth/2-W/2;cards.forEach(function(c,k){var d=k-p,a=Math.min(1,Math.abs(d));c.style.left='0';c.style.transform='translateX('+(cx+d*(W+G))+'px) scale('+(1-.12*a)+')';c.style.opacity=1-.5*a;c.style.zIndex=10-Math.round(Math.abs(d))});
- $$('i',dots).forEach(function(dd,k){var a=C(1-Math.abs(k-p));dd.style.width=(8+16*a)+'px';dd.style.opacity=.45+.55*a;dd.style.background=a>.5?'var(--primary)':''})}
+function layout(p){var cy=car.clientHeight/2-W/2;cards.forEach(function(c,k){var d=k-p,a=Math.min(1,Math.abs(d));c.style.transform='translateY('+(cy+d*(W+G))+'px) scale('+(1-.1*a)+')';c.style.opacity=1-.55*a;c.style.zIndex=10-Math.round(Math.abs(d))});
+ $$('i',dots).forEach(function(dd,k){var a=C(1-Math.abs(k-p));dd.style.height=(8+16*a)+'px';dd.style.width='8px';dd.style.opacity=.45+.55*a;dd.style.background=a>.5?'var(--primary)':''})}
 op.set(0);
 ed.addEventListener('click',function(){buzz();build();pos.set(n-1);op.to(1)});
 scrim.addEventListener('click',function(){op.to(0,'spatial-fast')});
 var sx=0,p0=0,drag=false,lx=0,lt=0,vel=0;
-cw.addEventListener('pointerdown',function(e){drag=true;sx=e.clientX;p0=pos.x;lx=e.clientX;lt=performance.now();cw.setPointerCapture(e.pointerId)});
-cw.addEventListener('pointermove',function(e){if(!drag)return;var t=performance.now();vel=(e.clientX-lx)/Math.max(1,t-lt)*1000;lx=e.clientX;lt=t;var p=p0-(e.clientX-sx)/(W+G);if(p<0)p=p*.3;if(p>n-1)p=n-1+(p-n+1)*.3;pos.set(p)});
-function up(e){if(!drag)return;drag=false;var moved=Math.abs(e.clientX-sx);if(moved<6){return}var tgt=Math.round(pos.x-vel*.12/(W+G));tgt=Math.max(0,Math.min(n-1,tgt));if(tgt!==Math.round(p0))buzz();pos.kick(-vel/(W+G)).to(tgt)}
+cw.addEventListener('pointerdown',function(e){if(e.target===cw||e.target===car){op.to(0,'spatial-fast');return}drag=true;sx=e.clientY;p0=pos.x;lx=e.clientY;lt=performance.now();cw.setPointerCapture(e.pointerId)});
+cw.addEventListener('pointermove',function(e){if(!drag)return;var t=performance.now();vel=(e.clientY-lx)/Math.max(1,t-lt)*1000;lx=e.clientY;lt=t;var p=p0-(e.clientY-sx)/(W+G);if(p<0)p=p*.3;if(p>n-1)p=n-1+(p-n+1)*.3;pos.set(p)});
+function up(e){if(!drag)return;drag=false;var moved=Math.abs(e.clientY-sx);if(moved<6){return}var tgt=Math.round(pos.x-vel*.12/(W+G));tgt=Math.max(0,Math.min(n-1,tgt));if(tgt!==Math.round(p0))buzz();pos.kick(-vel/(W+G)).to(tgt)}
 cw.addEventListener('pointerup',up);cw.addEventListener('pointercancel',up);
 $('#bd').addEventListener('click',function(){buzz();del.classList.add('deleted');shake.set(0).kick(-700).to(0);dt.to(1)});
 $('#be').addEventListener('click',function(){if(n===3)return;buzz();n=3;tx.to(0,'effects-fast',function(){etx.textContent=V[2][1];ecount.textContent='изменено, 2 раза';$('#emeta').textContent='9:40';tx.to(1,'effects-default')})});

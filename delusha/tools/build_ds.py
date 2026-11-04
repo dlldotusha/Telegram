@@ -2,6 +2,7 @@ import json, os, sys, datetime
 sys.path.insert(0, os.path.dirname(__file__))
 from gen_shapes import css as shapes_css, svgpath
 import motion
+import expressive
 
 OUT = os.path.join(os.path.dirname(__file__), 'ds', 'project')
 def w(path, text):
@@ -349,7 +350,7 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-ghost{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 8px;border-radius:16px;background:var(--ghost);color:var(--on-ghost);font:700 12.5px/16px var(--font-sans);border:0;cursor:pointer}
 .dg-ghost .dg-ic{font-size:18px}
 """
-bundle = bundle.replace('%%', '%') + motion.MOTION_CSS
+bundle = bundle.replace('%%', '%') + motion.MOTION_CSS + expressive.all_css()
 w('components/bundle.css', bundle)
 
 # ---------------------------------------------------------------- helpers for previews
@@ -483,58 +484,29 @@ comps['FloatingToolbar'] = (card('Навигация', 150, f'''<div class="dg-s
  </div>
  <div class="dg-bottombar" style="position:absolute;left:12px;right:12px;bottom:12px">
   <button class="bar dg-glass"><span class="dg-av sh-cookie9">Д</span>{ic("search")}<span class="ph">Поиск</span></button>
-  <button class="dg-fab" aria-label="Новый чат">{ic("edit",True)}</button>
+  <span class="dg-fabwrap"><button class="dg-fabx sh-cookie9" aria-label="Новый чат">{ic("edit",True)}</button></span>
  </div>
 </div>'''), '''# FloatingToolbar
 
-Нижняя панель главного экрана: свой аватар, поиск и «новый чат». Вкладок нет: звонки и контакты открываются редко и живут в меню аккаунта (AccountSheet).
+Нижняя панель главного экрана: свой аватар, поиск и «новый чат». Вкладок нет: всё редкое разложено туда, где оно нужно (см. «Где что живёт» в README).
 
 **Что даёт код:** аватар текущего аккаунта, обработчики поиска и FAB.
 
 - Пилюля 64 на `surface-glass` с размытием `blur-glass`: список чатов виден под ней, панель не съедает экран.
-- Тап по аватару открывает AccountSheet снизу. Долгий тап сразу переключает на следующий аккаунт (вибрация, аватар морфит).
+- Тап по аватару открывает твой профиль (там аккаунты, редактор профиля и настройки). Долгий тап сразу переключает на следующий аккаунт: вибрация, аватар морфит в форму другого аккаунта.
 - Тап по пилюле поиска: она переезжает наверх и становится полем поиска (пружина `spatial-default`), клавиатура открывается сразу.
-- FAB 64 `shape-l-plus`: новый чат, долгий тап открывает FAB-меню (группа, канал, секретный чат).
+- FAB 68 в форме печеньки `primary`: новый чат (контакты, группа, канал, секретный чат). Долгий тап открывает FAB-меню.
 - Отступ от низа 16 + системная навигация. При прокрутке вниз панель сжимается до аватара и FAB, при прокрутке вверх разворачивается.
 
 **Удобство:** всё, что нужно каждый день, в зоне большого пальца; ничего не надо искать в боковом меню.
 
-**Android:** `DgBottomBar` поверх `DialogsActivity`; боковое меню (`DrawerLayoutContainer`) отключается, его пункты переезжают в AccountSheet.
-''')
-
-comps['AccountSheet'] = (card('Навигация', 470, f'''<div class="dg-stage"><div class="dg-sheet" style="width:380px">
- <i class="handle"></i>
- <div class="dg-accs">
-  <div class="dg-acc"><span class="dg-av s sh-cookie9">Д</span><span class="tx">Деля<span>@delusha</span></span>{ic("check_circle",True)}</div>
-  <div class="dg-acc"><span class="dg-av s sc sh-pent">Р</span><span class="tx">Работа<span>@delusha_work</span></span><span class="dg-badge">3</span></div>
-  <div class="dg-acc"><span class="dg-av s" style="--av-bg:var(--surface-container-highest);--av-fg:var(--on-surface-variant)">{ic("add")}</span><span class="tx">Добавить аккаунт</span></div>
- </div>
- <div class="dg-tiles">
-  <button class="dg-tile"><span class="ti sh-cookie9">{ic("person",True)}</span>Контакты</button>
-  <button class="dg-tile"><span class="ti sh-clover4">{ic("call",True)}</span>Звонки</button>
-  <button class="dg-tile"><span class="ti sh-flower8">{ic("bookmark",True)}</span>Избранное</button>
-  <button class="dg-tile t"><span class="ti sh-sunny">{ic("auto_awesome",True)}</span>Delusha</button>
-  <button class="dg-tile"><span class="ti sh-pent">{ic("dark_mode",True)}</span>Тема</button>
-  <button class="dg-tile"><span class="ti sh-cookie12">{ic("settings",True)}</span>Настройки</button>
- </div>
-</div></div>'''), '''# AccountSheet
-
-Меню аккаунта: открывается тапом по своему аватару в нижней панели. Сюда переехало всё, что редко нужно: звонки, контакты, избранное, настройки, раздел Delusha, переключение темы и аккаунтов.
-
-**Что даёт код:** список аккаунтов (текущий отмечен), непрочитанные по каждому, набор плиток.
-
-- Аккаунты: группа строк с общими краями, текущий с галочкой `primary`, у остальных счётчик непрочитанного.
-- Плитки 3 в ряд, высота 96, иконка в форме из библиотеки M3. Раздел форка в `tertiary-container`.
-- Лист `surface-container-low`, верхние углы `shape-xl`, под ним `dg-scrim` с размытием `blur-scrim`.
-- Выезжает снизу пружиной `spatial-default`, плитки появляются лесенкой по 30 мс. Свайп вниз за любую точку листа закрывает его со скоростью пальца.
-
-**Android:** `DgAccountSheet` на базе `BottomSheet` Telegram; пункты из `DrawerLayoutAdapter`.
+**Android:** `DgBottomBar` поверх `DialogsActivity`; боковое меню (`DrawerLayoutContainer`) отключается, его пункты разъезжаются по местам.
 ''')
 
 comps['TopAppBar'] = (card('Навигация', 330, f'''<div class="dg-stage col" style="gap:20px">
  <div class="dg-phone"><div class="dg-appbar">
-  <div class="row"><span class="grow"></span><button class="dg-ghost" style="margin-right:8px">{ic("visibility_off",True)}Призрак</button></div>
-  <h1>Чаты</h1>
+  <div class="row"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><span class="grow"></span></div>
+  <h1 class="dg-xxl" style="margin:8px 16px 0">Delusha</h1>
  </div></div>
  <div class="dg-phone" style="position:relative;height:96px"><div class="dg-wall"></div><div class="dg-appbar small dg-glass" style="position:relative">
   <button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button>
@@ -546,7 +518,9 @@ comps['TopAppBar'] = (card('Навигация', 330, f'''<div class="dg-stage c
 
 Шапка экрана в двух видах: крупная (главные разделы, настройки) и компактная (чат, вложенные экраны).
 
-**Крупная:** заголовок `screen-title` (или `hero-title` в разделах форка) под рядом действий; при прокрутке сжимается в компактную с `title-large`, пружина `spatial-slow`. Справа только плашка призрака, если он включён. Аватар и поиск живут внизу, в нижней панели.
+**Главный экран заголовка не имеет**: сверху только плашка призрака, ниже закреплённые чаты.
+
+**Крупная (вложенные разделы: Delusha, Мой профиль):** заголовок `dg-xxl` (64, ширина 151, вес 900) с кластером декоративных форм справа; при прокрутке сжимается в компактную с `title-large`, пружина `spatial-slow`.
 
 **Компактная (чат):** назад, аватар `avatar-s`, имя и статус, до двух действий. Фон `surface-glass` с размытием `blur-glass`: сообщения уходят под шапку и просвечивают. Нижние углы `shape-xl`.
 
@@ -627,29 +601,24 @@ comps['Switch'] = (card('Списки', 90, f'''<div class="dg-stage"><input typ
 **Android:** `DgSwitch` вместо `Switch` Telegram, рисуется на `Canvas`, хаптика `CLOCK_TICK`.
 ''')
 
-comps['Avatar'] = (card('Идентичность', 200, f'''<div class="dg-stage" style="gap:20px">
- <span class="dg-av sh-circle">Д</span>
- <span class="dg-av t sh-cookie9">А</span>
- <span class="dg-av sc sh-clover4">М</span>
- <span class="dg-av e sh-flower8">Л</span>
- <span class="dg-av sh-sunny">К</span>
- <span class="dg-av t sh-pent">Р</span>
- <span class="dg-avwrap"><span class="dg-av sc">В</span><span class="on"></span></span>
- <span class="dg-avwrap story"><span class="dg-av t">Ю</span></span>
- <span class="dg-av xl t sh-cookie12 dg-morph">А</span>
+comps['Avatar'] = (card('Идентичность', 220, f'''<div class="dg-stage" style="gap:20px">
+ <span class="dg-av e">М</span><span class="dg-av t">К</span><span class="dg-av sc">И</span>
+ <span class="dg-av persona persona-anya sh-cookie12">А</span><span class="dg-av persona persona-lyokha sh-clover4">Л</span><span class="dg-av persona persona-dasha sh-flower8">Д</span>
+ <span class="dg-avwrap"><span class="dg-av persona persona-anya sh-cookie12">А</span><span class="on"></span></span>
+ <span class="dg-av xl persona persona-me sh-cookie9 dg-morph">Д</span>
 </div>'''), '''# Avatar
 
-Аватар пользователя, группы или канала. Форма выбирается в настройках вида: круг, печенье 9, клевер, цветок, солнце, пятиугольник.
+Аватар пользователя, группы или канала. **У обычных пользователей Telegram он круглый**, как везде, и смотрящий его не настраивает. **Пользователи DelushaGram настраивают свой аватар сами** в профиле (форма, цвет, анимация), и все остальные пользователи DelushaGram видят его именно так (см. «Профиль Delusha» в README).
 
-**Что даёт код:** фото или инициалы, цвет-плашку (из 7 ролей-контейнеров по id пользователя), размер, флаги «в сети» и «есть история».
+**Что даёт код:** фото или инициалы, профиль Delusha собеседника (если есть), размер, флаги «в сети» и «есть история».
 
-- Размеры: `avatar-s` 40, `avatar-m` 52, `avatar-xl` 124.
-- Форма одна на всё приложение (выбор пользователя), кроме: Избранное всегда `cookie4`, свой аватар в шапке всегда `cookie9`.
-- Профиль: `avatar-xl` медленно перетекает между формами (9 с цикл); при «Меньше движения» стоит на месте.
+- Обычный пользователь: круг, плашка-контейнер по id (как цвета Telegram, но из ролей-контейнеров).
+- Пользователь Delusha: его форма из библиотеки M3 и его тон (`persona`: контейнер, акцент, узор строятся из выбранного им оттенка теми же правилами, что и роли темы, в каждой из трёх тем).
+- Анимация, выбранная владельцем (стоит, дышит, морф, крутится), играет только на его профиле и в шапке чата с ним, в списках аватар стоит.
+- Размеры: `avatar-s` 40, `avatar-m` 52, закреплённые 68, профиль 156.
 - «В сети»: точка `online` с обводкой цветом фона, плюс текст статуса рядом.
-- История: кольцо `primary` → `tertiary`, просмотренная `outline-variant`. Истории можно скрыть целиком (фича 39): пропадают кольца, лента историй над списком и пункты в профиле.
 
-**Android:** `DgAvatarDrawable` оборачивает `AvatarDrawable`/`ImageReceiver`; форма через `Path` из `RoundedPolygon` (androidx.graphics.shapes), морфинг через `Morph`.
+**Android:** `DgAvatarDrawable` оборачивает `AvatarDrawable`/`ImageReceiver`; форма через `RoundedPolygon` (androidx.graphics.shapes), морфинг через `Morph`.
 ''')
 
 comps['Badge'] = (card('Идентичность', 80, f'''<div class="dg-stage"><span class="dg-badge">2</span><span class="dg-badge">128</span><span class="dg-badge muted">14</span><span class="dg-badge mention">@</span><span class="dg-badge dot"></span></div>'''), '''# Badge
@@ -661,19 +630,21 @@ comps['Badge'] = (card('Идентичность', 80, f'''<div class="dg-stage"
 **Android:** рисуется в `DialogCell` через `DgBadge.draw(canvas, …)`, без лишних View.
 ''')
 
-comps['ChatRow'] = (card('Списки', 330, f'''<div class="dg-stage col" style="max-width:400px;gap:0">
- <div class="dg-chat pinned"><span class="dg-av sh-cookie4">{ic("bookmark",True)}</span><div class="mid"><div class="nm">Избранное {ic("push_pin",True)}</div><div class="pv">ссылка на APK v0.1</div></div><div class="rt">9:12</div></div>
- <div class="dg-chat"><span class="dg-avwrap"><span class="dg-av e sh-clover4">М</span><span class="on"></span></span><div class="mid"><div class="nm">Мама</div><div class="pv">Купи хлеба по дороге</div></div><div class="rt">9:38<span class="dg-badge">2</span></div></div>
- <div class="dg-chat"><span class="dg-av t sh-cookie12">А</span><div class="mid"><div class="nm">Аня</div><div class="pv"><em>печатает…</em></div></div><div class="rt">9:40</div></div>
- <div class="dg-chat"><span class="dg-av sc sh-pent">К</span><div class="mid"><div class="nm">Кофе по пятницам {ic("volume_off")}</div><div class="pv"><span class="who">Даша:</span> кто завтра?</div></div><div class="rt">Вс<span class="dg-badge muted">14</span></div></div>
+comps['ChatRow'] = (card('Списки', 330, f'''<div class="dg-stage col" style="max-width:420px;padding:12px 0">
+ <div class="dg-cgroup">
+ <div class="dg-chat"><span class="dg-avwrap"><span class="dg-av persona persona-anya sh-cookie12">А</span><span class="on"></span></span><div class="mid"><div class="nm">Аня</div><div class="pv"><em>печатает…</em></div></div><div class="rt">9:40</div></div>
+ <div class="dg-chat unread"><span class="dg-av e">М</span><div class="mid"><div class="nm">Мама</div><div class="pv">Купи хлеба по дороге</div></div><div class="rt">9:38<span class="dg-badge">2</span></div></div>
+ <div class="dg-chat unread"><span class="dg-av persona persona-lyokha sh-clover4">Л</span><div class="mid"><div class="nm">Лёха</div><div class="pv">{ic("mic")}Голосовое, 0:42</div></div><div class="rt">8:55<span class="dg-badge">1</span></div></div>
+ <div class="dg-chat"><span class="dg-av t">К</span><div class="mid"><div class="nm">Кофе по пятницам {ic("volume_off")}</div><div class="pv"><span class="who">Даша:</span> кто завтра?</div></div><div class="rt">Вс<span class="dg-badge muted">14</span></div></div>
+ </div>
 </div>'''), '''# ChatRow
 
-Строка в списке чатов: аватар `avatar-m`, имя `chat-name`, превью `chat-preview`, справа время и счётчик.
+Строка в списке чатов. Строки собраны в одну группу (`dg-cgroup`): зазор 2, внешние углы 28, внутренние 8. Непрочитанные выделены жирным именем и тёмным превью.
 
 **Что даёт код:** диалог (имя, аватар, последнее сообщение, автор в группе, время, непрочитанные, флаги: закреплён, без звука, черновик, печатает, отправлено/прочитано).
 
 - Высота `row-chat` 72 (компактная плотность 60), скругление 24 у подсветки нажатия и фона закреплённых.
-- Закреплённые: фон `surface-container-low`, значок булавки рядом с именем, а не справа.
+- Закреплённые живут не в списке, а рядом сверху крупными аватарами (PinnedChats). Избранное всегда первое.
 - Превью: «печатает…» и черновик `primary`, автор в группе `on-surface` 500, остальное `on-surface-variant`.
 - Галочки прочтения справа рядом со временем, `primary`.
 - Долгий тап: выделение (аватар морфит в галочку), панель действий снизу.
@@ -700,7 +671,7 @@ comps['MessageBubble'] = (card('Чат', 470, f'''<div class="dg-phone" style="m
 
 - Входящие `bubble-in`, исходящие `bubble-out` (в тёмных темах приглушены до `primary-container`, чтобы не слепить ночью).
 - Удалённое (история форка): `bubble-deleted`, метка «удалено» с иконкой; тап открывает детали удаления.
-- Изменённое: метка «изменено, N раза» (`tertiary`, с правильным склонением: 1 раз, 2 раза, 5 раз). Тап открывает карусель версий: те же пузыри, листаются свайпом, изменённые слова подсвечены (см. MotionHistory).
+- Изменённое: метка «изменено, N раза» (`tertiary`, с правильным склонением: 1 раз, 2 раза, 5 раз). Тап открывает вертикальную карусель версий: те же пузыри, сверху старые, снизу новые, листаются свайпом вверх-вниз, изменённые слова подсвечены (см. MotionHistory).
 - Ответ: цитата в плашке 12% от цвета текста, со скруглением 12, без боковой полоски.
 - Ширина не больше `bubble-max` (80%), время и галочки обтекаются текстом.
 - Голосовое: кнопка-печенька и волнистый прогресс (WavyProgress).
@@ -790,6 +761,80 @@ comps['Snackbar'] = (card('Обратная связь', 90, f'''<div class="dg-
 **Android:** `DgSnackbar` на базе `BulletinFactory` Telegram (перекраска и форма `shape-m`).
 ''')
 
+
+comps['PinnedChats'] = (card('Навигация', 130, f'''<div class="dg-pins">
+ <div class="dg-pin"><span class="dg-av sh-cookie4" style="--av-bg:var(--primary);--av-fg:var(--on-primary)">{ic("bookmark",True)}</span>Избранное</div>
+ <div class="dg-pin"><span class="dg-av persona persona-anya sh-cookie12">А</span>Аня</div>
+ <div class="dg-pin"><span class="dg-av e">М</span><span class="dg-badge">2</span>Мама</div>
+ <div class="dg-pin"><span class="dg-av persona persona-lyokha sh-clover4">Л</span><span class="dg-badge">1</span>Лёха</div>
+ <div class="dg-pin"><span class="dg-av sc">Р</span>Работа</div>
+</div>'''), '''# PinnedChats
+
+Закреплённые чаты крупными аватарами 68 в ряд над списком. Заменяет заголовок «Чаты»: верх главного экрана занят тем, что нужно чаще всего.
+
+- Избранное всегда первое, в форме `cookie4` на `primary`.
+- Счётчик непрочитанного на углу аватара, с обводкой цветом фона.
+- Ряд прокручивается вбок, если закреплённых больше пяти. Долгий тап: открепить, переставить.
+- Тап по закреплённому открывает чат той же трансформацией контейнера, что и строка (MotionOpen).
+
+**Android:** горизонтальный `RecyclerListView` над `DialogsActivity.listView`.
+''')
+
+comps['ProfileHero'] = (card('Профиль', 520, f'''<div class="persona persona-anya" style="width:380px;margin:12px;border-radius:28px;overflow:hidden;background:var(--surface)">
+ <div class="dg-hero" style="height:170px"><i class="pat sh-cookie9" style="left:20px;top:10px;width:90px;height:90px"></i><i class="pat sh-clover4" style="left:220px;top:-20px;width:110px;height:110px"></i><i class="pat sh-flower8" style="left:300px;top:90px;width:80px;height:80px"></i><i class="pat sh-sunny" style="left:120px;top:100px;width:60px;height:60px"></i></div>
+ <div class="dg-ring sh-cookie12" style="width:132px;height:132px;margin-top:-66px"><span class="dg-av persona persona-anya sh-cookie12" style="width:118px;height:118px;font-size:44px">А</span></div>
+ <h2 class="dg-pname" style="font-size:28px">Аня Соколова<span class="bdg sh-sunny">{ic("auto_awesome",True)}</span></h2>
+ <div class="dg-pstat">в сети</div>
+ <div class="dg-bento" style="padding:14px 14px 16px"><div class="dg-card span2 acc"><b>Рисую интерфейсы, пью матчу</b></div><div class="dg-card"><span>Ник</span><b>@anya_sk</b></div><div class="dg-card"><span>Звонки</span><b>Вчера, 12 мин</b></div></div>
+</div>'''), '''# ProfileHero
+
+Шапка профиля пользователя DelushaGram: всё оформлено так, как он сам настроил (ProfileEditor). Обычные пользователи получают ту же раскладку в цветах темы, с круглым аватаром и однотонной шапкой.
+
+- Шапка 250 с нижними углами 44: фон по выбору владельца (формы, градиент или цвет) в его тоне `persona`.
+- Аватар 156 в его форме, в «кольце» той же формы цвета фона, наезжает на шапку.
+- Имя `900`, ширина по выбору владельца (узкое, обычное, широкое), рядом значок-форма.
+- Кнопки Чат, Звук, Звонок, Видео группой в его акценте.
+- Ниже бенто-карточки: о себе (широкая), ник, ID, звонки с ним, общие медиа сеткой разных размеров.
+
+**Android:** `DgProfileHero` заменяет шапку `ProfileActivity`.
+''')
+
+comps['ProfileEditor'] = (card('Профиль', 520, f'''<div class="dg-secs" style="width:380px;margin:12px">
+ <div class="dg-sec"><span class="hd">Форма</span><div class="dg-pick"><i class="sh-circle"></i><i class="sh-cookie9 on"></i><i class="sh-clover4"></i><i class="sh-flower8"></i><i class="sh-sunny"></i></div></div>
+ <div class="dg-sec"><span class="hd">Цвет</span><div class="dg-pick col"><i class="sh-cookie9 on" style="background:oklch(0.6 0.13 295)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.10 190)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 140)"></i><i class="sh-cookie9" style="background:oklch(0.64 0.13 50)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.14 0)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 240)"></i></div></div>
+ <div class="dg-sec"><span class="hd">Аватар</span><div class="dg-seg" style="padding:0"><button aria-pressed="false">Стоит</button><button aria-pressed="true">Дышит</button><button aria-pressed="false">Морф</button><button aria-pressed="false" style="border-radius:8px 20px 20px 8px">Крутится</button></div></div>
+ <div class="dg-sec"><span class="hd">Имя</span><div class="dg-names"><div style="font-variation-settings:'wdth' 60">Аа</div><div style="font-variation-settings:'wdth' 100">Аа</div><div class="on" style="font-variation-settings:'wdth' 151">Аа</div></div></div>
+</div>'''), '''# ProfileEditor
+
+Редактор своего профиля Delusha: открывается карандашом на своём профиле. Сверху живое превью, ниже секции группой с общими краями. Всё применяется сразу.
+
+Настройки (все параметрические, без картинок, чтобы помещались в описание профиля):
+
+| Что | Варианты |
+|---|---|
+| Форма аватара | круг и 8 форм библиотеки M3 |
+| Анимация аватара | стоит, дышит, морф между двумя формами, крутится |
+| Цвет профиля | 16 оттенков; из него строится весь тон профиля и цвет твоих пузырей у собеседника |
+| Шапка | формы, градиент, цвет; плотность узора |
+| Имя | ширина шрифта (узкое, обычное, широкое), вес |
+| Значок | форма рядом с именем или без |
+| Эффект открытия | частицы-формы, волна, без |
+| Пузыри у собеседника | в твоём цвете или в его теме |
+
+**Android:** `DgProfileEditorActivity`; запись в профиль через `account.updateProfile` (см. «Профиль Delusha» в README).
+''')
+
+comps['ToggleTile'] = (card('Списки', 180, f'''<div class="dg-stage" style="max-width:420px"><div class="dg-ttiles" style="width:100%"><div class="dg-ttile on"><span class="ti sh-cookie9">{ic("visibility_off",True)}</span><div class="bt"><b>Призрак</b><input type="checkbox" class="dg-sw" checked aria-label="Призрак"></div></div><div class="dg-ttile"><span class="ti sh-clover4">{ic("history",True)}</span><div class="bt"><b>История</b><input type="checkbox" class="dg-sw" aria-label="История"></div></div></div></div>'''), '''# ToggleTile
+
+Крупная плитка-переключатель 140 высотой с углами 32 для главных функций форка в начале настроек Delusha: Призрак, История.
+
+- Включена: фон `tertiary-container` (или `secondary-container`), иконка в форме на насыщенном цвете. Выключена: `surface-container`, иконка серая.
+- Тап по всей плитке переключает; иконка морфит форму (`spatial-fast`), фон перетекает (`effects-default`).
+- Две плитки в ряд, не больше четырёх на экран.
+
+**Android:** `DgToggleTile`.
+''')
+
 for name, (h, sub, body, js, readme) in motion.CARDS.items():
     comps[name] = (card('Движение', h, body, motion.ENGINE + js, sub), readme)
 
@@ -840,10 +885,20 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 ## Удобство: обязательные правила
 
 - **Нижняя треть экрана — для частых действий.** Нижняя панель (`FloatingToolbar`: аккаунт, поиск, новый чат), поле ввода, меню сообщений и листы. Наверху только заголовок и плашка призрака.
-- **Редкое — в меню аккаунта.** Звонки, контакты, избранное, настройки и Delusha открываются тапом по своему аватару (`AccountSheet`). Вкладок внизу нет.
+- **Всё лежит там, где нужно.** Отдельного меню-свалки нет:
+
+| Что | Где |
+|---|---|
+| Избранное | первым в закреплённых (`PinnedChats`) |
+| Контакты | на экране «новый чат» (FAB) |
+| Звонки | фильтр «Звонки» в поиске, кнопка в шапке чата, история звонков в профиле собеседника |
+| Аккаунты | на своём профиле (тап по аватару внизу); долгий тап по аватару переключает сразу |
+| Настройки | шестерёнка на своём профиле |
+| Delusha | первый раздел настроек, призрак ещё и в шапке главного экрана |
+| Тема | в настройках и плиткой в шторке |
 - **Зона касания не меньше `touch-target` (48).** Даже у маленьких иконок, бейджей и чипов. Между соседними целями не меньше 8.
-- **Каждый жест продублирован видимой кнопкой.** Свайп ответа дублируется пунктом «Ответить» в `MessageMenu`, свайп папок — чипами `FolderChips`, долгий тап по аватару (смена аккаунта) — списком аккаунтов в `AccountSheet`.
-- **Режим призрака за один тап** из шапки списка чатов (`dg-ghost`), из шторки (плитка быстрых настроек) и из `AccountSheet`. Его состояние всегда видно в шапке.
+- **Каждый жест продублирован видимой кнопкой.** Свайп ответа дублируется пунктом «Ответить» в `MessageMenu`, свайп папок — чипами `FolderChips`, долгий тап по аватару (смена аккаунта) — списком аккаунтов на своём профиле.
+- **Режим призрака за один тап** из шапки списка чатов (`dg-ghost`), из шторки (плитка быстрых настроек) и из настроек Delusha. Его состояние всегда видно в шапке.
 - **Места не прыгают.** Одно и то же действие всегда в одной точке: «Назад» слева сверху, «Ещё» справа сверху, главное действие — FAB справа снизу.
 - **Обратная связь на всё.** Нажатие: слой `state-pressed` + морфинг формы + лёгкая вибрация. Результат: `Snackbar` с «Отменить» для обратимых действий, диалог подтверждения для необратимых.
 - **Текст масштабируется до 200%.** Ничего не обрезается, строки переносятся, высоты элементов растут.
@@ -872,9 +927,30 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 - `error` только для необратимого и ошибок. Никогда как украшение.
 - Фокус клавиатуры и D-pad: кольцо `focus-ring` 3dp с отступом 2dp.
 
+## Экспрессивность (не просто Material 3)
+
+Material 3 Expressive отличается от обычного M3 смелостью. На каждом экране есть свой **главный момент**, и он сделан формой, размером и цветом, а не текстом.
+
+- **Формы как контейнеры.** Аватары, FAB, кнопка отправки, иконки плиток, значки, счётчики стоят в формах библиотеки M3 (печенье, клевер, цветок, солнце), а не в кругах и квадратах. Круг только у обычных пользователей и у мелочей.
+- **Контраст масштаба.** Крупное очень крупное (`dg-xxl` 64, ширина 151, вес 900; имя в профиле 34), мелкое спокойное. Средних «на всякий случай» заголовков нет. Подписи разделов вроде «Чаты» не пишем, если и так ясно, где ты.
+- **Группы с общими краями.** Списки, секции, меню, кнопки собраны в группы: зазор 2, внешние углы 28, внутренние 8. Так выглядит список чатов, настройки, меню сообщения.
+- **Бенто.** Информация разного веса — карточками разного размера в сетке (профиль, медиа).
+- **Цвет блоками.** Крупные плоскости цвета (шапка профиля, плитки «Призрак» и «История», выбранные сегменты), но в спокойных контейнерных тонах; насыщенный цвет только на мелочах.
+- **Декоративные формы.** Рядом с крупными заголовками и в шапках — кластер из 2–3 больших форм в контейнерных цветах.
+- **Движение формы.** Нажатое сжимается, выбранное становится круглее или квадратнее, переходы на пружинах (см. «Движение»).
+
+## Профиль Delusha
+
+Пользователи DelushaGram оформляют свой профиль сами (ProfileEditor), и **все остальные пользователи DelushaGram видят его так же**. У обычных пользователей Telegram и в официальных клиентах профиль выглядит как обычно.
+
+- **Как это передаётся.** Без своих серверов: настройки кодируются в 12 невидимых символов Unicode Tags (U+E0020–U+E007E) в конце поля «О себе». Официальные клиенты их не показывают, DelushaGram читает и вырезает перед показом. Цена: от лимита «О себе» (70 символов) остаётся 58.
+- **Формат:** `DG` + версия + форма + анимация + оттенок + шапка + плотность узора + ширина имени + вес + значок + эффект + пузыри. Всё числами, без картинок.
+- **Кэш:** разобранные настройки хранятся рядом с `UserFull`, обновляются вместе с ним.
+- **Что видят другие пользователи Delusha:** форму и тон аватара везде (списки, чат, закреплённые), полную шапку на профиле, анимацию аватара на профиле и в шапке чата, твои пузыри в твоём цвете (если ты так выбрал), эффект при открытии профиля.
+
 ## Размытие
 
-- Размываем только то, что **парит над контентом**: нижнюю панель, шапку чата, поле ввода (все на `surface-glass` + `blur-glass` 24) и фон под меню сообщения, листами и `AccountSheet` (`dg-scrim`: `blur-scrim` 10 + затемнение 24%).
+- Размываем только то, что **парит над контентом**: нижнюю панель, шапку чата, поле ввода (все на `surface-glass` + `blur-glass` 24) и фон под меню сообщения, каруселью правок и листами (`dg-scrim`: `blur-scrim` 10 + затемнение 24%).
 - **Не размываем** строки списков, пузыри, карточки настроек и всё, где лежит текст для чтения: под стеклом текст только проходит, а не читается.
 - Стекло всегда с запасом непрозрачности (66–72%), чтобы текст на нём держал контраст при любом контенте снизу.
 - В настройках «Размытие» можно выключить: тогда `surface-glass` становится непрозрачным `surface-container-high`.
@@ -918,13 +994,12 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 |---|---|---|
 | Отправка | Поле ввода превращается в пузырь и встаёт в ленту | MotionSend |
 | Открытие чата | Строка раскрывается в экран, аватар перелетает в шапку | MotionOpen |
-| Меню аккаунта | Лист выезжает снизу, фон размывается, плитки лесенкой | MotionAccount |
 | Свайпы по чатам | Заливка от иконки, порог с вибрацией, схлопывание | MotionSwipe |
 | Архив | Вытягивается вниз, печенька крутится и морфит | MotionPull |
 | Призрак | Цвет заливает шапку кругом, глаз закрывается | MotionGhost |
 | Новый чат | FAB морфит в круг, пункты вылетают лесенкой | MotionFab |
 | Реакции | Сердце и частицы-формы, число прокручивается | MotionReactions |
-| История | Удалённое вздрагивает, версии правок листаются каруселью | MotionHistory |
+| История | Удалённое вздрагивает, версии правок листаются вертикальной каруселью | MotionHistory |
 | Нажатие | Углы кнопок и иконок сжимаются, отпускание с отскоком | Button, IconButton |
 
 ## Отступы и слои

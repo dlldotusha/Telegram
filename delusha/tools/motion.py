@@ -113,7 +113,10 @@ MOTION_CSS = r"""
 .mo-p{position:absolute;pointer-events:none;z-index:7;width:12px;height:12px}
 .mo-heart{position:absolute;pointer-events:none;z-index:8;font-size:44px;line-height:1}
 /* history */
-.mo-carwrap{position:absolute;left:0;right:0;top:120px;z-index:7;opacity:0;touch-action:none;cursor:grab;display:flex;flex-direction:column;gap:6px}
+.mo-carwrap{position:absolute;left:0;right:0;top:40px;bottom:40px;z-index:7;opacity:0;touch-action:none;cursor:grab}
+.mo-carwrap .dg-car{position:absolute;inset:0;height:auto}
+.mo-carwrap .dg-dots{position:absolute;right:18px;top:50%;transform:translateY(-50%);flex-direction:column}
+.mo-carwrap .dg-car .v{left:24px;top:0;transform-origin:0 50%}
 .mo-sheet{position:absolute;left:0;right:0;bottom:0;z-index:6}
 .mo-hist{height:330px}
 .mo-tagrow{overflow:hidden;height:0}
@@ -218,65 +221,6 @@ inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault(
 **Android:** в `ChatActivity` уже есть переход текста из поля (`ChatActivityEnterView` → `ChatMessageCell`, `MessageEnterTransitionContainer`); заменяем его интерполяцию на `SpringAnimation` по токенам и добавляем морф формы фона.
 ''')
 
-# ------------------------------------------------------------------ 3. Account sheet
-CARDS['MotionAccount'] = (560, 'Меню аккаунта из нижней панели', f'''<div class="mo-wrap">
-<div class="mo-phone" id="ph" style="height:500px">
- <div class="dg-appbar" style="padding-bottom:6px"><div class="row"><span class="grow"></span></div><h1 style="margin-top:0">Чаты</h1></div>
- <div class="mo-list" id="rest" style="padding-bottom:100px"></div>
- <div class="dg-bottombar" style="position:absolute;left:12px;right:12px;bottom:14px;z-index:3">
-  <button class="bar dg-glass" id="me"><span class="dg-av sh-cookie9" id="meav">Д</span>{ic("search")}<span class="ph">Поиск</span></button>
-  <button class="dg-fab" aria-label="Новый чат">{ic("edit",True)}</button>
- </div>
- <div class="mo-scrim" id="scrim"></div>
- <div class="dg-sheet mo-sheet" id="sheet">
-  <i class="handle"></i>
-  <div class="dg-accs">
-   <div class="dg-acc"><span class="dg-av s sh-cookie9">Д</span><span class="tx">Деля<span>@delusha</span></span>{ic("check_circle",True)}</div>
-   <div class="dg-acc"><span class="dg-av s sc sh-pent">Р</span><span class="tx">Работа<span>@delusha_work</span></span><span class="dg-badge">3</span></div>
-  </div>
-  <div class="dg-tiles">
-   <button class="dg-tile"><span class="ti sh-cookie9">{ic("person",True)}</span>Контакты</button>
-   <button class="dg-tile"><span class="ti sh-clover4">{ic("call",True)}</span>Звонки</button>
-   <button class="dg-tile"><span class="ti sh-flower8">{ic("bookmark",True)}</span>Избранное</button>
-   <button class="dg-tile t"><span class="ti sh-sunny">{ic("auto_awesome",True)}</span>Delusha</button>
-   <button class="dg-tile"><span class="ti sh-pent">{ic("dark_mode",True)}</span>Тема</button>
-   <button class="dg-tile"><span class="ti sh-cookie12">{ic("settings",True)}</span>Настройки</button>
-  </div>
- </div>
-</div>
-<div class="mo-side"><span class="mo-hint">{ic("touch_app")}Нажми на свой аватар внизу, закрой свайпом вниз</span>
-<p><b>Звонки, контакты и настройки ушли из панели</b> в меню аккаунта. Лист выезжает снизу, чат за ним размывается, плитки появляются лесенкой.</p>
-<p><span class="mo-tok">spatial-default</span> лист, <span class="mo-tok">spatial-fast</span> аватар и плитки, <span class="mo-tok">effects-slow</span> размытие</p></div>
-</div>''', r"""
-var rest=$('#rest');[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','Приду к восьми','9:40','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['К','Кофе по пятницам','Даша: кто завтра?','Вс','','sh-pent'],['Д','Даша','ок, до завтра','Сб','t','sh-sunny']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
-var sheet=$('#sheet'),scrim=$('#scrim'),meav=$('#meav'),tiles=$$('.dg-tile',sheet),on=false;
-var H=function(){return sheet.offsetHeight+20};
-var sy=new Spring(1,function(p){sheet.style.transform='translateY('+(p*H())+'px)'},'spatial-default',.001);
-var sc=new Spring(0,function(p){scrim.style.opacity=C(p);scrim.style.pointerEvents=p>.5?'auto':'none'},'effects-slow');
-var av=new Spring(1,function(x){meav.style.transform='scale('+x+')'},'spatial-fast');
-var ts=tiles.map(function(t){return new Spring(0,function(p){t.style.opacity=C(p);t.style.transform='scale('+L(.8,1,p)+') translateY('+(1-p)*12+'px)'},'spatial-fast')});
-sy.set(1);sc.set(0);ts.forEach(function(t){t.set(0)});
-function open(v){on=v;buzz();av.set(.8).to(1);sy.to(v?0:1,v?'spatial-default':'spatial-fast');sc.to(v?1:0,v?'effects-slow':'effects-default');
- ts.forEach(function(t,i){setTimeout(function(){t.to(v?1:0)},v?60+i*30:0)})}
-$('#me').addEventListener('click',function(){open(!on)});scrim.addEventListener('click',function(){open(false)});
-var dy0=0,drag=false,lt=0,ly=0,vel=0;
-sheet.addEventListener('pointerdown',function(e){drag=true;dy0=e.clientY-sy.x*H();ly=e.clientY;lt=performance.now();sheet.setPointerCapture(e.pointerId)});
-sheet.addEventListener('pointermove',function(e){if(!drag)return;var n=performance.now();vel=(e.clientY-ly)/Math.max(1,n-lt)*1000;ly=e.clientY;lt=n;var d=e.clientY-dy0;sy.set(Math.max(-.04,d/H()));sc.set(1-C(sy.x))});
-function up(){if(!drag)return;drag=false;if(sy.x>.3||vel>600){sy.kick(vel/H());open(false)}else{sy.kick(vel/H()).to(0);sc.to(1)}}
-sheet.addEventListener('pointerup',up);sheet.addEventListener('pointercancel',up);
-""", '''# MotionAccount
-
-Открытие меню аккаунта (AccountSheet) тапом по своему аватару в нижней панели.
-
-- Аватар сжимается до 80% и отпрыгивает (`spatial-fast`) — отклик на касание.
-- Лист выезжает снизу пружиной `spatial-default`; закрывается на ступень быстрее (`spatial-fast`).
-- Чат за листом размывается и темнеет (`dg-scrim`), проявление `effects-slow`.
-- Плитки появляются лесенкой через 30 мс: масштаб 0.8 → 1, сдвиг 12.
-- Лист тянется пальцем за любую точку. Отпустил ниже трети или резко — закрывается со скоростью пальца, иначе возвращается.
-
-**Android:** `DgAccountSheet` (`BottomSheet` Telegram с заменённой анимацией появления на `SpringAnimation`).
-''')
-
 # ------------------------------------------------------------------ 4. Chat swipe
 CARDS['MotionSwipe'] = (420, 'Свайпы по чатам: закрепить и архив', f'''<div class="mo-wrap">
 <div class="mo-phone" id="ph" style="height:350px"><div class="mo-list" id="list"></div><div class="mo-snack" id="snk" style="display:none"><div class="dg-snack"><span class="tx">Чат в архиве</span><button id="undo">Отменить</button></div></div></div>
@@ -333,7 +277,7 @@ $('#undo').addEventListener('click',restore);
 # ------------------------------------------------------------------ 5. Pull to archive
 CARDS['MotionPull'] = (470, 'Архив свайпом вниз', f'''<div class="mo-wrap">
 <div class="mo-phone mo-pull" id="ph">
- <div class="dg-appbar" style="padding-bottom:6px"><h1 style="margin-top:4px">Чаты</h1></div>
+ <div style="height:12px"></div>
  <div class="mo-arch" id="arch"><div class="dg-chat"><span class="dg-av sc sh-cookie9" id="aav"><span class="dg-ic fill">archive</span></span><div class="mid"><div class="nm">Архив</div><div class="pv">7 чатов</div></div><div class="rt"><span class="dg-badge muted">7</span></div></div></div>
  <div class="mo-list" id="rest"></div>
 </div>
@@ -368,7 +312,7 @@ ph.addEventListener('pointerup',up);ph.addEventListener('pointercancel',up);
 # ------------------------------------------------------------------ 6. Ghost toggle
 CARDS['MotionGhost'] = (400, 'Включение режима призрака', f'''<div class="mo-wrap">
 <div class="mo-phone mo-gh" id="ph">
- <div class="mo-gbar" id="bar"><span class="mo-wash" id="wash"></span><h3 id="ttl">Чаты</h3>
+ <div class="mo-gbar" id="bar"><span class="mo-wash" id="wash"></span><h3 id="ttl"></h3>
   <button class="mo-gbtn" id="gb" aria-pressed="false" aria-label="Режим призрака"><span class="ib"><span class="dg-ic" id="i1">visibility</span><span class="dg-ic fill" id="i2" style="opacity:0">visibility_off</span></span><span class="lb" id="glb"><span style="padding:0 6px 0 8px;display:inline-block">Призрак</span></span></button>
   <span class="dg-av s sh-cookie9" style="position:relative">Д</span></div>
  <div class="mo-list" id="rest"></div>
@@ -401,7 +345,7 @@ gb.addEventListener('click',function(){on=!on;buzz();gb.setAttribute('aria-press
 # ------------------------------------------------------------------ 7. FAB menu
 CARDS['MotionFab'] = (480, 'FAB-меню: новый чат, группа, канал', f'''<div class="mo-wrap">
 <div class="mo-phone mo-fab" id="ph">
- <div class="dg-appbar" style="padding-bottom:6px"><h1 style="margin-top:4px">Чаты</h1></div>
+ <div style="height:12px"></div>
  <div class="mo-list" id="rest"></div>
  <div class="mo-scrim" id="scrim"></div>
  <div class="mo-fabzone" id="zone">
@@ -414,7 +358,7 @@ CARDS['MotionFab'] = (480, 'FAB-меню: новый чат, группа, ка�
 </div>
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Нажми на карандаш</span>
 <p><b>Пункты вылетают из кнопки лесенкой</b> снизу вверх через 35 мс, каждый с отскоком. Кнопка морфит из скруглённого квадрата в круг, карандаш поворачивается в крестик.</p>
-<p>Тап мимо закрывает, пункты убегают обратно быстрее, сверху вниз.</p>
+<p>Тап по пустому месту закрывает, пункты убегают обратно быстрее, сверху вниз.</p>
 <p><span class="mo-tok">spatial-default</span> пункты, <span class="mo-tok">spatial-fast</span> кнопка, <span class="mo-tok">effects-slow</span> затемнение</p></div>
 </div>''', r"""
 var rest=$('#rest');[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','Приду к восьми','9:40','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['К','Кофе по пятницам','Даша: кто завтра?','Вс','','sh-pent']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
@@ -443,7 +387,7 @@ items.forEach(function(it){it.addEventListener('click',function(){toggle(false)}
 # ------------------------------------------------------------------ 8. Open chat (container transform)
 CARDS['MotionOpen'] = (540, 'Открытие чата: строка раскрывается в экран', f'''<div class="mo-wrap">
 <div class="mo-phone mo-open" id="ph">
- <div id="home"><div class="dg-appbar" style="padding-bottom:6px"><h1 style="margin-top:4px">Чаты</h1></div><div class="mo-list" id="rest"></div></div>
+ <div id="home"><div style="height:12px"></div><div class="mo-list" id="rest"></div></div>
  <div class="mo-over" id="over"><div class="ct" id="ct">
   <div class="dg-appbar small"><button class="dg-ib" id="back" aria-label="Назад">{ic("arrow_back")}</button><span class="dg-av s" id="hav" style="visibility:hidden"></span><span class="ttl"><span id="hn"></span><small>в сети</small></span><button class="dg-ib" aria-label="Звонок">{ic("call")}</button></div>
   <div class="dg-msgs" style="position:absolute;left:0;right:0;bottom:72px"><span class="dg-day">Сегодня</span><div class="dg-b in first" id="m1"></div><div class="dg-b in last">Ответь, как сможешь<span class="meta">9:41</span></div><div class="dg-b out first last">Уже открыл<span class="meta">9:42 {ic("done_all")}</span></div></div>
@@ -538,7 +482,7 @@ CARDS['MotionHistory'] = (560, 'Удалённые сообщения и кар�
 </div>
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Сыграй, что сделал собеседник, потом нажми на изменённое</span>
 <div class="mo-btns"><button class="dg-btn tonal" id="bd">{ic("delete")}Удалил</button><button class="dg-btn tonal" id="be">{ic("edit")}Изменил</button><button class="dg-btn text" id="br">Сначала</button></div>
-<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается. <b>Тап по изменённому</b> раскрывает карусель: те же пузыри, листаешь версии свайпом, изменённые слова подсвечены.</p>
+<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается. <b>Тап по изменённому</b> раскрывает вертикальную карусель: те же пузыри, сверху старые версии, снизу новые, листаешь вверх-вниз, изменённые слова подсвечены.</p>
 <p><span class="mo-tok">spatial-fast</span> встряска, <span class="mo-tok">spatial-default</span> карусель, <span class="mo-tok">effects-slow</span> размытие</p></div>
 </div>''', r"""
 var ph=$('#ph'),del=$('#del'),dtag=$('#dtag'),ed=$('#ed'),etx=$('#etx'),ecount=$('#ecount'),scrim=$('#scrim'),cw=$('#cw'),car=$('#car'),dots=$('#dots');
@@ -549,17 +493,17 @@ var shake=new Spring(0,function(x){del.style.transform='translateX('+x+'px)'},'s
 var dt=new Spring(0,function(a){dtag.style.height=Math.max(0,a*th)+'px';dtag.style.opacity=C(a)},'spatial-default');
 var tx=new Spring(1,function(a){etx.style.opacity=C(a);etx.style.filter='blur('+((1-C(a))*4)+'px)'},'effects-default');
 function diff(prev,cur){var pw=prev?prev.split(' '):[];return cur.split(' ').map(function(w){return pw.indexOf(w)<0&&prev?'<mark>'+w+'</mark>':w}).join(' ')}
-var cards=[],W=240,G=16,pos=new Spring(0,layout,'spatial-default',.001),op=new Spring(0,function(p){cw.style.opacity=C(p);cw.style.transform='translateY('+((1-p)*60)+'px) scale('+L(.85,1,p)+')';scrim.style.opacity=C(p);scrim.style.pointerEvents=cw.style.pointerEvents=p>.5?'auto':'none'},'spatial-default');
+var cards=[],W=86,G=20,pos=new Spring(0,layout,'spatial-default',.001),op=new Spring(0,function(p){cw.style.opacity=C(p);cw.style.transform='translateY('+((1-p)*60)+'px) scale('+L(.85,1,p)+')';scrim.style.opacity=C(p);scrim.style.pointerEvents=cw.style.pointerEvents=p>.5?'auto':'none'},'spatial-default');
 function build(){car.innerHTML='';dots.innerHTML='';cards=V.slice(0,n).map(function(v,k){var d=document.createElement('div');d.className='v';d.innerHTML='<span class="tm">'+v[0]+'</span><div class="dg-b in first last">'+diff(k?V[k-1][1]:null,v[1])+'</div>';car.appendChild(d);var dd=document.createElement('i');dots.appendChild(dd);return d})}
-function layout(p){var cx=ph.clientWidth/2-W/2;cards.forEach(function(c,k){var d=k-p,a=Math.min(1,Math.abs(d));c.style.left='0';c.style.transform='translateX('+(cx+d*(W+G))+'px) scale('+(1-.12*a)+')';c.style.opacity=1-.5*a;c.style.zIndex=10-Math.round(Math.abs(d))});
- $$('i',dots).forEach(function(dd,k){var a=C(1-Math.abs(k-p));dd.style.width=(8+16*a)+'px';dd.style.opacity=.45+.55*a;dd.style.background=a>.5?'var(--primary)':''})}
+function layout(p){var cy=car.clientHeight/2-W/2;cards.forEach(function(c,k){var d=k-p,a=Math.min(1,Math.abs(d));c.style.transform='translateY('+(cy+d*(W+G))+'px) scale('+(1-.1*a)+')';c.style.opacity=1-.55*a;c.style.zIndex=10-Math.round(Math.abs(d))});
+ $$('i',dots).forEach(function(dd,k){var a=C(1-Math.abs(k-p));dd.style.height=(8+16*a)+'px';dd.style.width='8px';dd.style.opacity=.45+.55*a;dd.style.background=a>.5?'var(--primary)':''})}
 op.set(0);
 ed.addEventListener('click',function(){buzz();build();pos.set(n-1);op.to(1)});
 scrim.addEventListener('click',function(){op.to(0,'spatial-fast')});
 var sx=0,p0=0,drag=false,lx=0,lt=0,vel=0;
-cw.addEventListener('pointerdown',function(e){drag=true;sx=e.clientX;p0=pos.x;lx=e.clientX;lt=performance.now();cw.setPointerCapture(e.pointerId)});
-cw.addEventListener('pointermove',function(e){if(!drag)return;var t=performance.now();vel=(e.clientX-lx)/Math.max(1,t-lt)*1000;lx=e.clientX;lt=t;var p=p0-(e.clientX-sx)/(W+G);if(p<0)p=p*.3;if(p>n-1)p=n-1+(p-n+1)*.3;pos.set(p)});
-function up(e){if(!drag)return;drag=false;var moved=Math.abs(e.clientX-sx);if(moved<6){return}var tgt=Math.round(pos.x-vel*.12/(W+G));tgt=Math.max(0,Math.min(n-1,tgt));if(tgt!==Math.round(p0))buzz();pos.kick(-vel/(W+G)).to(tgt)}
+cw.addEventListener('pointerdown',function(e){if(e.target===cw||e.target===car){op.to(0,'spatial-fast');return}drag=true;sx=e.clientY;p0=pos.x;lx=e.clientY;lt=performance.now();cw.setPointerCapture(e.pointerId)});
+cw.addEventListener('pointermove',function(e){if(!drag)return;var t=performance.now();vel=(e.clientY-lx)/Math.max(1,t-lt)*1000;lx=e.clientY;lt=t;var p=p0-(e.clientY-sx)/(W+G);if(p<0)p=p*.3;if(p>n-1)p=n-1+(p-n+1)*.3;pos.set(p)});
+function up(e){if(!drag)return;drag=false;var moved=Math.abs(e.clientY-sx);if(moved<6){return}var tgt=Math.round(pos.x-vel*.12/(W+G));tgt=Math.max(0,Math.min(n-1,tgt));if(tgt!==Math.round(p0))buzz();pos.kick(-vel/(W+G)).to(tgt)}
 cw.addEventListener('pointerup',up);cw.addEventListener('pointercancel',up);
 $('#bd').addEventListener('click',function(){buzz();del.classList.add('deleted');shake.set(0).kick(-700).to(0);dt.to(1)});
 $('#be').addEventListener('click',function(){if(n===3)return;buzz();n=3;tx.to(0,'effects-fast',function(){etx.textContent=V[2][1];ecount.textContent='изменено, 2 раза';$('#emeta').textContent='9:40';tx.to(1,'effects-default')})});
@@ -574,11 +518,11 @@ $('#br').addEventListener('click',function(){del.classList.remove('deleted');dt.
 
 **Изменено:**
 - Старый текст расплывается и гаснет, новый проявляется (размытие 4 → 0), метка обновляется: «изменено, 1 раз» → «изменено, 2 раза».
-- **Тап по изменённому сообщению открывает карусель версий.** Чат размывается, над ним появляются пузыри всех версий в ряд, текущая по центру, соседние уменьшены до 88% и приглушены. Над каждой время правки.
-- Листается свайпом 1:1 за пальцем, отпустил — пружина `spatial-default` доводит до ближайшей версии с учётом скорости. На краях сопротивление 30%. Каждая смена версии даёт короткую вибрацию.
+- **Тап по изменённому сообщению открывает вертикальную карусель версий** — в том же направлении, что и лента: сверху старые, снизу новые. Чат размывается, текущая версия по центру, соседние уменьшены до 90% и приглушены. Над каждой время правки.
+- Листается свайпом вверх-вниз 1:1 за пальцем, отпустил — пружина `spatial-default` доводит до ближайшей версии с учётом скорости. На краях сопротивление 30%. Каждая смена версии даёт короткую вибрацию.
 - Слова, которых не было в предыдущей версии, подсвечены `tertiary-container`.
-- Точки внизу: текущая растягивается в пилюлю `primary`, плавно по ходу свайпа.
-- Тап мимо закрывает карусель, она возвращается в пузырь (`spatial-fast`).
+- Точки справа столбиком: текущая вытягивается в вертикальную пилюлю `primary`, плавно по ходу свайпа.
+- Тап по пустому месту закрывает карусель, она возвращается в пузырь (`spatial-fast`).
 
 **Android:** события удаления и правки приходят в `MessagesController` (`updateDeleteMessages`, `updateEditMessage`), форк сохраняет копию в свою БД. Карусель — `DgEditHistoryCarousel` поверх `ChatActivity`, пузыри рисуются тем же `DgBubbleDrawable`.
 ''')
