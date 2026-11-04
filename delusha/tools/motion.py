@@ -482,7 +482,7 @@ CARDS['MotionHistory'] = (560, 'Удалённые сообщения и кар�
 </div>
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Сыграй, что сделал собеседник, потом нажми на изменённое</span>
 <div class="mo-btns"><button class="dg-btn tonal" id="bd">{ic("delete")}Удалил</button><button class="dg-btn tonal" id="be">{ic("edit")}Изменил</button><button class="dg-btn text" id="br">Сначала</button></div>
-<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается. <b>Тап по изменённому</b> раскрывает вертикальную карусель: те же пузыри, сверху старые версии, снизу новые, листаешь вверх-вниз, изменённые слова подсвечены.</p>
+<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается. <b>Тап по изменённому</b> раскрывает вертикальную карусель: те же пузыри, сверху старые версии, снизу новые, листаешь вверх-вниз.</p>
 <p><span class="mo-tok">spatial-fast</span> встряска, <span class="mo-tok">spatial-default</span> карусель, <span class="mo-tok">effects-slow</span> размытие</p></div>
 </div>''', r"""
 var ph=$('#ph'),del=$('#del'),dtag=$('#dtag'),ed=$('#ed'),etx=$('#etx'),ecount=$('#ecount'),scrim=$('#scrim'),cw=$('#cw'),car=$('#car'),dots=$('#dots');
@@ -492,7 +492,7 @@ var th=dtag.firstChild.offsetHeight+2;dtag.style.height='0px';
 var shake=new Spring(0,function(x){del.style.transform='translateX('+x+'px)'},'spatial-fast',.05);
 var dt=new Spring(0,function(a){dtag.style.height=Math.max(0,a*th)+'px';dtag.style.opacity=C(a)},'spatial-default');
 var tx=new Spring(1,function(a){etx.style.opacity=C(a);etx.style.filter='blur('+((1-C(a))*4)+'px)'},'effects-default');
-function diff(prev,cur){var pw=prev?prev.split(' '):[];return cur.split(' ').map(function(w){return pw.indexOf(w)<0&&prev?'<mark>'+w+'</mark>':w}).join(' ')}
+function diff(prev,cur){return cur}
 var cards=[],W=86,G=20,pos=new Spring(0,layout,'spatial-default',.001),op=new Spring(0,function(p){cw.style.opacity=C(p);cw.style.transform='translateY('+((1-p)*60)+'px) scale('+L(.85,1,p)+')';scrim.style.opacity=C(p);scrim.style.pointerEvents=cw.style.pointerEvents=p>.5?'auto':'none'},'spatial-default');
 function build(){car.innerHTML='';dots.innerHTML='';cards=V.slice(0,n).map(function(v,k){var d=document.createElement('div');d.className='v';d.innerHTML='<span class="tm">'+v[0]+'</span><div class="dg-b in first last">'+diff(k?V[k-1][1]:null,v[1])+'</div>';car.appendChild(d);var dd=document.createElement('i');dots.appendChild(dd);return d})}
 function layout(p){var cy=car.clientHeight/2-W/2;cards.forEach(function(c,k){var d=k-p,a=Math.min(1,Math.abs(d));c.style.transform='translateY('+(cy+d*(W+G))+'px) scale('+(1-.1*a)+')';c.style.opacity=1-.55*a;c.style.zIndex=10-Math.round(Math.abs(d))});
@@ -520,7 +520,6 @@ $('#br').addEventListener('click',function(){del.classList.remove('deleted');dt.
 - Старый текст расплывается и гаснет, новый проявляется (размытие 4 → 0), метка обновляется: «изменено, 1 раз» → «изменено, 2 раза».
 - **Тап по изменённому сообщению открывает вертикальную карусель версий** — в том же направлении, что и лента: сверху старые, снизу новые. Чат размывается, текущая версия по центру, соседние уменьшены до 90% и приглушены. Над каждой время правки.
 - Листается свайпом вверх-вниз 1:1 за пальцем, отпустил — пружина `spatial-default` доводит до ближайшей версии с учётом скорости. На краях сопротивление 30%. Каждая смена версии даёт короткую вибрацию.
-- Слова, которых не было в предыдущей версии, подсвечены `tertiary-container`.
 - Точки справа столбиком: текущая вытягивается в вертикальную пилюлю `primary`, плавно по ходу свайпа.
 - Тап по пустому месту закрывает карусель, она возвращается в пузырь (`spatial-fast`).
 

@@ -38,7 +38,7 @@ def rav(letter, tone, cls=''):
     return f'<span class="dg-av {tone} reg {cls}">{letter}</span>'
 
 def row(av, name, prev, time, extra='', badge='', unread=False, online=False):
-    if online: av = f'<span class="dg-avwrap">{av}<span class="on"></span></span>'
+    if online: av = f'<span class="dg-avwrap">{av}<span class="{"dgon" if "persona" in av else "on"}"></span></span>'
     return f'<div class="dg-chat{" unread" if unread else ""}">{av}<div class="mid"><div class="nm">{name}{extra}</div><div class="pv">{prev}</div></div><div class="rt">{time}{badge}</div></div>'
 
 CHATS = '<div class="dg-cgroup">' + ''.join([
@@ -103,8 +103,8 @@ MENU = f'''<div class="dg-menuwrap ctx"><div class="dg-reacts"><span>❤</span><
 
 CAR = f'''<div class="dg-scrim zs"></div><div class="carv">
  <div class="cv" style="top:0;transform:scale(.9);opacity:.45"><span class="tm">9:35</span><div class="dg-b in first last {A}">Приду к семи</div></div>
- <div class="cv" style="top:150px"><span class="tm">9:37</span><div class="dg-b in first last {A}">Приду к <mark>половине</mark> <mark>восьмого</mark></div></div>
- <div class="cv" style="top:300px;transform:scale(.9);opacity:.45"><span class="tm">9:40</span><div class="dg-b in first last {A}">Приду к <mark>восьми</mark></div></div>
+ <div class="cv" style="top:150px"><span class="tm">9:37</span><div class="dg-b in first last {A}">Приду к половине восьмого</div></div>
+ <div class="cv" style="top:300px;transform:scale(.9);opacity:.45"><span class="tm">9:40</span><div class="dg-b in first last {A}">Приду к восьми</div></div>
  <div class="dg-dots vdots"><i></i><i class="on"></i><i></i></div>
 </div>'''
 
@@ -137,8 +137,8 @@ SETTINGS = f'''<div style="position:relative">{CLUSTER}<div class="dg-appbar" st
 <div style="padding:12px 12px 0;display:flex;flex-direction:column;gap:14px">
  <div class="dg-ttiles"><div class="dg-ttile on"><span class="ti sh-cookie9">{ic("visibility_off",1)}</span><div class="bt"><b>Призрак</b><input type="checkbox" class="dg-sw" checked></div></div><div class="dg-ttile on2"><span class="ti sh-clover4">{ic("history",1)}</span><div class="bt"><b>История</b><input type="checkbox" class="dg-sw" checked></div></div></div>
  <div class="dg-list"><div class="dg-li"><span class="lead" style="background:none;width:44px">{dav('Д','me','sh-cookie9','s')}</span><span class="tx"><b>Мой профиль</b></span>{ic("chevron_right")}</div><div class="dg-li"><span class="lead e">{ic("delete_history")}</span><span class="tx"><b>Удалённые сообщения</b><span>1 284 сообщения, 212 МБ</span></span>{ic("chevron_right")}</div></div>
- <div class="dg-list"><span class="hd">Приватность</span>{li("done_all","Читать после ответа")}{li("auto_stories","Смотреть истории тайно",on=False)}</div>
- <div class="dg-list"><span class="hd">Чаты</span>{li("swipe","Свайпы по чатам",None,"chev")}{li("archive","Архив",None,"chev")}{li("favorite","Анимации реакций","Полные","chev")}</div>
+ <div class="dg-list">{li("done_all","Читать после ответа")}{li("auto_stories","Смотреть истории тайно",on=False)}</div>
+ <div class="dg-list">{li("swipe","Свайпы по чатам",None,"chev")}{li("archive","Архив",None,"chev")}{li("favorite","Анимации реакций","Полные","chev")}</div>
 </div>'''
 
 EDITOR = f'''<div class="dg-appbar" style="padding:0 4px 0;background:transparent"><div class="row"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button></div><h1 class="dg-xl" style="margin:6px 16px 10px;font-size:42px;line-height:44px">Мой профиль</h1></div>
@@ -196,6 +196,7 @@ SEARCH = f'''<div class="dg-search dg-glass" style="margin:4px 16px 0">{ic("arro
  {call(rav('А','t'),'Артём','out','12 окт','0:42')}
 </div>'''
 
+LOCKED = EDITOR.replace('<div class="dg-secs" style="margin-top:12px">','<div class="lockcta"><button class="dg-btn filled m">'+ic("favorite",1)+'Поддержать</button></div><div class="dg-secs locked" style="margin-top:12px">')
 S = {
  '01-chats': screen('light', CHATS_SCREEN),
  '02-chat': screen('light', CHAT, 'chat'),
@@ -208,6 +209,7 @@ S = {
  '09-my-profile': screen('light', MYPROFILE),
  '10-profile-editor': screen('dark', EDITOR),
  '11-search-calls': screen('dark', SEARCH),
+ '12-editor-locked': screen('light', LOCKED),
 }
 
 CSS = r"""
@@ -255,6 +257,9 @@ body{display:flex;flex-wrap:wrap;gap:40px;padding:40px;font-family:var(--font-sa
 .gwash .dg-pin .dg-badge{box-shadow:0 0 0 3px color-mix(in srgb,var(--ghost) 70%,var(--surface))}
 .dg-ghost.on{background:var(--tertiary);color:var(--on-tertiary)}
 .tnum{font-variant-numeric:tabular-nums}
+.lockcta{display:flex;justify-content:center;padding:14px 16px 0}
+.lockcta .dg-btn{width:100%;height:64px;border-radius:32px;font-size:18px}
+.dg-secs.locked{opacity:.38;pointer-events:none;filter:saturate(.4)}
 .dg-chat .dg-av{width:52px;height:52px}
 """
 

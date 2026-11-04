@@ -202,7 +202,6 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-car .v{position:absolute;top:30px;width:240px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;will-change:transform}
 .dg-car .v .tm{font:600 12px/16px var(--font-sans);color:var(--on-surface);padding:4px 10px;border-radius:12px;background:var(--surface-glass);font-variant-numeric:tabular-nums}
 .dg-car .v .dg-b{max-width:none;width:100%%;box-shadow:var(--elevation-2)}
-.dg-b mark{background:var(--tertiary-container);color:var(--on-tertiary-container);border-radius:6px;padding:0 3px}
 .dg-dots{display:flex;gap:6px;justify-content:center;align-items:center}
 .dg-dots i{display:block;width:8px;height:8px;border-radius:4px;background:var(--on-surface-variant);opacity:.45}
 .dg-dots i.on{width:24px;background:var(--primary);opacity:1}
@@ -604,11 +603,12 @@ comps['Switch'] = (card('Списки', 90, f'''<div class="dg-stage"><input typ
 comps['Avatar'] = (card('Идентичность', 220, f'''<div class="dg-stage" style="gap:20px">
  <span class="dg-av e">М</span><span class="dg-av t">К</span><span class="dg-av sc">И</span>
  <span class="dg-av persona persona-anya sh-cookie12">А</span><span class="dg-av persona persona-lyokha sh-clover4">Л</span><span class="dg-av persona persona-dasha sh-flower8">Д</span>
- <span class="dg-avwrap"><span class="dg-av persona persona-anya sh-cookie12">А</span><span class="on"></span></span>
+ <span class="dg-avwrap"><span class="dg-av e">М</span><span class="on"></span></span>
+ <span class="dg-avwrap"><span class="dg-av persona persona-anya sh-cookie12">А</span><span class="dgon"></span></span>
  <span class="dg-av xl persona persona-me sh-cookie9 dg-morph">Д</span>
 </div>'''), '''# Avatar
 
-Аватар пользователя, группы или канала. **У обычных пользователей Telegram он круглый**, как везде, и смотрящий его не настраивает. **Пользователи DelushaGram настраивают свой аватар сами** в профиле (форма, цвет, анимация), и все остальные пользователи DelushaGram видят его именно так (см. «Профиль Delusha» в README).
+Аватар пользователя, группы или канала. **У обычных пользователей Telegram он круглый**, как везде, и смотрящий его не настраивает. **Пользователи DelushaGram, поддержавшие проект, настраивают свой аватар сами** в профиле (форма, цвет, анимация), и все остальные пользователи DelushaGram видят его именно так (см. «Профиль Delusha» в README).
 
 **Что даёт код:** фото или инициалы, профиль Delusha собеседника (если есть), размер, флаги «в сети» и «есть история».
 
@@ -616,7 +616,7 @@ comps['Avatar'] = (card('Идентичность', 220, f'''<div class="dg-stag
 - Пользователь Delusha: его форма из библиотеки M3 и его тон (`persona`: контейнер, акцент, узор строятся из выбранного им оттенка теми же правилами, что и роли темы, в каждой из трёх тем).
 - Анимация, выбранная владельцем (стоит, дышит, морф, крутится), играет только на его профиле и в шапке чата с ним, в списках аватар стоит.
 - Размеры: `avatar-s` 40, `avatar-m` 52, закреплённые 68, профиль 156.
-- «В сети»: точка `online` с обводкой цветом фона, плюс текст статуса рядом.
+- «В сети»: точка `online` с обводкой цветом фона. Если человек в сети с DelushaGram — значок с пиксельной D (`dgon`) вместо точки.
 
 **Android:** `DgAvatarDrawable` оборачивает `AvatarDrawable`/`ImageReceiver`; форма через `RoundedPolygon` (androidx.graphics.shapes), морфинг через `Morph`.
 ''')
@@ -671,7 +671,7 @@ comps['MessageBubble'] = (card('Чат', 470, f'''<div class="dg-phone" style="m
 
 - Входящие `bubble-in`, исходящие `bubble-out` (в тёмных темах приглушены до `primary-container`, чтобы не слепить ночью).
 - Удалённое (история форка): `bubble-deleted`, метка «удалено» с иконкой; тап открывает детали удаления.
-- Изменённое: метка «изменено, N раза» (`tertiary`, с правильным склонением: 1 раз, 2 раза, 5 раз). Тап открывает вертикальную карусель версий: те же пузыри, сверху старые, снизу новые, листаются свайпом вверх-вниз, изменённые слова подсвечены (см. MotionHistory).
+- Изменённое: метка «изменено, N раза» (`tertiary`, с правильным склонением: 1 раз, 2 раза, 5 раз). Тап открывает вертикальную карусель версий: те же пузыри, сверху старые, снизу новые, листаются свайпом вверх-вниз (см. MotionHistory).
 - Ответ: цитата в плашке 12% от цвета текста, со скруглением 12, без боковой полоски.
 - Ширина не больше `bubble-max` (80%), время и галочки обтекаются текстом.
 - Голосовое: кнопка-печенька и волнистый прогресс (WavyProgress).
@@ -821,7 +821,9 @@ comps['ProfileEditor'] = (card('Профиль', 520, f'''<div class="dg-secs" s
 | Эффект открытия | частицы-формы, волна, без |
 | Пузыри у собеседника | в твоём цвете или в его теме |
 
-**Android:** `DgProfileEditorActivity`; запись в профиль через `account.updateProfile` (см. «Профиль Delusha» в README).
+Без поддержки: превью видно, все секции приглушены до 38% и неактивны, над ними одна кнопка «Поддержать».
+
+**Android:** `DgProfileEditorActivity`; запись на сервер DelushaGram, сервер принимает её только от аккаунтов из белого списка (см. «Профиль Delusha» в README).
 ''')
 
 comps['ToggleTile'] = (card('Списки', 180, f'''<div class="dg-stage" style="max-width:420px"><div class="dg-ttiles" style="width:100%"><div class="dg-ttile on"><span class="ti sh-cookie9">{ic("visibility_off",True)}</span><div class="bt"><b>Призрак</b><input type="checkbox" class="dg-sw" checked aria-label="Призрак"></div></div><div class="dg-ttile"><span class="ti sh-clover4">{ic("history",True)}</span><div class="bt"><b>История</b><input type="checkbox" class="dg-sw" aria-label="История"></div></div></div></div>'''), '''# ToggleTile
@@ -941,12 +943,18 @@ Material 3 Expressive отличается от обычного M3 смелос
 
 ## Профиль Delusha
 
-Пользователи DelushaGram оформляют свой профиль сами (ProfileEditor), и **все остальные пользователи DelushaGram видят его так же**. У обычных пользователей Telegram и в официальных клиентах профиль выглядит как обычно.
+Пользователи DelushaGram, которые **поддержали проект**, оформляют свой профиль сами (ProfileEditor), и **все пользователи DelushaGram видят его так же**. Остальные видят обычный профиль Telegram: круглый аватар, тема вместо персонального цвета.
 
-- **Как это передаётся.** Без своих серверов: настройки кодируются в 12 невидимых символов Unicode Tags (U+E0020–U+E007E) в конце поля «О себе». Официальные клиенты их не показывают, DelushaGram читает и вырезает перед показом. Цена: от лимита «О себе» (70 символов) остаётся 58.
-- **Формат:** `DG` + версия + форма + анимация + оттенок + шапка + плотность узора + ширина имени + вес + значок + эффект + пузыри. Всё числами, без картинок.
-- **Кэш:** разобранные настройки хранятся рядом с `UserFull`, обновляются вместе с ним.
-- **Что видят другие пользователи Delusha:** форму и тон аватара везде (списки, чат, закреплённые), полную шапку на профиле, анимацию аватара на профиле и в шапке чата, твои пузыри в твоём цвете (если ты так выбрал), эффект при открытии профиля.
+- **Где хранится.** На сервере DelushaGram (он платный и живёт на небольших сборах). Чтение открыто всем клиентам DelushaGram: профиль по id пользователя, с кэшем рядом с `UserFull`.
+- **Кто может менять.** Только аккаунты из белого списка поддержавших. Проверяет **сервер**: клиент подтверждает владение аккаунтом (подписанные данные входа через бота DelushaGram), сервер сверяет id со списком и только тогда принимает запись. Переписанный клиент ничего не даст: без записи в белом списке сервер запрос отклонит.
+- **В клиенте.** Без поддержки редактор открывается, но все настройки приглушены и неактивны, сверху одна кнопка «Поддержать». После поддержки и подтверждения настройки оживают сразу.
+- **Что видят другие пользователи Delusha:** форму, тон и анимацию аватара, шапку профиля, значок у имени, эффект открытия профиля, твои пузыри в твоём цвете (если ты так выбрал).
+
+## Знак и онлайн
+
+- **Знак DelushaGram** — буква D целиком из пикселей, сетка 9 × 11, толщина 3 пикселя, у пикселей скругление 20%. Файлы в группе ассетов Logos.
+- **Онлайн-значок.** Если человек сейчас в сети **и сидит с DelushaGram**, вместо зелёной точки на аватаре стоит значок 20 × 20: скруглённый квадрат цвета `online` с пиксельной D 4 × 5 цветом фона. Обычные клиенты видят обычную точку.
+- Клиент сообщает серверу DelushaGram, что он открыт, раз в минуту. В режиме призрака не сообщает, и значка нет.
 
 ## Размытие
 

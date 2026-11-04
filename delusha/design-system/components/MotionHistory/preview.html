@@ -14,7 +14,7 @@
 </div>
 <div class="mo-side"><span class="mo-hint"><span class="dg-ic">touch_app</span>Сыграй, что сделал собеседник, потом нажми на изменённое</span>
 <div class="mo-btns"><button class="dg-btn tonal" id="bd"><span class="dg-ic">delete</span>Удалил</button><button class="dg-btn tonal" id="be"><span class="dg-ic">edit</span>Изменил</button><button class="dg-btn text" id="br">Сначала</button></div>
-<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается. <b>Тап по изменённому</b> раскрывает вертикальную карусель: те же пузыри, сверху старые версии, снизу новые, листаешь вверх-вниз, изменённые слова подсвечены.</p>
+<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается. <b>Тап по изменённому</b> раскрывает вертикальную карусель: те же пузыри, сверху старые версии, снизу новые, листаешь вверх-вниз.</p>
 <p><span class="mo-tok">spatial-fast</span> встряска, <span class="mo-tok">spatial-default</span> карусель, <span class="mo-tok">effects-slow</span> размытие</p></div>
 </div>
 <script>
@@ -45,7 +45,7 @@ var th=dtag.firstChild.offsetHeight+2;dtag.style.height='0px';
 var shake=new Spring(0,function(x){del.style.transform='translateX('+x+'px)'},'spatial-fast',.05);
 var dt=new Spring(0,function(a){dtag.style.height=Math.max(0,a*th)+'px';dtag.style.opacity=C(a)},'spatial-default');
 var tx=new Spring(1,function(a){etx.style.opacity=C(a);etx.style.filter='blur('+((1-C(a))*4)+'px)'},'effects-default');
-function diff(prev,cur){var pw=prev?prev.split(' '):[];return cur.split(' ').map(function(w){return pw.indexOf(w)<0&&prev?'<mark>'+w+'</mark>':w}).join(' ')}
+function diff(prev,cur){return cur}
 var cards=[],W=86,G=20,pos=new Spring(0,layout,'spatial-default',.001),op=new Spring(0,function(p){cw.style.opacity=C(p);cw.style.transform='translateY('+((1-p)*60)+'px) scale('+L(.85,1,p)+')';scrim.style.opacity=C(p);scrim.style.pointerEvents=cw.style.pointerEvents=p>.5?'auto':'none'},'spatial-default');
 function build(){car.innerHTML='';dots.innerHTML='';cards=V.slice(0,n).map(function(v,k){var d=document.createElement('div');d.className='v';d.innerHTML='<span class="tm">'+v[0]+'</span><div class="dg-b in first last">'+diff(k?V[k-1][1]:null,v[1])+'</div>';car.appendChild(d);var dd=document.createElement('i');dots.appendChild(dd);return d})}
 function layout(p){var cy=car.clientHeight/2-W/2;cards.forEach(function(c,k){var d=k-p,a=Math.min(1,Math.abs(d));c.style.transform='translateY('+(cy+d*(W+G))+'px) scale('+(1-.1*a)+')';c.style.opacity=1-.55*a;c.style.zIndex=10-Math.round(Math.abs(d))});
