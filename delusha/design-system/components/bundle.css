@@ -277,8 +277,6 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .mo-gbtn .lb{overflow:hidden;white-space:nowrap;font:700 13px/16px var(--font-sans);display:block}
 .mo-gbtn .ib{width:24px;height:24px;position:relative;flex:none}
 .mo-gbtn .ib .dg-ic{position:absolute;inset:0}
-.mo-gnote{position:relative;overflow:hidden;height:0}
-.mo-gnote div{margin:0 12px;padding:10px 14px;border-radius:16px;background:var(--surface-container-high);font:400 13px/18px var(--font-sans);color:var(--on-surface-variant);display:flex;gap:8px;align-items:center}
 /* fab */
 .mo-fab{height:420px}
 .mo-scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;pointer-events:none;z-index:2}

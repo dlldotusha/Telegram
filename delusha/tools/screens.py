@@ -114,17 +114,16 @@ def li(icon, title, sub=None, tail='sw', lead='', on=True):
     t = {'sw': f'<input type="checkbox" class="dg-sw"{" checked" if on else ""}>', 'chev': ic('chevron_right')}.get(tail, f'<span class="val">{tail}</span>')
     return f'<div class="dg-li"><span class="lead {lead}">{ic(icon, 1 if lead=="t" else 0)}</span><span class="tx"><b>{title}</b>{s}</span>{t}</div>'
 
-SETTINGS = f'''<div class="dg-appbar" style="padding:0 4px 8px"><div class="row"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><span class="grow"></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button></div><h1 class="hero">Delusha</h1><p class="sub">Настройки форка</p></div>
+SETTINGS = f'''<div class="dg-appbar" style="padding:0 4px 8px"><div class="row"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><span class="grow"></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button></div><h1 class="hero">Delusha</h1></div>
 <div class="setwrap">
-<div class="dg-list"><span class="hd">Приватность</span>{li("visibility_off","Режим призрака","Без «прочитано», онлайна и «печатает»",lead="t")}{li("done_all","Читать после ответа","Галочки уйдут, когда ответишь")}{li("auto_stories","Смотреть истории тайно",on=False)}</div>
+<div class="dg-list"><span class="hd">Приватность</span>{li("visibility_off","Режим призрака",lead="t")}{li("done_all","Читать после ответа")}{li("auto_stories","Смотреть истории тайно",on=False)}</div>
 <div class="dg-list"><span class="hd">История</span>{li("delete_history","Удалённые сообщения","1 284 сообщения, 212 МБ","chev",lead="e")}{li("history_edu","Сохранять правки")}</div>
-<div class="dg-list"><span class="hd">Чаты</span>{li("swipe","Свайпы по чатам","Влево архив, вправо закрепить","chev")}{li("archive","Архив","Свайпом вниз","chev")}{li("favorite","Анимации реакций","Полные","chev")}</div>
+<div class="dg-list"><span class="hd">Чаты</span>{li("swipe","Свайпы по чатам",None,"chev")}{li("archive","Архив",None,"chev")}{li("favorite","Анимации реакций","Полные","chev")}</div>
 <div class="dg-list"><span class="hd">Вид</span><div class="dg-li"><span class="lead">{ic("interests")}</span><span class="tx"><b>Форма аватаров</b><span class="shp"><i class="sh-circle"></i><i class="sh-cookie9 on"></i><i class="sh-clover4"></i><i class="sh-flower8"></i><i class="sh-sunny"></i><i class="sh-pent"></i></span></span></div><div class="dg-li"><span class="lead">{ic("palette")}</span><span class="tx"><b>Цвет</b><span class="seeds"><i class="on" style="--s:oklch(0.62 0.16 295)"></i><i style="--s:oklch(0.62 0.13 200)"></i><i style="--s:oklch(0.62 0.15 150)"></i><i style="--s:oklch(0.65 0.16 45)"></i><i style="--s:oklch(0.6 0.17 350)"></i><i class="wall">{ic("wallpaper",0,18)}</i></span></span></div></div>
 </div>'''
 S['06-settings'] = screen('dark', SETTINGS, 'set')
 
-GHOSTSCR = f'''<div class="gwash"><div class="dg-appbar" style="padding-bottom:4px;background:transparent"><div class="row"><span class="grow"></span><button class="dg-ghost on">{ic("visibility_off",1)}Призрак</button><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><span class="dg-av s sh-cookie9" style="margin:0 8px 0 4px">Д</span></div><h1>Чаты</h1></div>
-<div class="gnote">{ic("visibility_off",0,20)}<span>Тебя не видно: «прочитано», онлайн и «печатает» не уходят</span></div></div>''' + CHIPS + f'<div class="dg-list-chats">{CHATS}</div>' + NAV
+GHOSTSCR = f'''<div class="gwash"><div class="dg-appbar" style="padding-bottom:4px;background:transparent"><div class="row"><span class="grow"></span><button class="dg-ghost on">{ic("visibility_off",1)}Призрак</button><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><span class="dg-av s sh-cookie9" style="margin:0 8px 0 4px">Д</span></div><h1>Чаты</h1></div></div>''' + CHIPS + f'<div class="dg-list-chats">{CHATS}</div>' + NAV
 S['07-ghost-amoled'] = screen('amoled', GHOSTSCR)
 
 CSS = r"""
@@ -188,6 +187,7 @@ body{display:flex;flex-wrap:wrap;gap:40px;padding:40px;font-family:var(--font-sa
 .shp i.on{background:var(--primary);opacity:1}
 .seeds i{width:28px;height:28px;border-radius:50%;background:var(--s);display:grid;place-items:center}
 .seeds i.on{border-radius:9px;box-shadow:0 0 0 2px var(--surface-container),0 0 0 4px var(--s)}
+.dg-li .tx .seeds .dg-ic{display:inline-block;font:normal 18px/1 "Material Symbols Rounded";color:inherit}
 .seeds i.wall{background:var(--surface-container-highest);color:var(--on-surface-variant)}
 .gwash{background:var(--ghost);color:var(--on-ghost);border-radius:0 0 28px 28px;padding-bottom:14px}
 .gwash .dg-appbar h1{color:var(--on-ghost)}

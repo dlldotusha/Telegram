@@ -90,8 +90,6 @@ MOTION_CSS = r"""
 .mo-gbtn .lb{overflow:hidden;white-space:nowrap;font:700 13px/16px var(--font-sans);display:block}
 .mo-gbtn .ib{width:24px;height:24px;position:relative;flex:none}
 .mo-gbtn .ib .dg-ic{position:absolute;inset:0}
-.mo-gnote{position:relative;overflow:hidden;height:0}
-.mo-gnote div{margin:0 12px;padding:10px 14px;border-radius:16px;background:var(--surface-container-high);font:400 13px/18px var(--font-sans);color:var(--on-surface-variant);display:flex;gap:8px;align-items:center}
 /* fab */
 .mo-fab{height:420px}
 .mo-scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;pointer-events:none;z-index:2}
@@ -316,30 +314,30 @@ $('#undo').addEventListener('click',restore);
 CARDS['MotionPull'] = (470, 'Архив свайпом вниз', f'''<div class="mo-wrap">
 <div class="mo-phone mo-pull" id="ph">
  <div class="dg-appbar" style="padding-bottom:6px"><h1 style="margin-top:4px">Чаты</h1></div>
- <div class="mo-arch" id="arch"><div class="dg-chat"><span class="dg-av sc sh-cookie9" id="aav"><span class="dg-ic fill">archive</span></span><div class="mid"><div class="nm">Архив</div><div class="pv" id="atx">Потяни, чтобы открыть</div></div><div class="rt"><span class="dg-badge muted">7</span></div></div></div>
+ <div class="mo-arch" id="arch"><div class="dg-chat"><span class="dg-av sc sh-cookie9" id="aav"><span class="dg-ic fill">archive</span></span><div class="mid"><div class="nm">Архив</div><div class="pv">7 чатов</div></div><div class="rt"><span class="dg-badge muted">7</span></div></div></div>
  <div class="mo-list" id="rest"></div>
 </div>
 <div class="mo-side"><span class="mo-hint">{ic("swipe_down")}Тяни список вниз</span>
-<p><b>Архив вытягивается сверху, как ящик.</b> Иконка-печенька крутится за пальцем, на пороге морфит в круг и подпрыгивает, текст меняется на «Отпусти».</p>
+<p><b>Архив вытягивается сверху, как ящик.</b> Иконка-печенька крутится за пальцем, на пороге морфит в круг и подпрыгивает.</p>
 <p>Можно выключить архив совсем или закрепить его открытым.</p>
 <p><span class="mo-tok">spatial-default</span> ящик, <span class="mo-tok">spatial-fast</span> иконка</p></div>
 </div>''', r"""
-var rest=$('#rest'),arch=$('#arch'),aav=$('#aav'),atx=$('#atx'),ph=$('#ph');
+var rest=$('#rest'),arch=$('#arch'),aav=$('#aav'),ph=$('#ph');
 [['Д','Даша','ок, до завтра','10:02','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
 var H=76,open=false,armed=false,sy=0,base=0,drag=false;
 var hs=new Spring(0,function(h){arch.style.height=Math.max(0,h)+'px';aav.style.transform='rotate('+(h*2.2)+'deg) scale('+L(.6,1,C(h/H))+')'},'spatial-default',.1);
 var bump=new Spring(1,function(s){aav.style.scale=s},'spatial-fast');
 ph.addEventListener('pointerdown',function(e){drag=true;sy=e.clientY;base=hs.x;ph.setPointerCapture(e.pointerId)});
 ph.addEventListener('pointermove',function(e){if(!drag)return;var d=base+(e.clientY-sy),v=d<=H?d:H+(d-H)*.4;hs.set(Math.max(0,v));
- var on=v>=H&&!open;if(on!==armed){armed=on;buzz();aav.classList.toggle('sh-cookie9',!on);aav.classList.toggle('sh-circle',on);bump.set(.7).to(1);atx.textContent=on?'Отпусти, чтобы закрепить':'Потяни, чтобы открыть'}});
-function up(){if(!drag)return;drag=false;if(armed||(open&&hs.x>H*.5)){open=true;hs.to(H)}else{open=false;hs.to(0)}armed=false;aav.classList.add('sh-cookie9');aav.classList.remove('sh-circle');atx.textContent=open?'7 чатов. Тяни вверх, чтобы спрятать':'Потяни, чтобы открыть'}
+ var on=v>=H&&!open;if(on!==armed){armed=on;buzz();aav.classList.toggle('sh-cookie9',!on);aav.classList.toggle('sh-circle',on);bump.set(.7).to(1)}});
+function up(){if(!drag)return;drag=false;if(armed||(open&&hs.x>H*.5)){open=true;hs.to(H)}else{open=false;hs.to(0)}armed=false;aav.classList.add('sh-cookie9');aav.classList.remove('sh-circle')}
 ph.addEventListener('pointerup',up);ph.addEventListener('pointercancel',up);
 """, '''# MotionPull
 
 Архив свайпом вниз по списку чатов (фича 40). Варианты в настройках: тянуть вниз (по умолчанию), всегда показан, скрыт совсем.
 
 - Строка архива вытягивается сверху за пальцем, иконка-печенька крутится (2.2° на пиксель) и растёт.
-- На пороге (высота строки) — вибрация, печенька морфит в круг, иконка подпрыгивает (`spatial-fast`), подпись «Отпусти, чтобы закрепить».
+- На пороге (высота строки) — вибрация, печенька морфит в круг, иконка подпрыгивает (`spatial-fast`). Никаких подсказок текстом: порог виден по форме и чувствуется вибрацией.
 - Дальше порога сопротивление 40%.
 - Отпустил после порога: ящик фиксируется пружиной `spatial-default`. До порога: прячется.
 - Тянуть вверх по открытому архиву — прячет обратно.
@@ -353,23 +351,21 @@ CARDS['MotionGhost'] = (400, 'Включение режима призрака',
  <div class="mo-gbar" id="bar"><span class="mo-wash" id="wash"></span><h3 id="ttl">Чаты</h3>
   <button class="mo-gbtn" id="gb" aria-pressed="false" aria-label="Режим призрака"><span class="ib"><span class="dg-ic" id="i1">visibility</span><span class="dg-ic fill" id="i2" style="opacity:0">visibility_off</span></span><span class="lb" id="glb"><span style="padding:0 6px 0 8px;display:inline-block">Призрак</span></span></button>
   <span class="dg-av s sh-cookie9" style="position:relative">Д</span></div>
- <div class="mo-gnote" id="note"><div><span class="dg-ic" style="font-size:20px">visibility_off</span>Тебя не видно: «прочитано», онлайн и «печатает» не уходят</div></div>
  <div class="mo-list" id="rest"></div>
 </div>
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Нажми на глаз</span>
-<p><b>Призрак включается одним тапом и это видно.</b> Цвет заливает шапку кругом от кнопки, глаз закрывается, кнопка раскрывается в пилюлю с подписью, под шапкой выезжает пояснение.</p>
-<p><span class="mo-tok">spatial-slow</span> заливка, <span class="mo-tok">spatial-fast</span> иконка, <span class="mo-tok">spatial-default</span> пилюля и пояснение</p></div>
+<p><b>Призрак включается одним тапом и это видно.</b> Цвет заливает шапку кругом от кнопки, глаз закрывается, кнопка раскрывается в пилюлю.</p>
+<p><span class="mo-tok">spatial-slow</span> заливка, <span class="mo-tok">spatial-fast</span> иконка, <span class="mo-tok">spatial-default</span> пилюля</p></div>
 </div>''', r"""
 var rest=$('#rest');[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','Приду к восьми','9:40','t','sh-cookie12']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
-var bar=$('#bar'),wash=$('#wash'),gb=$('#gb'),ttl=$('#ttl'),glb=$('#glb'),note=$('#note'),i1=$('#i1'),i2=$('#i2'),on=false;
-var lw=glb.firstChild.offsetWidth,nh=note.firstChild.offsetHeight+10;
+var bar=$('#bar'),wash=$('#wash'),gb=$('#gb'),ttl=$('#ttl'),glb=$('#glb'),i1=$('#i1'),i2=$('#i2'),on=false;
+var lw=glb.firstChild.offsetWidth;
 var r=new Spring(0,function(v){var b=rel(gb,bar);wash.style.clipPath='circle('+Math.max(0,v)+'px at '+(b.x+22)+'px '+(b.y+b.h/2)+'px)'},'spatial-slow',.2);
 var pw=new Spring(0,function(a){glb.style.width=Math.max(0,a*lw)+'px';glb.style.opacity=C(a)},'spatial-default');
-var nt=new Spring(0,function(a){note.style.height=Math.max(0,a*nh)+'px';note.firstChild.style.opacity=C(a)},'spatial-default');
 var ic=new Spring(0,function(a){i1.style.opacity=1-C(a);i2.style.opacity=C(a);i1.style.transform='rotate('+(a*-90)+'deg) scale('+L(1,.3,C(a))+')';i2.style.transform='rotate('+((1-a)*90)+'deg) scale('+L(.3,1,C(a))+')'},'spatial-fast');
-pw.set(0);nt.set(0);r.set(0);
+pw.set(0);r.set(0);
 gb.addEventListener('click',function(){on=!on;buzz();gb.setAttribute('aria-pressed',on);gb.classList.toggle('on',on);ttl.style.color=on?'var(--on-ghost)':'';
- r.to(on?bar.clientWidth*1.15:0,on?'spatial-slow':'spatial-default');ic.to(on?1:0);pw.to(on?1:0);setTimeout(function(){nt.to(on?1:0)},on?90:0)});
+ r.to(on?bar.clientWidth*1.15:0,on?'spatial-slow':'spatial-default');ic.to(on?1:0);pw.to(on?1:0);});
 """, '''# MotionGhost
 
 Включение и выключение режима призрака — заметное событие, чтобы никогда не гадать, включён ли он.
@@ -377,7 +373,6 @@ gb.addEventListener('click',function(){on=!on;buzz();gb.setAttribute('aria-press
 - Цвет `ghost` заливает шапку кругом из центра кнопки (`spatial-slow`, около 450 мс), заголовок перекрашивается в `on-ghost`.
 - Глаз поворачивается на −90° и сжимается, перечёркнутый глаз приходит поворотом с другой стороны (`spatial-fast`).
 - Кнопка раскрывается в пилюлю с подписью «Призрак» (`spatial-default`).
-- Через 90 мс под шапкой выезжает пояснение, что именно сейчас скрыто.
 - Выключение — всё в обратную сторону, заливка сворачивается в кнопку.
 
 **Android:** заливка — `ViewAnimationUtils.createCircularReveal` нельзя на пружине, поэтому рисуем круг сами в `DgTopAppBar.onDraw` с `SpringAnimation` на радиусе. Плитка в шторке (`TileService`) и ярлык меняют то же состояние.
