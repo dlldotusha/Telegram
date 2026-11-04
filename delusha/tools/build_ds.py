@@ -4,6 +4,7 @@ from gen_shapes import css as shapes_css, svgpath
 import motion
 import motion_px
 import pixel
+import pixel_fx
 import expressive
 import logo_js
 from logo import badge_inline
@@ -362,7 +363,7 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-ghost{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 8px;border-radius:16px;background:var(--ghost);color:var(--on-ghost);font:700 12.5px/16px var(--font-sans);border:0;cursor:pointer}
 .dg-ghost .dg-ic{font-size:18px}
 """
-bundle = bundle.replace('%%', '%') + motion.MOTION_CSS + expressive.all_css() + pixel.CSS
+bundle = bundle.replace('%%', '%') + motion.MOTION_CSS + expressive.all_css() + pixel.CSS + pixel_fx.FX_CSS
 w('components/bundle.css', bundle)
 
 # ---------------------------------------------------------------- helpers for previews
@@ -491,10 +492,10 @@ comps['Fab'] = (card('Действия', 300, f'''<div class="dg-stage" style="a
 ''')
 
 comps['PixelBar'] = (card('Навигация', 150, f'''<div class="dg-stage" style="max-width:420px;position:relative;height:110px;padding:0">
- <div class="px-bottom" style="position:absolute;left:12px;right:12px;bottom:20px"><div class="px-bar"><div class="blur"></div><div class="tiles">{pixel.bar_pixels(26,5)}</div><div class="content"><span class="dg-av persona persona-me sh-cookie9">Д</span>{pixel.glyph_svg('search',22)}<span>Поиск</span></div></div><div class="px-fab">{pixel.fab_pixels('edit')}</div></div>
+ <div class="px-bottom" style="position:absolute;left:12px;right:12px;bottom:20px"><div class="px-bar"><div class="blur"></div><div class="tiles">{pixel_fx.bar_fx(39,7)}</div><div class="content"><span class="dg-av persona persona-me sh-cookie9">Д</span>{pixel.glyph_svg('search',24)}<span>Поиск</span></div></div><div class="px-fab">{pixel_fx.fab_fx('edit')}</div></div>
 </div>'''), '''# PixelBar
 
-Нижняя панель главного экрана, **собранная из пикселей знака**: фон — мозаика пикселей 10 × 10 с шагом 12 (залитые, рамки, с точкой, круглые), иконки — пиксельные глифы 7 × 7, кнопка «новое сообщение» — печенька из пикселей с карандашом.
+Нижняя панель главного экрана, **собранная из пикселей знака**: фон — мозаика пикселей 6,6 × 6,6 с шагом 8 (залитые, рамки, с точкой, круглые), иконки — пиксельные глифы 13 × 13, кнопка «новое сообщение» — печенька из пикселей с карандашом.
 
 **Что на ней:** только то, что нужно каждый день.
 
@@ -511,15 +512,15 @@ comps['PixelBar'] = (card('Навигация', 150, f'''<div class="dg-stage" s
 **Android:** `DgPixelBar` поверх `DialogsActivity` вместо `MainTabsActivity`.
 ''')
 
-comps['PixelIcons'] = (card('Идентичность', 120, f'''<div class="dg-stage" style="gap:22px;color:var(--on-surface)">{''.join(pixel.glyph_svg(n, 32) for n in ['search','edit','camera','ghost','add','back','more','send','mic'])}</div>'''), '''# PixelIcons
+comps['PixelIcons'] = (card('Идентичность', 120, f'''<div class="dg-stage" style="gap:22px;color:var(--on-surface)">{''.join(pixel.glyph_svg(n, 32) for n in ['search','edit','camera','ghost','add','back','more','send','mic','video','stop','lock'])}</div>'''), '''# PixelIcons
 
-Пиксельные глифы 7 × 7 из тех же пикселей, что и знак: в основном скруглённые квадраты, изредка круги и рамки. Цвет — текущий цвет текста.
+Пиксельные глифы 13 × 13: растеризованы из Material Symbols Rounded (заливка, вес 700), поэтому узнаются сразу. Пиксели в основном скруглённые квадраты, изредка круги и рамки. Цвет — текущий цвет текста.
 
 - Используются там, где интерфейс говорит на языке знака: нижняя панель (поиск), FAB (карандаш), кнопка отправки (микрофон, самолётик), камера историй, плашка призрака.
 - Везде остальное — Material Symbols Rounded, как в M3 Expressive. Не смешивать оба вида в одном ряду кнопок.
-- Минимальный размер 20, иначе пиксели сливаются.
+- Минимальный размер 22, иначе пиксели сливаются.
 
-Глифы: `search`, `edit`, `camera`, `ghost`, `add`, `back`, `more`, `send`, `mic`.
+Глифы: `search`, `edit`, `camera`, `ghost`, `add`, `back`, `more`, `send`, `mic`, `video`, `stop`, `lock`. Новые получаются тем же скриптом из любой иконки Material Symbols.
 
 **Android:** `DgPixelIcon` (рисует ячейки на `Canvas`), набор задан строками 7 × 7 в коде.
 ''')
