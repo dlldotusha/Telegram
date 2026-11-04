@@ -100,11 +100,11 @@ def svg_varied(colors=('#6741b1', '#9a6cf0', '#1f7a72'), hole='#efe9fb', W=9, H=
     sz = f' width="{size}" height="{size*vh/vw:.0f}"' if size else ''
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {vw} {vh}"{sz}><style>{style}</style>{b}{pixels_varied(W,H,s,cell,seed=seed,simple=simple)}</svg>'
 
-def badge_inline(kind, size=18):
+def badge_inline(kind, size=18, live=False):
     """Inline SVG badge using theme classes (bundle.css): sup = supporter, user = Delusha user, online."""
     if kind == 'sup':
         px = pixels_varied(4, 5, 1, 2.4, ox=2.2, oy=1.0, seed=5, cls=('bp1', 'bp2'), simple=True)
-        return f'<svg class="dgb dgb-sup" viewBox="0 0 14 14" width="{size}" height="{size}"><rect class="bbg" width="14" height="14" rx="4.5"/>{px}</svg>'
+        return f'<svg class="dgb dgb-sup{" live" if live else ""}" viewBox="0 0 14 14" width="{size}" height="{size}"><rect class="bbg" width="14" height="14" rx="4.5"/>{px}</svg>'
     if kind == 'user':
         g = dgrid(4, 5, 1)
         px = ''.join(f'<rect class="bo" x="{2.2+c*2.4+.35:.2f}" y="{1+r*2.4+.35:.2f}" width="1.7" height="1.7" rx=".4" stroke-width=".55"/>' for c, r in g)

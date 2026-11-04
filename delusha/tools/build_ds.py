@@ -3,6 +3,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from gen_shapes import css as shapes_css, svgpath
 import motion
 import expressive
+import logo_js
 from logo import badge_inline
 
 OUT = os.path.join(os.path.dirname(__file__), 'ds', 'project')
@@ -30,9 +31,9 @@ tokens = {
   "families": {"sans": "\"Roboto Flex\", Roboto, system-ui, sans-serif", "icons": "\"Material Symbols Rounded\""},
   "groups": [
    {"name": "Экспрессив", "family": "sans", "styles": [
-     st("hero-title", 40, 44, 850, -1, "Заголовок экрана-раздела в развёрнутой шапке (Delusha, Настройки). Ширина wdth 140.", "Delusha", 48),
-     st("screen-title", 34, 38, 800, -0.8, "Большой заголовок главных экранов (Чаты, Звонки). Ширина wdth 125.", "Чаты", 40),
-     st("profile-name", 26, 30, 800, -0.5, "Имя на экране профиля. Ширина wdth 120.", "Аня Соколова", 32)]},
+     st("hero-title", 36, 44, 600, 0, "Headline Large Emphasized: крупная шапка вложенных разделов (DelushaGram).", "DelushaGram", 36),
+     st("screen-title", 32, 40, 600, 0, "Headline Medium Emphasized: заголовок вкладки (Настройки) в развёрнутой шапке.", "Настройки", 32),
+     st("profile-name", 28, 36, 600, 0, "Headline Medium Emphasized: имя на экране профиля.", "Аня Соколова", 28)]},
    {"name": "Display и Headline", "family": "sans", "styles": [
      st("display-large", 57, 64, 400, -0.25), st("display-medium", 45, 52, 400), st("display-small", 36, 44, 400),
      st("headline-large", 32, 40, 400), st("headline-medium", 28, 36, 400), st("headline-small", 24, 32, 400, 0, "Заголовки диалогов и листов.")]},
@@ -178,6 +179,14 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-glass{background:var(--surface-glass);-webkit-backdrop-filter:blur(var(--blur-glass)) saturate(1.6);backdrop-filter:blur(var(--blur-glass)) saturate(1.6)}
 .dg-scrim{position:absolute;inset:0;background:color-mix(in srgb,var(--scrim) 24%%,transparent);-webkit-backdrop-filter:blur(var(--blur-scrim));backdrop-filter:blur(var(--blur-scrim))}
 /* Bottom bar: account, search, new chat */
+.tabs{box-shadow:var(--elevation-2)}
+.tb{position:relative;border:0;background:transparent;height:52px;min-width:64px;border-radius:26px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;color:var(--on-surface-variant);font:500 14px/20px var(--font-sans);transition:padding 380ms var(--dg-spring),background-color 200ms}
+.tb .tl{display:none}
+.tb.on{background:var(--secondary-container);color:var(--on-secondary-container);padding:0 20px 0 16px}
+.tb.on .tl{display:inline;font-weight:600}
+.tb .tbn{position:absolute;top:4px;left:36px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--primary);color:var(--on-primary);font:600 11px/18px var(--font-sans);text-align:center}
+.tb.on .tbn{position:static;background:var(--on-secondary-container);color:var(--secondary-container)}
+.tb .tav{width:32px;height:32px;font-size:13px}
 .dg-bottombar{display:flex;align-items:center;gap:10px}
 .dg-bottombar .bar{flex:1;min-width:0;height:64px;border-radius:32px;display:flex;align-items:center;gap:10px;padding:0 18px 0 6px;box-shadow:var(--elevation-2);color:var(--on-surface-variant);font:400 16px/24px var(--font-sans);cursor:pointer;border:0}
 .dg-bottombar .bar .dg-av{width:52px;height:52px;font-size:18px}
@@ -224,8 +233,8 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-appbar{padding:8px 4px 16px;display:flex;flex-direction:column;gap:4px;background:var(--surface)}
 .dg-appbar .row{display:flex;align-items:center;gap:4px;min-height:48px}
 .dg-appbar .grow{flex:1}
-.dg-appbar h1{margin:8px 12px 0;font:800 34px/38px var(--font-sans);letter-spacing:-.8px;font-variation-settings:"wdth" 125,"opsz" 40}
-.dg-appbar h1.hero{font-size:40px;line-height:44px;font-weight:850;letter-spacing:-1px;font-variation-settings:"wdth" 140,"opsz" 48}
+.dg-appbar h1{margin:8px 12px 0;font:600 32px/40px var(--font-sans);letter-spacing:0}
+.dg-appbar h1.hero{font-size:36px;line-height:44px;font-weight:600}
 .dg-appbar .sub{margin:0 12px;color:var(--on-surface-variant);font:400 14px/20px var(--font-sans)}
 .dg-appbar.small{padding:4px;flex-direction:row;align-items:center;background:var(--surface-container);border-radius:0 0 var(--shape-xl) var(--shape-xl)}
 .dg-appbar.small .ttl{flex:1;min-width:0;font:500 22px/28px var(--font-sans)}
@@ -478,29 +487,26 @@ comps['Fab'] = (card('Действия', 300, f'''<div class="dg-stage" style="a
 **Android:** `DgFab`, `DgFabMenu`.
 ''')
 
-comps['FloatingToolbar'] = (card('Навигация', 150, f'''<div class="dg-stage col" style="max-width:420px;position:relative;overflow:hidden;border-radius:28px;padding:0">
- <div style="padding:12px 8px 90px">
-  <div class="dg-chat"><span class="dg-av e sh-clover4">М</span><div class="mid"><div class="nm">Мама</div><div class="pv">Купи хлеба по дороге</div></div><div class="rt">9:38<span class="dg-badge">2</span></div></div>
- </div>
- <div class="dg-bottombar" style="position:absolute;left:12px;right:12px;bottom:12px">
-  <button class="bar dg-glass"><span class="dg-av sh-cookie9">Д</span>{ic("search")}<span class="ph">Поиск</span></button>
-  <span class="dg-fabwrap"><button class="dg-fabx sh-cookie9" aria-label="Новый чат">{ic("edit",True)}</button></span>
+comps['FloatingToolbar'] = (card('Навигация', 170, f'''<div class="dg-stage col" style="max-width:420px;position:relative;overflow:hidden;border-radius:28px;padding:0;height:150px">
+ <div class="fabs" style="position:absolute;right:16px;bottom:88px"></div>
+ <div class="tabs dg-glass" style="position:absolute;left:12px;right:12px;bottom:12px;height:68px;border-radius:34px;display:flex;align-items:center;justify-content:space-around;padding:0 8px">
+  <button class="tb on">{ic("chat_bubble",True)}<span class="tl">Чаты</span><span class="tbn">12</span></button>
+  <button class="tb">{ic("settings")}<span class="tl">Настройки</span></button>
+  <button class="tb"><span class="dg-av persona persona-me sh-cookie9 tav">Д</span><span class="tl">Профиль</span></button>
  </div>
 </div>'''), '''# FloatingToolbar
 
-Нижняя панель главного экрана: свой аватар, поиск и «новый чат». Вкладок нет: всё редкое разложено туда, где оно нужно (см. «Где что живёт» в README).
+Нижняя стеклянная панель вкладок, как `MainTabsActivity` в Telegram 12.9.2, в стиле M3 Expressive.
 
-**Что даёт код:** аватар текущего аккаунта, обработчики поиска и FAB.
+**Что даёт код:** вкладки, текущая, счётчик непрочитанного, аватар текущего аккаунта.
 
-- Пилюля 64 на `surface-glass` с размытием `blur-glass`: список чатов виден под ней, панель не съедает экран.
-- Тап по аватару открывает твой профиль (там аккаунты, редактор профиля и настройки). Долгий тап сразу переключает на следующий аккаунт: вибрация, аватар морфит в форму другого аккаунта.
-- Тап по пилюле поиска: она переезжает наверх и становится полем поиска (пружина `spatial-default`), клавиатура открывается сразу.
-- FAB 68 в форме печеньки `primary`: новый чат (контакты, группа, канал, секретный чат). Долгий тап открывает FAB-меню.
-- Отступ от низа 16 + системная навигация. При прокрутке вниз панель сжимается до аватара и FAB, при прокрутке вверх разворачивается.
+- Вкладки DelushaGram: **Чаты, Настройки, Профиль**. Контакты и Звонки скрыты (в Telegram есть «Скрыть вкладку звонков», мы скрываем и контакты); их можно вернуть в настройках DelushaGram.
+- Выбранная вкладка — пилюля `secondary-container` с подписью, остальные только иконки; счётчик чатов на иконке.
+- Панель на `surface-glass` с размытием, высота 68, углы 34, отступ 16 от краёв и над системной навигацией.
+- Долгий тап по «Чатам» — выбор папки, по «Профилю» — переключение аккаунтов и «Добавить аккаунт» (как в Telegram).
+- Над панелью справа кнопки списка чатов: маленькая камера историй и FAB «новое сообщение» в форме печеньки.
 
-**Удобство:** всё, что нужно каждый день, в зоне большого пальца; ничего не надо искать в боковом меню.
-
-**Android:** `DgBottomBar` поверх `DialogsActivity`; боковое меню (`DrawerLayoutContainer`) отключается, его пункты разъезжаются по местам.
+**Android:** перерисовка `GlassTabView` в `MainTabsActivity`, список вкладок через `showCallsTab` + свой флаг для контактов.
 ''')
 
 comps['TopAppBar'] = (card('Навигация', 330, f'''<div class="dg-stage col" style="gap:20px">
@@ -646,7 +652,7 @@ comps['ChatRow'] = (card('Списки', 330, f'''<div class="dg-stage col" styl
 **Что даёт код:** диалог (имя, аватар, последнее сообщение, автор в группе, время, непрочитанные, флаги: закреплён, без звука, черновик, печатает, отправлено/прочитано).
 
 - Высота `row-chat` 72 (компактная плотность 60), скругление 24 у подсветки нажатия и фона закреплённых.
-- Закреплённые живут не в списке, а рядом сверху крупными аватарами (PinnedChats). Избранное всегда первое.
+- Закреплённые — сверху списка с булавкой справа, как в Telegram.
 - Превью: «печатает…» и черновик `primary`, автор в группе `on-surface` 500, остальное `on-surface-variant`.
 - Галочки прочтения справа рядом со временем, `primary`.
 - Долгий тап: выделение (аватар морфит в галочку), панель действий снизу.
@@ -764,22 +770,21 @@ comps['Snackbar'] = (card('Обратная связь', 90, f'''<div class="dg-
 ''')
 
 
-comps['PinnedChats'] = (card('Навигация', 130, f'''<div class="dg-pins">
- <div class="dg-pin"><span class="dg-av sh-cookie4" style="--av-bg:var(--primary);--av-fg:var(--on-primary)">{ic("bookmark",True)}</span>Избранное</div>
- <div class="dg-pin"><span class="dg-av persona persona-anya sh-cookie12">А</span>Аня</div>
- <div class="dg-pin"><span class="dg-av e">М</span><span class="dg-badge">2</span>Мама</div>
- <div class="dg-pin"><span class="dg-av persona persona-lyokha sh-clover4">Л</span><span class="dg-badge">1</span>Лёха</div>
- <div class="dg-pin"><span class="dg-av sc">Р</span>Работа</div>
-</div>'''), '''# PinnedChats
+comps['StoriesRow'] = (card('Навигация', 130, f'''<div class="dg-stories" style="display:flex;gap:6px;padding:12px">
+ <div class="st mine"><span class="ring"><span class="dg-av persona persona-me sh-cookie9">Д</span><span class="splus">{ic("add")}</span></span><span class="sn">Моя история</span></div>
+ <div class="st"><span class="ring"><span class="dg-av persona persona-anya sh-cookie12">А</span></span><span class="sn">Аня</span></div>
+ <div class="st"><span class="ring"><span class="dg-av t">В</span></span><span class="sn">Вика</span></div>
+ <div class="st seen"><span class="ring"><span class="dg-av persona persona-lyokha sh-clover4">Л</span></span><span class="sn">Лёха</span></div>
+</div>'''), '''# StoriesRow
 
-Закреплённые чаты крупными аватарами 68 в ряд над списком. Заменяет заголовок «Чаты»: верх главного экрана занят тем, что нужно чаще всего.
+Ряд историй над папками на главном экране (`DialogStoriesCell` в Telegram).
 
-- Избранное всегда первое, в форме `cookie4` на `primary`.
-- Счётчик непрочитанного на углу аватара, с обводкой цветом фона.
-- Ряд прокручивается вбок, если закреплённых больше пяти. Долгий тап: открепить, переставить.
-- Тап по закреплённому открывает чат той же трансформацией контейнера, что и строка (MotionOpen).
+- Первой — своя история с плюсом. Дальше непросмотренные с кольцом `primary` → `tertiary`, потом просмотренные с кольцом `outline-variant`.
+- Аватары в форме владельца, если он поддержал DelushaGram, иначе круглые.
+- При прокрутке списка вниз ряд сворачивается в стопку маленьких аватаров в шапке (как в Telegram), пружина `spatial-default`.
+- Можно скрыть целиком (фича 39).
 
-**Android:** горизонтальный `RecyclerListView` над `DialogsActivity.listView`.
+**Android:** перерисовка `DialogStoriesCell`.
 ''')
 
 comps['ProfileHero'] = (card('Профиль', 520, f'''<div class="persona persona-anya" style="width:380px;margin:12px;border-radius:28px;overflow:hidden;background:var(--surface)">
@@ -805,7 +810,7 @@ comps['ProfileEditor'] = (card('Профиль', 520, f'''<div class="dg-secs" s
  <div class="dg-sec"><div class="dg-pick"><i class="sh-circle"></i><i class="sh-cookie9 on"></i><i class="sh-clover4"></i><i class="sh-flower8"></i><i class="sh-sunny"></i></div></div>
  <div class="dg-sec"><div class="dg-pick col"><i class="sh-cookie9 on" style="background:oklch(0.6 0.13 295)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.10 190)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 140)"></i><i class="sh-cookie9" style="background:oklch(0.64 0.13 50)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.14 0)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 240)"></i></div></div>
  <div class="dg-sec"><div class="dg-anim"><div><i class="sh-cookie9"></i>{ic("pause",True)}</div><div class="on"><i class="sh-cookie9"></i>{ic("air")}</div><div><i class="sh-clover4"></i>{ic("animation")}</div><div><i class="sh-flower8"></i>{ic("autorenew")}</div></div></div>
- <div class="dg-sec"><div class="dg-names"><div style="font-variation-settings:'wdth' 60">Аа</div><div style="font-variation-settings:'wdth' 100">Аа</div><div class="on" style="font-variation-settings:'wdth' 151">Аа</div></div></div>
+ <div class="dg-sec"><div class="dg-names"><div style="font-weight:400">Аа</div><div class="on" style="font-weight:600">Аа</div><div style="font-weight:800">Аа</div></div></div>
 </div>'''), '''# ProfileEditor
 
 Редактор своего профиля Delusha: открывается карандашом на своём профиле. Сверху живое превью, ниже секции группой с общими краями, без подписей. Всё применяется сразу.
@@ -830,9 +835,25 @@ comps['ProfileEditor'] = (card('Профиль', 520, f'''<div class="dg-secs" s
 **Android:** `DgProfileEditorActivity`; запись на сервер DelushaGram, сервер принимает её только от аккаунтов из белого списка (см. «Профиль Delusha» в README).
 ''')
 
+comps['Logo'] = (card('Идентичность', 300, '''<div class="dg-stage" style="gap:40px;justify-content:center">
+ <div style="background:#f4f4f5;border-radius:28px;padding:24px"><svg class="dg-logo" id="a" width="150" height="183"></svg></div>
+ <div style="background:#141416;border-radius:28px;padding:24px"><svg class="dg-logo inv" id="b" width="150" height="183"></svg></div>
+</div>''', motion.ENGINE + logo_js.LOGO_JS + "dgLogo($('#a'));dgLogo($('#b'));"), '''# Logo
+
+Знак DelushaGram: буква D из пикселей (сетка 9 × 11, толщина 3). **Он всегда разный и всегда живой.**
+
+- **Генерируется скриптом.** Каждый пиксель получает вид: залитый, рамка, рамка с точкой, круг, печенька, окно, два наложенных со сдвигом, половина. Залитых больше всего, чтобы буква читалась.
+- **Без акцента.** Только чёрный, белый и два серых. Цвет в интерфейсе берётся из системного акцента телефона, а знак всегда бесцветный.
+- **Анимация.** Раз в 0,7 с несколько случайных пикселей сжимаются (`effects-fast`) и раскрываются в новом виде с отскоком (`spatial-fast`). При «Меньше движения» знак стоит.
+- **Где:** в шапке списка чатов вместо названия, крупно в разделе DelushaGram, на заставке, в иконке приложения (статичный кадр с seed сборки).
+
+**Android:** `DgLogoDrawable` (сетка, стили пикселей, `SpringAnimation` на масштаб каждого пикселя), seed по умолчанию случайный; для иконки и статичных мест передаётся фиксированный.
+''')
+
 comps['Marks'] = (card('Идентичность', 170, f'''<div class="dg-stage" style="gap:36px">
- <span style="font:800 20px/1 var(--font-sans);display:flex;align-items:center">Аня Соколова{badge_inline("sup",22)}</span>
- <span style="font:800 20px/1 var(--font-sans);display:flex;align-items:center">Даша{badge_inline("user",22)}</span>
+ <span style="font:600 20px/1 var(--font-sans);display:flex;align-items:center">Лёха{badge_inline("sup",22)}</span>
+ <span style="font:600 20px/1 var(--font-sans);display:flex;align-items:center">Аня{badge_inline("sup",22,True)}</span>
+ <span style="font:600 20px/1 var(--font-sans);display:flex;align-items:center">Даша{badge_inline("user",22)}</span>
  <span class="dg-avwrap"><span class="dg-av t">Д</span><span class="dgon"></span></span>
  <span class="dg-avwrap"><span class="dg-av e">М</span><span class="on"></span></span>
 </div>'''), '''# Marks
@@ -841,8 +862,8 @@ comps['Marks'] = (card('Идентичность', 170, f'''<div class="dg-stage
 
 | Значок | Кому | Где |
 |---|---|---|
-| Пиксельная D на `primary-container` | поддержал разработку и серверы | рядом с именем везде |
-| D из рамок на `surface-container-highest` | пользуется DelushaGram, не поддержал | рядом с именем только в профиле |
+| Пиксельная D, серая; **зелёная, пока человек в сети** | поддержал разработку и серверы | рядом с именем везде |
+| D из серых рамок | пользуется DelushaGram, не поддержал | рядом с именем только в профиле |
 | D на зелёном квадрате вместо точки | сейчас в сети с DelushaGram | угол аватара |
 
 **Что даёт код:** статус человека с сервера DelushaGram (поддержал, пользователь, в сети с клиента), размер.
@@ -880,7 +901,7 @@ html,body{{margin:0;background:var(--surface)}}
 svg{{position:absolute;inset:0}}
 .pc{{fill:var(--primary-container)}} .p{{fill:var(--primary)}} .tc{{fill:var(--tertiary-container)}} .sc{{fill:var(--secondary-container)}} .t{{fill:var(--tertiary)}} .is{{fill:var(--inverse-surface)}} .ec{{fill:var(--error-container)}}
 .slab{{rx:var(--shape-xl-plus)}} .pill{{rx:48px}} .sq{{rx:var(--shape-l-plus)}}
-.name{{position:absolute;left:40px;bottom:66px;margin:0;font:850 64px/0.95 var(--font-sans);letter-spacing:-1.6px;color:var(--on-surface);font-variation-settings:"wdth" 110,"opsz" 72}}
+.name{{position:absolute;left:40px;bottom:66px;margin:0;font:600 64px/0.95 var(--font-sans);letter-spacing:-.5px;color:var(--on-surface)}}
 .tag{{position:absolute;left:42px;bottom:36px;width:440px;font:400 14px/20px var(--font-sans);color:var(--on-surface-variant)}}
 </style></head>
 <body>
@@ -911,17 +932,17 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 ## Удобство: обязательные правила
 
 - **Нижняя треть экрана — для частых действий.** Нижняя панель (`FloatingToolbar`: аккаунт, поиск, новый чат), поле ввода, меню сообщений и листы. Наверху только заголовок и плашка призрака.
-- **Всё лежит там, где нужно.** Отдельного меню-свалки нет:
+- **Структура клиента — как в Telegram 12.9.2.** Экраны, их порядок, пункты настроек и меню не переизобретаются: меняется оформление и добавляются функции DelushaGram. Единственное отличие в навигации — скрытые вкладки:
 
 | Что | Где |
 |---|---|
-| Избранное | первым в закреплённых (`PinnedChats`) |
-| Контакты | на экране «новый чат» (FAB) |
-| Звонки | фильтр «Звонки» в поиске, кнопка в шапке чата, история звонков в профиле собеседника |
-| Аккаунты | на своём профиле (тап по аватару внизу); долгий тап по аватару переключает сразу |
-| Настройки | шестерёнка на своём профиле |
-| Delusha | первый раздел настроек, призрак ещё и в шапке главного экрана |
-| Тема | в настройках и плиткой в шторке |
+| Вкладки внизу | Чаты, Настройки, Профиль (Контакты и Звонки скрыты, возвращаются в настройках DelushaGram) |
+| Контакты | экран «Новое сообщение» (FAB), там же новая группа, контакт, канал |
+| Звонки | фильтр «Звонки» в поиске, кнопка в шапке чата и в профиле человека |
+| Избранное | «⋮» на главном экране (как в Telegram) и профиль |
+| Аккаунты | «Аккаунты» в начале настроек и долгий тап по вкладке «Профиль» (как в Telegram) |
+| DelushaGram | строка сразу после аккаунтов в настройках; призрак ещё и в шапке главного экрана |
+| Тема | «⋮» на главном экране (день/ночь, как в Telegram) и настройки чатов |
 - **Зона касания не меньше `touch-target` (48).** Даже у маленьких иконок, бейджей и чипов. Между соседними целями не меньше 8.
 - **Каждый жест продублирован видимой кнопкой.** Свайп ответа дублируется пунктом «Ответить» в `MessageMenu`, свайп папок — чипами `FolderChips`, долгий тап по аватару (смена аккаунта) — списком аккаунтов на своём профиле.
 - **Режим призрака за один тап** из шапки списка чатов (`dg-ghost`), из шторки (плитка быстрых настроек) и из настроек Delusha. Его состояние всегда видно в шапке.
@@ -958,7 +979,7 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 Material 3 Expressive отличается от обычного M3 смелостью. На каждом экране есть свой **главный момент**, и он сделан формой, размером и цветом, а не текстом.
 
 - **Формы как контейнеры.** Аватары, FAB, кнопка отправки, иконки плиток, значки, счётчики стоят в формах библиотеки M3 (печенье, клевер, цветок, солнце), а не в кругах и квадратах. Круг только у обычных пользователей и у мелочей.
-- **Контраст масштаба.** Крупное очень крупное (`dg-xxl` 64, ширина 151, вес 900; имя в профиле 34), мелкое спокойное. Средних «на всякий случай» заголовков нет. Подписи разделов вроде «Чаты» не пишем, если и так ясно, где ты.
+- **Акцент весом, а не размером.** Emphasized-стили M3 Expressive (600) для заголовков и имён, обычные (400–500) для остального. Подписи разделов вроде «Чаты» не пишем, если и так ясно, где ты.
 - **Группы с общими краями.** Списки, секции, меню, кнопки собраны в группы: зазор 2, внешние углы 28, внутренние 8. Так выглядит список чатов, настройки, меню сообщения.
 - **Бенто.** Информация разного веса — карточками разного размера в сетке (профиль, медиа).
 - **Цвет блоками.** Крупные плоскости цвета (шапка профиля, плитки «Призрак» и «История», выбранные сегменты), но в спокойных контейнерных тонах; насыщенный цвет только на мелочах.
@@ -970,15 +991,16 @@ Material 3 Expressive отличается от обычного M3 смелос
 Пользователи DelushaGram, которые **поддержали проект**, оформляют свой профиль сами (ProfileEditor), и **все пользователи DelushaGram видят его так же**. Остальные видят обычный профиль Telegram: круглый аватар, тема вместо персонального цвета.
 
 - **Где хранится.** На сервере DelushaGram (он платный и живёт на небольших сборах). Чтение открыто всем клиентам DelushaGram: профиль по id пользователя, с кэшем рядом с `UserFull`.
+- **Как попасть в белый список.** Человек нажимает «Поддержать», оплачивает сбор, клиент отправляет заявку на сервер. **Заявка приходит владельцу DelushaGram в бота** с кнопками «Принять» и «Отклонить»; в белый список аккаунт попадает только после «Принять». Автоматически никто не добавляется.
 - **Кто может менять.** Только аккаунты из белого списка поддержавших. Проверяет **сервер**: клиент подтверждает владение аккаунтом (подписанные данные входа через бота DelushaGram), сервер сверяет id со списком и только тогда принимает запись. Переписанный клиент ничего не даст: без записи в белом списке сервер запрос отклонит.
 - **В клиенте.** Без поддержки редактор открывается, но все настройки приглушены и неактивны, сверху одна кнопка «Поддержать». После поддержки и подтверждения настройки оживают сразу.
 - **Что видят другие пользователи Delusha:** форму, тон и анимацию аватара, шапку профиля, значок у имени, эффект открытия профиля, твои пузыри в твоём цвете (если ты так выбрал).
 
 ## Знак и значки
 
-- **Знак DelushaGram** — буква D целиком из пикселей (сетка 9 × 11, толщина 3), и **каждый пиксель свой**: залитый, рамка, рамка с точкой, круг, печенька, квадрат с окном, два наложенных со сдвигом, наполовину залитый. Цвета: `primary`, светлый `primary`, изредка `tertiary`. Файлы в группе ассетов Logos.
-- **Значок поддержавшего.** Тем, кто поддержал разработку и серверы, — пиксельная D на `primary-container` **рядом с именем везде**: список чатов, закреплённые, шапка чата, профиль, контакты, поиск. На мелких размерах (13–20) пиксели только залитые квадраты и круги, чтобы буква читалась.
-- **Бейдж пользователя.** Тем, кто сидит с DelushaGram, но не поддержал, — маленькая D из одних рамок (`on-surface-variant` на `surface-container-highest`) **только в профиле**, рядом с именем.
+- **Знак DelushaGram** — буква D целиком из пикселей (сетка 9 × 11, толщина 3), **каждый пиксель свой** (заливка, рамка, круг, печенька, окно, наложение, половина). Знак генерируется скриптом и анимирован (см. Logo). **Без цвета:** чёрный, белый, серые. Цвет интерфейса — системный акцент телефона.
+- **Значок поддержавшего.** Тем, кто поддержал разработку и серверы, — серая пиксельная D **рядом с именем везде**: список чатов, шапка чата, профиль, контакты, поиск, настройки. **Пока человек в сети, значок зелёный** (`online`). На мелких размерах пиксели только залитые квадраты и круги.
+- **Бейдж пользователя.** Тем, кто сидит с DelushaGram, но не поддержал, — маленькая серая D из одних рамок **только в профиле**, рядом с именем.
 - **Онлайн с DelushaGram.** Если человек сейчас в сети именно с DelushaGram, вместо зелёной точки на аватаре значок 20 × 20: квадрат `online` с пиксельной D цветом фона. Обычные клиенты — обычная точка. Клиент сообщает серверу DelushaGram, что открыт, раз в минуту; в режиме призрака не сообщает.
 - Статус поддержавшего хранится на сервере (белый список), клиенты получают его вместе с профилем Delusha.
 
@@ -1000,8 +1022,8 @@ Material 3 Expressive отличается от обычного M3 смелос
 
 ## Типографика
 
-- Один шрифт — **Roboto Flex** (переменный: вес, ширина, оптический размер); в настройках можно включить системный.
-- Экспрессивные стили (`hero-title`, `screen-title`, `profile-name`) — широкие (wdth 120–140) и жирные (800–850): заголовки разделов и имя в профиле. Не больше одного такого заголовка на экран.
+- Один шрифт — **Roboto Flex** обычной ширины (как Google Sans Flex в M3 Expressive); в настройках можно включить системный. Ширину не растягиваем и не сжимаем.
+- Шкала M3 Expressive: базовые стили и их **Emphasized**-варианты, где акцент делается весом (600 вместо 400), а не шириной и не гигантским кеглем. `hero-title` 36/44, `screen-title` 32/40, `profile-name` 28/36, все 600.
 - Интерфейс — шкала M3: `title-*`, `body-*`, `label-*`.
 - Чат: `message` (16/22, размер меняется ползунком), `message-meta`, `chat-name`, `chat-preview`.
 - Цифры в счётчиках, времени и размерах — моноширинные (`tnum`).

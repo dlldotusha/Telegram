@@ -13,9 +13,9 @@ PERSONAS = {'me': 295, 'anya': 190, 'lyokha': 140, 'dasha': 30}
 
 CSS = r"""
 /* ---------- Material 3 Expressive layer ---------- */
-.dg-xl{margin:0;font:900 52px/52px var(--font-sans);letter-spacing:-1.6px;font-variation-settings:"wdth" 151,"opsz" 72}
-.dg-xxl{margin:0;font:900 64px/62px var(--font-sans);letter-spacing:-2px;font-variation-settings:"wdth" 151,"opsz" 96}
-.dg-count{display:inline-grid;place-items:center;width:44px;height:44px;background:var(--primary);color:var(--on-primary);font:800 17px/1 var(--font-sans);font-variant-numeric:tabular-nums}
+.dg-xl{margin:0;font:600 32px/40px var(--font-sans);letter-spacing:0}
+.dg-xxl{margin:0;font:600 36px/44px var(--font-sans);letter-spacing:0}
+.dg-count{display:inline-grid;place-items:center;width:44px;height:44px;background:var(--primary);color:var(--on-primary);font:600 16px/1 var(--font-sans);font-variant-numeric:tabular-nums}
 .dg-xhead{display:flex;align-items:center;gap:10px;padding:6px 16px 4px 20px}
 .dg-xhead .grow{flex:1}
 /* persona: a Delusha user's own profile colours */
@@ -57,7 +57,7 @@ CSS = r"""
 .dg-hero .top .dg-ib{background:var(--surface-glass);color:var(--on-surface);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .dg-ring{display:grid;place-items:center;background:var(--surface);margin:-92px auto 0;position:relative;z-index:3}
 .dg-ring .dg-av{width:156px;height:156px;font-size:58px}
-.dg-pname{margin:12px 0 0;font:900 34px/36px var(--font-sans);letter-spacing:-.8px;font-variation-settings:"wdth" 132,"opsz" 40;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px}
+.dg-pname{margin:12px 0 0;font:600 28px/36px var(--font-sans);letter-spacing:0;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px}
 .dg-pname .bdg{width:26px;height:26px;background:var(--p-acc);color:var(--p-onacc);display:grid;place-items:center}
 .dg-pname .bdg .dg-ic{font-size:16px}
 .dg-pstat{text-align:center;font:600 14px/20px var(--font-sans);color:var(--p-acc)}
@@ -80,7 +80,7 @@ CSS = r"""
 .dg-ttile .ti{width:52px;height:52px;display:grid;place-items:center;background:var(--surface-container-highest);color:var(--on-surface-variant)}
 .dg-ttile .ti .dg-ic{font-size:28px}
 .dg-ttile .bt{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
-.dg-ttile b{font:800 17px/20px var(--font-sans);font-variation-settings:"wdth" 115}
+.dg-ttile b{font:600 16px/24px var(--font-sans);letter-spacing:.15px}
 .dg-ttile.on{background:var(--tertiary-container);color:var(--on-tertiary-container)}
 .dg-ttile.on .ti{background:var(--tertiary);color:var(--on-tertiary)}
 .dg-ttile.on2{background:var(--secondary-container);color:var(--on-secondary-container)}
@@ -96,7 +96,7 @@ CSS = r"""
 .dg-bgs div.on{outline:3px solid var(--primary);outline-offset:2px}
 .dg-bgs div i{position:absolute;display:block;background:var(--p-pat);opacity:.6}
 .dg-names{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.dg-names div{height:64px;border-radius:18px;background:var(--surface-container-high);display:grid;place-items:center;font:900 24px/1 var(--font-sans);color:var(--on-surface)}
+.dg-names div{height:64px;border-radius:18px;background:var(--surface-container-high);display:grid;place-items:center;font:400 24px/1 var(--font-sans);color:var(--on-surface)}
 .dg-names div.on{background:var(--primary-container);color:var(--on-primary-container);border-radius:32px}
 .dg-sec{display:flex;flex-direction:column;gap:10px;padding:14px 16px;background:var(--surface-container-low);border-radius:8px}
 .dg-secs{display:flex;flex-direction:column;gap:2px;margin:0 12px}
@@ -104,17 +104,25 @@ CSS = r"""
 .dg-secs .dg-sec:last-child{border-radius:8px 8px 28px 28px}
 .dg-sec .hd{font:800 13px/16px var(--font-sans);letter-spacing:.3px;color:var(--primary);text-transform:none}
 .dg-cluster{position:absolute;pointer-events:none}
+.dg-stories{display:flex;gap:6px;padding:6px 12px 2px;overflow:hidden}
+.dg-stories .st{flex:none;width:74px;display:flex;flex-direction:column;align-items:center;gap:5px;font:500 12px/16px var(--font-sans);color:var(--on-surface)}
+.dg-stories .ring{position:relative;width:66px;height:66px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--primary),var(--tertiary),var(--primary))}
+.dg-stories .st.seen .ring{background:var(--outline-variant)}
+.dg-stories .st.mine .ring{background:none}
+.dg-stories .ring .dg-av{width:58px;height:58px;font-size:20px;box-shadow:0 0 0 3px var(--surface)}
+.dg-stories .sn{max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-stories .splus{position:absolute;right:0;bottom:0;width:22px;height:22px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;box-shadow:0 0 0 3px var(--surface)}
+.dg-stories .splus .dg-ic{font-size:16px}
 .dgb{display:inline-block;vertical-align:-3px;flex:none;margin-left:4px}
-.dgb .bbg{fill:var(--primary-container)}
-.dgb .bp1{fill:var(--primary)}.dgb .bp1o{fill:none;stroke:var(--primary)}
-.dgb .bp2{fill:var(--tertiary)}.dgb .bp2o{fill:none;stroke:var(--tertiary)}
-.dgb .hole{fill:var(--primary-container)}
-.dgb-user .bbg{fill:var(--surface-container-highest)}
-.dgb-user .bo{fill:none;stroke:var(--on-surface-variant)}
-.dg-logo .lp1{fill:var(--primary)}.dg-logo .lp1o{fill:none;stroke:var(--primary)}
-.dg-logo .lp2{fill:color-mix(in srgb,var(--primary) 55%,var(--surface))}.dg-logo .lp2o{fill:none;stroke:color-mix(in srgb,var(--primary) 55%,var(--surface))}
-.dg-logo .lp3{fill:var(--tertiary)}.dg-logo .lp3o{fill:none;stroke:var(--tertiary)}
-.dg-logo .hole{fill:var(--surface)}
+.dgb{--b-bg:#e6e6e8;--b-1:#1b1b1d;--b-2:#76767c}
+[data-theme=dark] .dgb,[data-theme=amoled] .dgb{--b-bg:#2c2c30;--b-1:#f4f4f5;--b-2:#9a9aa0}
+.dgb.live{--b-bg:color-mix(in srgb,var(--online) 22%,var(--surface));--b-1:var(--online);--b-2:color-mix(in srgb,var(--online) 60%,var(--surface))}
+.dgb .bbg{fill:var(--b-bg)}
+.dgb .bp1{fill:var(--b-1)}.dgb .bp1o{fill:none;stroke:var(--b-1)}
+.dgb .bp2{fill:var(--b-2)}.dgb .bp2o{fill:none;stroke:var(--b-2)}
+.dgb .hole{fill:var(--b-bg)}
+.dgb-user .bbg{fill:var(--b-bg)}
+.dgb-user .bo{fill:none;stroke:var(--b-2)}
 .dg-anim{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .dg-anim div{height:76px;border-radius:18px;background:var(--surface-container-high);display:grid;place-items:center;position:relative;color:var(--on-surface-variant)}
 .dg-anim div i{display:block;width:34px;height:34px;background:var(--outline)}
@@ -124,12 +132,13 @@ CSS = r"""
 .dgon{position:absolute;right:-3px;bottom:-3px;width:20px;height:20px;border-radius:7px;background:var(--online);box-shadow:0 0 0 3px var(--surface);-webkit-mask:none}
 .dgon::after{content:"";position:absolute;inset:4px 5px;background:var(--surface);-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%209.6%2012%22%3E%3Cg%20fill%3D%22%23000%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%222.4%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%224.8%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%222.4%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%222.4%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%224.8%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%224.8%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%227.2%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%227.2%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%222.4%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%224.8%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%209.6%2012%22%3E%3Cg%20fill%3D%22%23000%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%222.4%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%224.8%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%222.4%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%222.4%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%224.8%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%224.8%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%227.2%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%227.2%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%222.4%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%224.8%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
 .dg-card .dg-ic{font:normal 22px/1 "Material Symbols Rounded";color:inherit;font-variation-settings:"FILL" 1,"wght" 500,"GRAD" 0,"opsz" 24}
-.dg-appbar h1.dg-xl,h1.dg-xl{font:900 52px/52px var(--font-sans);letter-spacing:-1.6px;font-variation-settings:"wdth" 151,"opsz" 72}
-.dg-appbar h1.dg-xxl,h1.dg-xxl{font:900 64px/62px var(--font-sans);letter-spacing:-2px;font-variation-settings:"wdth" 151,"opsz" 96}
+.dg-appbar h1.dg-xl,h1.dg-xl{font:600 32px/40px var(--font-sans);letter-spacing:0}
+.dg-appbar h1.dg-xxl,h1.dg-xxl{font:600 36px/44px var(--font-sans);letter-spacing:0}
 .dg-card span:not(.dg-ic){display:block}
 .dg-ring.sm .dg-av{width:80px;height:80px;font-size:32px}
 .dg-cluster i{position:absolute;display:block}
 """
 
+import logo_js
 def all_css():
-    return CSS + ''.join(persona_css(k, v) for k, v in PERSONAS.items())
+    return logo_js.LOGO_CSS + CSS + ''.join(persona_css(k, v) for k, v in PERSONAS.items())

@@ -54,7 +54,7 @@ MOTION_CSS = r"""
 /* tabs */
 .mo-tabsstage{height:300px}
 .mo-title{position:absolute;left:24px;top:28px;right:24px;height:44px;overflow:hidden}
-.mo-title span{position:absolute;left:0;top:0;font:800 34px/40px var(--font-sans);letter-spacing:-.8px;font-variation-settings:"wdth" 125,"opsz" 40;white-space:nowrap}
+.mo-title span{position:absolute;left:0;top:0;font:600 32px/40px var(--font-sans);white-space:nowrap}
 .mo-rows{position:absolute;left:12px;right:12px;top:84px;display:flex;flex-direction:column;gap:6px}
 .mo-row{height:44px;border-radius:22px;background:var(--surface-container);display:flex;align-items:center;gap:10px;padding:0 8px}
 .mo-row i{width:30px;height:30px;background:var(--a,var(--primary-container));display:block}
@@ -84,7 +84,7 @@ MOTION_CSS = r"""
 .mo-gh{height:330px}
 .mo-gbar{position:relative;padding:12px 12px 14px 20px;display:flex;align-items:center;gap:6px;overflow:hidden}
 .mo-wash{position:absolute;inset:0;background:var(--ghost);pointer-events:none}
-.mo-gbar h3{position:relative;flex:1;margin:0;font:800 30px/36px var(--font-sans);letter-spacing:-.6px;font-variation-settings:"wdth" 125,"opsz" 36;transition:color 260ms}
+.mo-gbar h3{position:relative;flex:1;margin:0;font:600 28px/36px var(--font-sans);transition:color 260ms}
 .mo-gbtn{position:relative;height:44px;border:0;cursor:pointer;border-radius:22px;background:var(--surface-container-highest);color:var(--on-surface-variant);display:flex;align-items:center;padding:0 10px;overflow:hidden;transition:background-color 260ms,color 260ms}
 .mo-gbtn.on{background:var(--tertiary);color:var(--on-tertiary)}
 .mo-gbtn .lb{overflow:hidden;white-space:nowrap;font:700 13px/16px var(--font-sans);display:block}
