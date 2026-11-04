@@ -174,7 +174,7 @@ CARDS['MotionSend'] = (520, 'Отправка: поле ввода превра�
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Нажми «отправить» или Enter, напиши своё</span>
 <p><b>Пузырь вылетает из поля ввода</b>: та же плашка меняет размер, углы и цвет и встаёт в ленту. Лента подвигается пружиной, кнопка поворачивается на 1/9 оборота и морфит иконку.</p>
 <p>Ответ собеседника появляется из точки «печатает…» с отскоком.</p>
-<p><span class="mo-tok">spatial-default</span> геометрия · <span class="mo-tok">effects-default</span> цвет · <span class="mo-tok">spatial-fast</span> кнопка</p></div>
+<p><span class="mo-tok">spatial-default</span> геометрия, <span class="mo-tok">effects-default</span> цвет, <span class="mo-tok">spatial-fast</span> кнопка</p></div>
 </div>''', r"""
 var ph=$('#ph'),msgs=$('#msgs'),inp=$('#inp'),field=$('#field'),send=$('#send'),sico=$('#sico'),st=$('#st');
 var replies=['Вау','Это пружина?','Сделай так же при открытии чата','Огонь','Ещё раз'],ri=0,busy=0;
@@ -228,7 +228,7 @@ CARDS['MotionTabs'] = (380, 'Плавающая панель: переключе
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Переключай разделы</span>
 <p><b>Выбранная вкладка раздувается в пилюлю с подписью</b>, прошлая сдувается в иконку. Ширины меняются одновременно, поэтому панель «перетекает».</p>
 <p>Заголовок уезжает вверх, новый приходит снизу, строки списка появляются лесенкой по 40 мс.</p>
-<p><span class="mo-tok">spatial-default</span> ширина и заголовок · <span class="mo-tok">spatial-fast</span> иконка · <span class="mo-tok">effects-default</span> цвет</p></div>
+<p><span class="mo-tok">spatial-default</span> ширина и заголовок, <span class="mo-tok">spatial-fast</span> иконка, <span class="mo-tok">effects-default</span> цвет</p></div>
 </div>''', r"""
 var tabs=[['chat_bubble','Чаты'],['call','Звонки'],['person','Контакты']],cur=0,bar=$('#bar'),ts=[];
 tabs.forEach(function(t,i){var b=document.createElement('button');b.className='mo-tab';b.setAttribute('aria-label',t[1]);
@@ -265,7 +265,7 @@ CARDS['MotionSwipe'] = (420, 'Свайпы по чатам: закрепить �
 <div class="mo-side"><span class="mo-hint">{ic("swipe")}Тяни строку влево или вправо</span>
 <p><b>Влево — в архив, вправо — закрепить.</b> Пока не дотянул до порога, под строкой серый фон. За порогом цвет заливает фон кругом от иконки, иконка подпрыгивает, телефон коротко вибрирует.</p>
 <p>Отпустил раньше — строка возвращается пружиной со скоростью пальца. Дальше порога строка тянется туже.</p>
-<p><span class="mo-tok">spatial-fast</span> иконка · <span class="mo-tok">spatial-default</span> возврат и схлопывание</p></div>
+<p><span class="mo-tok">spatial-fast</span> иконка, <span class="mo-tok">spatial-default</span> возврат и схлопывание</p></div>
 </div>''', r"""
 var data=[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','печатает…','9:40','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['К','Кофе по пятницам','Даша: кто завтра?','Вс','','sh-pent']];
 var list=$('#list'),snk=$('#snk'),last=null;
@@ -305,7 +305,7 @@ $('#undo').addEventListener('click',restore);
 - Пересёк порог: короткая вибрация, иконка сжимается и отпрыгивает (`spatial-fast`), цвет действия заливает фон кругом из центра иконки.
 - Дальше порога сопротивление 35% (резинка), чтобы было понятно, что уже достаточно.
 - Отпустил до порога: строка возвращается пружиной `spatial-default`, стартуя со скоростью пальца.
-- Архив: строка уезжает за край, место схлопывается, снизу выезжает `Snackbar` «Чат в архиве · Отменить»; отмена проигрывает всё в обратную сторону.
+- Архив: строка уезжает за край, место схлопывается, снизу выезжает `Snackbar` «Чат в архиве» с кнопкой «Отменить»; отмена проигрывает всё в обратную сторону.
 
 **Удобство:** каждый свайп продублирован в меню долгого тапа по чату.
 
@@ -322,7 +322,7 @@ CARDS['MotionPull'] = (470, 'Архив свайпом вниз', f'''<div class
 <div class="mo-side"><span class="mo-hint">{ic("swipe_down")}Тяни список вниз</span>
 <p><b>Архив вытягивается сверху, как ящик.</b> Иконка-печенька крутится за пальцем, на пороге морфит в круг и подпрыгивает, текст меняется на «Отпусти».</p>
 <p>Можно выключить архив совсем или закрепить его открытым.</p>
-<p><span class="mo-tok">spatial-default</span> ящик · <span class="mo-tok">spatial-fast</span> иконка</p></div>
+<p><span class="mo-tok">spatial-default</span> ящик, <span class="mo-tok">spatial-fast</span> иконка</p></div>
 </div>''', r"""
 var rest=$('#rest'),arch=$('#arch'),aav=$('#aav'),atx=$('#atx'),ph=$('#ph');
 [['Д','Даша','ок, до завтра','10:02','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
@@ -332,7 +332,7 @@ var bump=new Spring(1,function(s){aav.style.scale=s},'spatial-fast');
 ph.addEventListener('pointerdown',function(e){drag=true;sy=e.clientY;base=hs.x;ph.setPointerCapture(e.pointerId)});
 ph.addEventListener('pointermove',function(e){if(!drag)return;var d=base+(e.clientY-sy),v=d<=H?d:H+(d-H)*.4;hs.set(Math.max(0,v));
  var on=v>=H&&!open;if(on!==armed){armed=on;buzz();aav.classList.toggle('sh-cookie9',!on);aav.classList.toggle('sh-circle',on);bump.set(.7).to(1);atx.textContent=on?'Отпусти, чтобы закрепить':'Потяни, чтобы открыть'}});
-function up(){if(!drag)return;drag=false;if(armed||(open&&hs.x>H*.5)){open=true;hs.to(H)}else{open=false;hs.to(0)}armed=false;aav.classList.add('sh-cookie9');aav.classList.remove('sh-circle');atx.textContent=open?'7 чатов · тяни вверх, чтобы спрятать':'Потяни, чтобы открыть'}
+function up(){if(!drag)return;drag=false;if(armed||(open&&hs.x>H*.5)){open=true;hs.to(H)}else{open=false;hs.to(0)}armed=false;aav.classList.add('sh-cookie9');aav.classList.remove('sh-circle');atx.textContent=open?'7 чатов. Тяни вверх, чтобы спрятать':'Потяни, чтобы открыть'}
 ph.addEventListener('pointerup',up);ph.addEventListener('pointercancel',up);
 """, '''# MotionPull
 
@@ -358,7 +358,7 @@ CARDS['MotionGhost'] = (400, 'Включение режима призрака',
 </div>
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Нажми на глаз</span>
 <p><b>Призрак включается одним тапом и это видно.</b> Цвет заливает шапку кругом от кнопки, глаз закрывается, кнопка раскрывается в пилюлю с подписью, под шапкой выезжает пояснение.</p>
-<p><span class="mo-tok">spatial-slow</span> заливка · <span class="mo-tok">spatial-fast</span> иконка · <span class="mo-tok">spatial-default</span> пилюля и пояснение</p></div>
+<p><span class="mo-tok">spatial-slow</span> заливка, <span class="mo-tok">spatial-fast</span> иконка, <span class="mo-tok">spatial-default</span> пилюля и пояснение</p></div>
 </div>''', r"""
 var rest=$('#rest');[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','Приду к восьми','9:40','t','sh-cookie12']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
 var bar=$('#bar'),wash=$('#wash'),gb=$('#gb'),ttl=$('#ttl'),glb=$('#glb'),note=$('#note'),i1=$('#i1'),i2=$('#i2'),on=false;
@@ -400,7 +400,7 @@ CARDS['MotionFab'] = (480, 'FAB-меню: новый чат, группа, ка�
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Нажми на карандаш</span>
 <p><b>Пункты вылетают из кнопки лесенкой</b> снизу вверх через 35 мс, каждый с отскоком. Кнопка морфит из скруглённого квадрата в круг, карандаш поворачивается в крестик.</p>
 <p>Тап мимо закрывает, пункты убегают обратно быстрее, сверху вниз.</p>
-<p><span class="mo-tok">spatial-default</span> пункты · <span class="mo-tok">spatial-fast</span> кнопка · <span class="mo-tok">effects-slow</span> затемнение</p></div>
+<p><span class="mo-tok">spatial-default</span> пункты, <span class="mo-tok">spatial-fast</span> кнопка, <span class="mo-tok">effects-slow</span> затемнение</p></div>
 </div>''', r"""
 var rest=$('#rest');[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','Приду к восьми','9:40','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['К','Кофе по пятницам','Даша: кто завтра?','Вс','','sh-pent']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
 var items=$$('.item').reverse(),fab=$('#fab'),fi=$('#fi'),scrim=$('#scrim'),on=false;
@@ -439,7 +439,7 @@ CARDS['MotionOpen'] = (540, 'Открытие чата: строка раскр�
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Открой любой чат, потом «назад»</span>
 <p><b>Строка сама становится экраном чата</b>: её фон растягивается на весь экран, аватар перелетает в шапку и уменьшается, список за ней отступает вглубь.</p>
 <p>Нажатие «назад» в середине анимации разворачивает её с текущей скорости, без рывка.</p>
-<p><span class="mo-tok">spatial-slow</span> открытие · <span class="mo-tok">spatial-default</span> закрытие</p></div>
+<p><span class="mo-tok">spatial-slow</span> открытие, <span class="mo-tok">spatial-default</span> закрытие</p></div>
 </div>''', r"""
 var rest=$('#rest'),ph=$('#ph'),home=$('#home'),over=$('#over'),ct=$('#ct'),ag=$('#ag'),hav=$('#hav'),hn=$('#hn'),m1=$('#m1');
 var data=[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','Приду к восьми','9:40','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['К','Кофе по пятницам','Даша: кто завтра?','Вс','','sh-pent'],['Д','Даша','ок, до завтра','Сб','t','sh-sunny']];
@@ -480,7 +480,7 @@ CARDS['MotionReactions'] = (380, 'Реакция двойным тапом', f''
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Двойной тап (или двойной клик) по пузырю</span>
 <p><b>Сердце вспыхивает в точке касания</b> и разлетается формами из библиотеки M3, под пузырём выпрыгивает реакция, число прокручивается.</p>
 <p>Анимации реакций можно выключить в настройках, тогда реакция просто появляется.</p>
-<p><span class="mo-tok">spatial-fast</span> сердце и плашка · частицы на физике с затуханием</p></div>
+<p><span class="mo-tok">spatial-fast</span> сердце и плашка, частицы на физике с затуханием</p></div>
 </div>''', r"""
 var ph=$('#ph');
 function rx(b,c,n){var on=false,h=32;var sp=c.firstElementChild;
@@ -516,12 +516,12 @@ CARDS['MotionHistory'] = (420, 'Удалённые и изменённые со�
 <div class="mo-phone mo-hist" id="ph"><div class="dg-msgs" style="position:absolute;left:0;right:0;bottom:0">
  <div class="dg-b out first last">Во сколько встречаемся?<span class="meta">9:30 {ic("done_all")}</span></div>
  <div class="dg-b in first" id="del"><div class="mo-tagrow" id="dtag"><span class="tag">{ic("delete")}удалено</span></div>ой, это не тебе<span class="meta">9:33</span></div>
- <div class="dg-b in last" id="ed"><div class="mo-tagrow" id="etag"><span class="tag" style="cursor:pointer">{ic("history")}изменено · 2 версии</span></div><span id="etx">Приду к семи</span><span class="meta">9:35</span><div class="mo-ver" id="ver"><div><s>Приду к семи</s> 9:35</div><div>Приду к восьми · сейчас</div></div></div>
+ <div class="dg-b in last" id="ed"><div class="mo-tagrow" id="etag"><span class="tag" style="cursor:pointer">{ic("history")}изменено, 2 раза</span></div><span id="etx">Приду к семи</span><span class="meta">9:35</span><div class="mo-ver" id="ver"><div><s>Приду к семи</s> 9:35</div><div>Приду к восьми, сейчас</div></div></div>
 </div></div>
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Сыграй, что сделал собеседник</span>
 <div class="mo-btns"><button class="dg-btn tonal" id="bd">{ic("delete")}Удалил</button><button class="dg-btn tonal" id="be">{ic("edit")}Изменил</button><button class="dg-btn text" id="br">Сначала</button></div>
 <p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается, сверху выезжает метка. <b>Изменённое</b> плавно меняет текст, метка «изменено» открывает все версии.</p>
-<p><span class="mo-tok">spatial-fast</span> встряска · <span class="mo-tok">spatial-default</span> метки и текст · <span class="mo-tok">effects-default</span> цвет</p></div>
+<p><span class="mo-tok">spatial-fast</span> встряска, <span class="mo-tok">spatial-default</span> метки и текст, <span class="mo-tok">effects-default</span> цвет</p></div>
 </div>''', r"""
 var del=$('#del'),dtag=$('#dtag'),ed=$('#ed'),etag=$('#etag'),etx=$('#etx'),ver=$('#ver');
 del.style.transition='background-color 300ms cubic-bezier(.2,0,0,1),color 300ms cubic-bezier(.2,0,0,1)';
@@ -546,7 +546,7 @@ $('#br').addEventListener('click',function(){del.classList.remove('deleted');dt.
 
 **Изменено:**
 - Старый текст расплывается и гаснет, новый проявляется (размытие 4 → 0), высота пузыря подстраивается пружиной.
-- Появляется метка «изменено · N версии» (`tertiary`). Тап по ней раскрывает список версий внутри пузыря: старые зачёркнуты, с временем.
+- Появляется метка «изменено, N раза» (`tertiary`). Тап по ней раскрывает список версий внутри пузыря: старые зачёркнуты, с временем.
 
 **Android:** события удаления и правки приходят в `MessagesController` (`updateDeleteMessages`, `updateEditMessage`), форк сохраняет копию в свою БД и вызывает `ChatMessageCell.animateHistoryMark(type)`.
 ''')

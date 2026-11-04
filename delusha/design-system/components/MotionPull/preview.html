@@ -12,7 +12,7 @@
 <div class="mo-side"><span class="mo-hint"><span class="dg-ic">swipe_down</span>Тяни список вниз</span>
 <p><b>Архив вытягивается сверху, как ящик.</b> Иконка-печенька крутится за пальцем, на пороге морфит в круг и подпрыгивает, текст меняется на «Отпусти».</p>
 <p>Можно выключить архив совсем или закрепить его открытым.</p>
-<p><span class="mo-tok">spatial-default</span> ящик · <span class="mo-tok">spatial-fast</span> иконка</p></div>
+<p><span class="mo-tok">spatial-default</span> ящик, <span class="mo-tok">spatial-fast</span> иконка</p></div>
 </div>
 <script>
 var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -43,7 +43,7 @@ var bump=new Spring(1,function(s){aav.style.scale=s},'spatial-fast');
 ph.addEventListener('pointerdown',function(e){drag=true;sy=e.clientY;base=hs.x;ph.setPointerCapture(e.pointerId)});
 ph.addEventListener('pointermove',function(e){if(!drag)return;var d=base+(e.clientY-sy),v=d<=H?d:H+(d-H)*.4;hs.set(Math.max(0,v));
  var on=v>=H&&!open;if(on!==armed){armed=on;buzz();aav.classList.toggle('sh-cookie9',!on);aav.classList.toggle('sh-circle',on);bump.set(.7).to(1);atx.textContent=on?'Отпусти, чтобы закрепить':'Потяни, чтобы открыть'}});
-function up(){if(!drag)return;drag=false;if(armed||(open&&hs.x>H*.5)){open=true;hs.to(H)}else{open=false;hs.to(0)}armed=false;aav.classList.add('sh-cookie9');aav.classList.remove('sh-circle');atx.textContent=open?'7 чатов · тяни вверх, чтобы спрятать':'Потяни, чтобы открыть'}
+function up(){if(!drag)return;drag=false;if(armed||(open&&hs.x>H*.5)){open=true;hs.to(H)}else{open=false;hs.to(0)}armed=false;aav.classList.add('sh-cookie9');aav.classList.remove('sh-circle');atx.textContent=open?'7 чатов. Тяни вверх, чтобы спрятать':'Потяни, чтобы открыть'}
 ph.addEventListener('pointerup',up);ph.addEventListener('pointercancel',up);
 </script>
 </body>

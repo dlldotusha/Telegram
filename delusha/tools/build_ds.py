@@ -528,7 +528,7 @@ comps['ListGroup'] = (card('Списки', 330, f'''<div class="dg-stage col" st
  </div>
  <div class="dg-list">
   <span class="hd">История</span>
-  <div class="dg-li"><span class="lead e">{ic("delete_history")}</span><span class="tx"><b>Удалённые сообщения</b><span>1 284 шт · 212 МБ</span></span>{ic("chevron_right")}</div>
+  <div class="dg-li"><span class="lead e">{ic("delete_history")}</span><span class="tx"><b>Удалённые сообщения</b><span>1 284 сообщения, 212 МБ</span></span>{ic("chevron_right")}</div>
  </div>
 </div>'''), '''# ListGroup
 
@@ -621,7 +621,7 @@ comps['MessageBubble'] = (card('Чат', 470, f'''<div class="dg-phone" style="m
  <div class="dg-b out first"><span class="quote"><b>Аня</b>Аватарки как печеньки</span>Это Material Expressive</div>
  <div class="dg-b out last">И удалённые теперь не пропадают<span class="meta">9:32 {ic("done_all")}</span><br><span class="react">❤ 2</span></div>
  <div class="dg-b in first deleted"><span class="tag">{ic("delete")}удалено</span>ой, это не тебе<span class="meta">9:33</span></div>
- <div class="dg-b in last edited"><span class="tag">{ic("history")}изменено · 2 версии</span>Приду к восьми<span class="meta">9:35</span></div>
+ <div class="dg-b in last edited"><span class="tag">{ic("history")}изменено, 2 раза</span>Приду к восьми<span class="meta">9:35</span></div>
  <div class="dg-b out first last dg-voice"><span class="play sh-cookie7">{ic("play_arrow",True)}</span>{wave_svg()}<span class="len">0:17</span></div>
 </div></div>'''), '''# MessageBubble
 
@@ -631,7 +631,7 @@ comps['MessageBubble'] = (card('Чат', 470, f'''<div class="dg-phone" style="m
 
 - Входящие `bubble-in`, исходящие `bubble-out` (в тёмных темах приглушены до `primary-container`, чтобы не слепить ночью).
 - Удалённое (история форка): `bubble-deleted`, метка «удалено» с иконкой; тап открывает детали удаления.
-- Изменённое: метка «изменено · N версии» `tertiary`; тап открывает лист со всеми версиями.
+- Изменённое: метка «изменено, N раза» (`tertiary`, с правильным склонением: 1 раз, 2 раза, 5 раз); тап открывает лист со всеми версиями.
 - Ответ: цитата в плашке 12% от цвета текста, со скруглением 12, без боковой полоски.
 - Ширина не больше `bubble-max` (80%), время и галочки обтекаются текстом.
 - Голосовое: кнопка-печенька и волнистый прогресс (WavyProgress).
@@ -786,6 +786,7 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 - Статусы строчными, как в Telegram: «в сети», «печатает…», «был(а) недавно».
 - Подпись пункта настройки говорит, что изменится: «Собеседник не увидит, что ты прочитал».
 - Эмодзи только в пользовательском контенте и реакциях, не в интерфейсе.
+- **Никаких точек-разделителей** (`·`, `•`) в строках интерфейса. Части соединяем запятой или разносим по строкам: «изменено, 2 раза», «1 284 сообщения, 212 МБ». Число со словом склоняется: 1 раз, 2 раза, 5 раз.
 
 ## Цвет
 
