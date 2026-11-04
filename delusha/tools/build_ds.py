@@ -2,6 +2,8 @@ import json, os, sys, datetime
 sys.path.insert(0, os.path.dirname(__file__))
 from gen_shapes import css as shapes_css, svgpath
 import motion
+import motion_px
+import pixel
 import expressive
 import logo_js
 from logo import badge_inline
@@ -360,7 +362,7 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-ghost{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 8px;border-radius:16px;background:var(--ghost);color:var(--on-ghost);font:700 12.5px/16px var(--font-sans);border:0;cursor:pointer}
 .dg-ghost .dg-ic{font-size:18px}
 """
-bundle = bundle.replace('%%', '%') + motion.MOTION_CSS + expressive.all_css()
+bundle = bundle.replace('%%', '%') + motion.MOTION_CSS + expressive.all_css() + pixel.CSS
 w('components/bundle.css', bundle)
 
 # ---------------------------------------------------------------- helpers for previews
@@ -488,55 +490,70 @@ comps['Fab'] = (card('Действия', 300, f'''<div class="dg-stage" style="a
 **Android:** `DgFab`, `DgFabMenu`.
 ''')
 
-comps['PixelMenu'] = (card('Навигация', 470, f'''<div class="dg-stage"><div class="dg-pmenu">
- <div class="pm-head"><svg class="dg-logo" id="a" width="26" height="32"></svg><span class="grow"></span><button class="dg-ib" aria-label="Тема">{ic("dark_mode")}</button></div>
- <div class="pm-accs"><span class="pm-acc on sh-cookie9"><span class="dg-av persona persona-me sh-cookie9">Д</span></span><div class="pm-me"><b>Деля{badge_inline("sup",18,True)}</b><span>@delusha</span></div><span class="pm-acc"><span class="dg-av sc">Р</span><span class="dg-badge">3</span></span><span class="pm-add">{ic("add")}</span></div>
- <div class="pm-grid">
-  <button class="pm-t"><span class="ti sh-cookie9">{ic("person",True)}</span>Профиль</button>
-  <button class="pm-t"><span class="ti sh-clover4">{ic("contacts",True)}</span>Контакты</button>
-  <button class="pm-t"><span class="ti sh-flower8">{ic("call",True)}</span>Звонки</button>
-  <button class="pm-t"><span class="ti sh-cookie4">{ic("bookmark",True)}</span>Избранное</button>
-  <button class="pm-t"><span class="ti sh-pent">{ic("settings",True)}</span>Настройки</button>
-  <button class="pm-t dg"><span class="ti sh-cookie12"><svg class="dg-logo" id="b" width="20" height="24"></svg></span>DelushaGram</button>
- </div>
-</div></div>''', motion.ENGINE + logo_js.LOGO_JS + "dgLogo($('#a'));dgLogo($('#b'),{animate:false});"), '''# PixelMenu
+comps['PixelBar'] = (card('Навигация', 150, f'''<div class="dg-stage" style="max-width:420px;position:relative;height:110px;padding:0">
+ <div class="px-bottom" style="position:absolute;left:12px;right:12px;bottom:20px"><div class="px-bar"><div class="blur"></div><div class="tiles">{pixel.bar_pixels(26,5)}</div><div class="content"><span class="dg-av persona persona-me sh-cookie9">Д</span>{pixel.glyph_svg('search',22)}<span>Поиск</span></div></div><div class="px-fab">{pixel.fab_pixels('edit')}</div></div>
+</div>'''), '''# PixelBar
 
-Главная навигация DelushaGram. Нижних вкладок нет, бокового меню на всю высоту тоже: есть карточка, которая собирается из пикселей знака (см. MotionMenu).
+Нижняя панель главного экрана, **собранная из пикселей знака**: фон — мозаика пикселей 10 × 10 с шагом 12 (залитые, рамки, с точкой, круглые), иконки — пиксельные глифы 7 × 7, кнопка «новое сообщение» — печенька из пикселей с карандашом.
 
-**Что даёт код:** аккаунты (текущий, остальные со счётчиками), разделы, состояние темы.
+**Что на ней:** только то, что нужно каждый день.
 
-- Карточка 316 шириной, углы 32, `surface-container-low`, тень `elevation-3`, прижата к левому верхнему углу под знаком.
-- Сверху знак и переключатель день/ночь. Ниже аккаунты: текущий в кольце `primary` с именем, остальные аватарами со счётчиком, «+» добавить. Тап по аватару переключает аккаунт.
-- Плитки 3 × 2: Профиль, Контакты, Звонки, Избранное, Настройки, DelushaGram. Иконки в формах M3, при нажатии углы плитки сжимаются.
-- Открывается тапом по знаку и свайпом от левого края, поэтому дотянуться можно и одной рукой.
+- **Аватар** — тап открывает твой профиль (там аккаунты, «Оформление», шестерёнка настроек), долгий тап переключает аккаунт.
+- **Поиск** — тап превращает панель в поле поиска наверху (фильтры: Чаты, Каналы, Медиа, Ссылки, Звонки).
+- **Пиксельная печенька** — новое сообщение: контакты, новая группа, канал.
+- Выше справа маленькая камера историй (пиксельный глиф).
 
-**Android:** `DgPixelMenu`.
+Всё остальное лежит на своих местах, отдельного меню нет (см. «Где что живёт» в README).
+
+- Под пикселями лёгкое размытие `blur-glass`; пиксели `surface-container-highest` 90%, рамки `outline-variant`.
+- Анимации: сборка, сжатие при прокрутке, пиксельная волна вместо ряби, превращение в поиск (MotionPixelBar).
+
+**Android:** `DgPixelBar` поверх `DialogsActivity` вместо `MainTabsActivity`.
 ''')
 
-comps['ClientInfo'] = (card('Профиль', 460, f'''<div class="dg-stage" style="max-width:400px"><div class="dg-ff" style="width:100%">
+comps['PixelIcons'] = (card('Идентичность', 120, f'''<div class="dg-stage" style="gap:22px;color:var(--on-surface)">{''.join(pixel.glyph_svg(n, 32) for n in ['search','edit','camera','ghost','add','back','more','send','mic'])}</div>'''), '''# PixelIcons
+
+Пиксельные глифы 7 × 7 из тех же пикселей, что и знак: в основном скруглённые квадраты, изредка круги и рамки. Цвет — текущий цвет текста.
+
+- Используются там, где интерфейс говорит на языке знака: нижняя панель (поиск), FAB (карандаш), кнопка отправки (микрофон, самолётик), камера историй, плашка призрака.
+- Везде остальное — Material Symbols Rounded, как в M3 Expressive. Не смешивать оба вида в одном ряду кнопок.
+- Минимальный размер 20, иначе пиксели сливаются.
+
+Глифы: `search`, `edit`, `camera`, `ghost`, `add`, `back`, `more`, `send`, `mic`.
+
+**Android:** `DgPixelIcon` (рисует ячейки на `Canvas`), набор задан строками 7 × 7 в коде.
+''')
+
+comps['ClientInfo'] = (card('Профиль', 520, f'''<div class="dg-stage" style="max-width:400px"><div class="dg-ff" style="width:100%">
  <div><svg class="dg-logo" id="a" width="76" height="93"></svg></div>
  <div style="min-width:0">
-  <div class="who">delusha<i>@</i>DelushaGram</div><div class="sep">--------------------------</div>
-  <div class="ln"><span class="k">Клиент</span>: DelushaGram 0.1</div><div class="ln"><span class="k">База</span>: Telegram 12.9.2 (6991)</div><div class="ln"><span class="k">Устройство</span>: Google Pixel 8</div><div class="ln"><span class="k">Android</span>: 15 (API 35)</div><div class="ln"><span class="k">Аккаунт</span>: @delusha, DC 2</div><div class="ln"><span class="k">Статус</span>: поддержал</div><div class="ln"><span class="k">Тема</span>: тёмная, акцент системы</div><div class="ln"><span class="k">Движение</span>: пружины, 120 Гц</div><div class="ln"><span class="k">Кэш</span>: 1,2 ГБ</div>
+  <div class="who">731004218<i>@</i>DelushaGram</div><div class="sep">--------------------------</div>
+  <div class="ln"><span class="k">Клиент</span>: 0.1 (a1b2c3d)</div><div class="ln"><span class="k">База</span>: Telegram 12.9.2 (6991)</div><div class="ln"><span class="k">Слой</span>: TL 214</div><div class="ln"><span class="k">Сборка</span>: release, arm64-v8a, CI #42</div><div class="ln"><span class="k">Устройство</span>: Pixel 8 (shiba)</div><div class="ln"><span class="k">Android</span>: 15, API 35</div><div class="ln"><span class="k">Экран</span>: 1080×2400, 120 Гц</div><div class="ln"><span class="k">Память</span>: 312 МБ / 7,6 ГБ</div><div class="ln"><span class="k">Сеть</span>: Wi-Fi, DC 2 48 мс</div><div class="ln"><span class="k">Сервер DG</span>: доступен, 63 мс</div><div class="ln"><span class="k">Статус</span>: поддержал</div><div class="ln"><span class="k">Пуши</span>: FCM</div><div class="ln"><span class="k">Кэш</span>: 1,2 ГБ</div><div class="ln"><span class="k">Аптайм</span>: 3 ч 12 мин</div>
  </div>
- <div class="pal"><i style="background:var(--primary)"></i><i style="background:var(--secondary)"></i><i style="background:var(--tertiary)"></i><i style="background:var(--error)"></i><i style="background:var(--online)"></i><i style="background:var(--primary-container)"></i><i style="background:var(--tertiary-container)"></i><i style="background:var(--surface-container-highest)"></i></div>
 </div></div>''', motion.ENGINE + logo_js.LOGO_JS + "dgLogo($('#a'));"), '''# ClientInfo
 
-Экран «О клиенте» (Настройки → DelushaGram → О клиенте) в стиле fastfetch: живой знак слева, справа `пользователь@DelushaGram`, черта и строки «ключ: значение» моноширинным Roboto Mono, внизу полоса цветов текущей палитры (как цветные квадраты fastfetch, только роли M3).
+Экран «О клиенте» (Настройки → DelushaGram → О клиенте) в стиле fastfetch: живой знак слева, справа `id@DelushaGram`, черта и строки «ключ: значение» шрифтом Roboto Mono. **Только то, что нужно для диагностики и отчёта об ошибке**, никаких строк для красоты.
 
-| Ключ | Откуда |
-|---|---|
-| Клиент, База, Сборка | `BuildVars`, `BuildConfig` |
-| Устройство, Android | `Build.MODEL`, `Build.VERSION` |
-| Аккаунт | ник и дата-центр текущего аккаунта |
-| Статус | сервер DelushaGram: поддержал, пользователь |
-| Тема, Шрифт, Движение, Размытие | текущие настройки и частота экрана |
-| Призрак, История | состояние функций форка, размер истории |
-| Кэш, Сеанс | размер кэша, время с запуска |
+| Ключ | Что | Откуда |
+|---|---|---|
+| Клиент | версия и коммит сборки | `BuildConfig` |
+| База | версия Telegram, на которой форк | `BuildVars` |
+| Слой | слой TL API | `TLRPC.LAYER` |
+| Сборка | тип, ABI, номер прогона CI | `BuildConfig`, переменная CI |
+| Устройство, Android, Патч | модель, кодовое имя, версия, API, патч безопасности | `Build` |
+| Экран | разрешение и частота (важно для анимаций) | `Display` |
+| Память | занято приложением / всего | `ActivityManager` |
+| Аккаунт | число аккаунтов, DC текущего | `UserConfig` |
+| Сеть | тип сети, DC и пинг | `ConnectionsManager` |
+| Сервер DG | доступность и пинг сервера DelushaGram | клиент сервера |
+| Статус | поддержал / пользователь (белый список) | сервер DelushaGram |
+| Пуши | FCM, UnifiedPush или нет | `PushListenerController` |
+| Призрак | включён ли (объясняет «почему я не в сети») | настройки форка |
+| Кэш, История | размер кэша и базы истории | `CacheControlActivity`, своя БД |
+| Аптайм | время с запуска процесса | `SystemClock` |
 
 - Ключи `primary` 600, значения `on-surface`, разделитель `outline`.
-- Кнопка «Копировать» в шапке копирует всё текстом (для отчётов об ошибках).
-- Тап по знаку перегенерирует его.
+- «Копировать» в шапке копирует всё текстом, без знака.
 
 **Android:** `DgAboutActivity`, текст собирается в `SpannableString`, знак — `DgLogoDrawable`.
 ''')
@@ -963,18 +980,19 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 
 ## Удобство: обязательные правила
 
-- **Частое — под пальцем.** FAB «новое сообщение», поле ввода, меню сообщений и листы снизу; навигация — пиксельное меню, которое открывается и свайпом от края в любом месте экрана. Наверху только знак, плашка призрака и поиск.
-- **Структура клиента — как в Telegram 12.9.2.** Экраны, их порядок, пункты настроек и меню не переизобретаются: меняется оформление и добавляются функции DelushaGram. Отличие в навигации одно — вместо нижних вкладок своё пиксельное меню:
+- **Частое — под пальцем.** Нижняя панель из пикселей (аватар, поиск, новое сообщение), поле ввода, меню сообщений и листы снизу. Наверху только знак, плашка призрака и «⋮».
+- **Структура клиента — как в Telegram 12.9.2.** Экраны, их порядок, пункты настроек и меню не переизобретаются: меняется оформление и добавляются функции DelushaGram. Отличие в навигации одно — вместо нижних вкладок Telegram своя нижняя панель из пикселей знака (аватар, поиск, новое сообщение). Отдельного меню нет, всё лежит там, где нужно:
 
 | Что | Где |
 |---|---|
-| Навигация | пиксельное меню из знака в шапке списка чатов (тап или свайп от левого края): аккаунты, Профиль, Контакты, Звонки, Избранное, Настройки, DelushaGram. Нижних вкладок нет |
-| Контакты | пиксельное меню и экран «Новое сообщение» (FAB) |
-| Звонки | пиксельное меню, фильтр «Звонки» в поиске, кнопка в шапке чата |
-| Избранное | пиксельное меню и «⋮» на главном экране |
-| Аккаунты | пиксельное меню и «Аккаунты» в начале настроек |
+| Нижняя панель | `PixelBar`: аватар (твой профиль), поиск, пиксельная печенька «новое сообщение» |
+| Контакты | экран «Новое сообщение» (пиксельная печенька) |
+| Звонки | фильтр «Звонки» в поиске, кнопка в шапке чата и в профиле |
+| Избранное | «⋮» на главном экране и закреп в списке |
+| Аккаунты | твой профиль (тап по аватару внизу), долгий тап по аватару, «Аккаунты» в настройках |
 | DelushaGram | строка сразу после аккаунтов в настройках; призрак ещё и в шапке главного экрана |
-| Тема | переключатель в пиксельном меню и настройки чатов |
+| Настройки | шестерёнка на твоём профиле |
+| Тема | «⋮» на главном экране (день/ночь) и настройки чатов |
 | О клиенте | Настройки → DelushaGram → О клиенте, в стиле fastfetch |
 - **Зона касания не меньше `touch-target` (48).** Даже у маленьких иконок, бейджей и чипов. Между соседними целями не меньше 8.
 - **Каждый жест продублирован видимой кнопкой.** Свайп ответа дублируется пунктом «Ответить» в `MessageMenu`, свайп папок — чипами `FolderChips`, долгий тап по аватару (смена аккаунта) — списком аккаунтов на своём профиле.
@@ -1018,6 +1036,17 @@ Material 3 Expressive отличается от обычного M3 смелос
 - **Цвет блоками.** Крупные плоскости цвета (шапка профиля, плитки «Призрак» и «История», выбранные сегменты), но в спокойных контейнерных тонах; насыщенный цвет только на мелочах.
 - **Декоративные формы.** Рядом с крупными заголовками и в шапках — кластер из 2–3 больших форм в контейнерных цветах.
 - **Движение формы.** Нажатое сжимается, выбранное становится круглее или квадратнее, переходы на пружинах (см. «Движение»).
+
+## Пиксели — язык интерфейса
+
+Знак собран из пикселей, и интерфейс говорит на том же языке там, где это даёт характер:
+
+- **Нижняя панель** — мозаика из пикселей с лёгким размытием под ней (`PixelBar`).
+- **Кнопки-печеньки** (новое сообщение, отправка) — печенька из пикселей с пиксельным глифом.
+- **Обратная связь** — пиксельная волна вместо ряби на пиксельных элементах.
+- **Переходы** — элементы рассыпаются на пиксели и собираются в новом месте (панель → поиск), удалённое своё сообщение рассыпается (MotionShatter).
+- **Значки** — пиксельная D (поддержавшие, пользователи, онлайн).
+- Пиксели всегда со скруглением 20–30%, шаг сетки кратен 2, внутри одного элемента 1–3 вида пикселей. Остальной интерфейс — обычный M3 Expressive, пиксели не лезут в текст и списки.
 
 ## Профиль Delusha
 
@@ -1082,7 +1111,8 @@ Material 3 Expressive отличается от обычного M3 смелос
 | Где | Что происходит | Карточка |
 |---|---|---|
 | Отправка | Поле ввода превращается в пузырь и встаёт в ленту | MotionSend |
-| Меню | Знак рассыпается на пиксели и собирается в карточку меню | MotionMenu |
+| Нижняя панель | Собирается из пикселей, сжимается в аватар и кнопку, волна вместо ряби | MotionPixelBar |
+| Удаление | Своё сообщение рассыпается на пиксели | MotionShatter |
 | Открытие чата | Строка раскрывается в экран, аватар перелетает в шапку | MotionOpen |
 | Свайпы по чатам | Заливка от иконки, порог с вибрацией, схлопывание | MotionSwipe |
 | Архив | Вытягивается вниз, печенька крутится и морфит | MotionPull |

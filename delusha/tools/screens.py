@@ -4,6 +4,7 @@ import json, os, math, random, sys
 D = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, D)
 import expressive
+import pixel as PX
 from logo import badge_inline, pixels_varied
 P = os.path.join(D, 'ds', 'project')
 T = json.load(open(os.path.join(P, 'tokens.json')))
@@ -66,8 +67,8 @@ STORIES = '<div class="dg-stories">' + story(dav('Д','me','sh-cookie9'), 'Мо�
 SEG = '''<div class="dg-seg"><button aria-pressed="true">Все <span class="n">12</span></button><button aria-pressed="false">Личные</button><button aria-pressed="false">Группы <span class="n">3</span></button><button aria-pressed="false">Каналы</button><button aria-pressed="false" style="border-radius:8px 20px 20px 8px">Боты</button></div>'''
 
 def topbar(ghost=False):
-    g = f'<button class="dg-ghost on">{ic("visibility_off",1)}Призрак</button>' if ghost else ''
-    return f'<div class="dbar"><button class="dg-logobtn" aria-label="Меню">{logo(24)}</button>{g}<span class="grow"></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>'
+    g = f'<button class="dg-ghost on">{PX.glyph_svg("ghost",18)}Призрак</button>' if ghost else ''
+    return f'<div class="dbar">{logo(24)}{g}<span class="grow"></span><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>'
 
 def tabs(active):
     items = [('chats', ic('chat_bubble', active == 'chats'), 'Чаты', '<span class="tbn">12</span>'),
@@ -76,6 +77,7 @@ def tabs(active):
     out = ''.join(f'<button class="tb{" on" if k == active else ""}">{i}<span class="tl">{l}</span>{n}</button>' for k, i, l, n in items)
     return f'<div class="tabs dg-glass">{out}</div>'
 
+PXBOTTOM = f'''<div class="px-cam">{PX.glyph_svg('camera',22)}</div><div class="px-bottom"><div class="px-bar"><div class="blur"></div><div class="tiles">{PX.bar_pixels(26,5)}</div><div class="content">{dav('Д','me','sh-cookie9')}{PX.glyph_svg('search',20)}<span>Поиск</span></div></div><div class="px-fab">{PX.fab_pixels('edit')}</div></div>'''
 FABS = f'''<div class="fabs"><button class="sfab" aria-label="История">{ic("photo_camera",1,22)}</button><span class="dg-fabwrap"><button class="dg-fabx sh-cookie9" aria-label="Новое сообщение">{ic("edit",1)}</button></span></div>'''
 
 def wave(width=150, progress=.4, amp=3.5, period=20):
@@ -99,7 +101,7 @@ MSGS = f'''<div class="dg-msgs chatmsgs">
  <div class="dg-b in last edited {A}"><span class="tag">{ic("history")}изменено, 2 раза</span>Приду к восьми<span class="meta">9:40</span></div>
  <div class="dg-b out first last dg-voice"><span class="play sh-cookie7">{ic("play_arrow",1)}</span>{wave()}<span class="len">0:17</span></div>
 </div>'''
-COMPOSER = f'''<div class="dg-composer comp"><div class="dg-field dg-glass"><button class="dg-ib" aria-label="Эмодзи">{ic("mood")}</button><span class="ph">Сообщение</span><button class="dg-ib" aria-label="Прикрепить">{ic("attach_file")}</button></div><button class="dg-send sh-cookie9" aria-label="Голосовое">{ic("mic",1)}</button></div>'''
+COMPOSER = f'''<div class="dg-composer comp"><div class="dg-field dg-glass"><button class="dg-ib" aria-label="Эмодзи">{ic("mood")}</button><span class="ph">Сообщение</span><button class="dg-ib" aria-label="Прикрепить">{ic("attach_file")}</button></div><div class="px-fab sm">{PX.fab_pixels('mic', pitch=5.8, size=5)}</div></div>'''
 CHAT = WALL + MSGS + CHATHEAD + COMPOSER
 
 MENU = f'''<div class="dg-menuwrap ctx"><div class="dg-reacts"><span>❤</span><span>👍</span><span>😂</span><span>🔥</span><span>🥲</span><span style="font-size:20px">{ic("expand_more")}</span></div></div>
@@ -141,8 +143,9 @@ DASHA = f'''<div class="plainhero">{hero('', rav('Д','t'), 'Даша' + USERB, 
 <div class="dg-list" style="padding:12px 16px 0">{info('@dasha_m','Имя пользователя', ic("qr_code_2"))}{info('Учусь на дизайнера','О себе')}{info('<span class="tnum">615 220 093</span>','ID', ic("content_copy"))}</div>
 {mtabs('Истории','Медиа','Файлы','Ссылки')}{MEDIA}'''
 
-MYPROFILE = f'''<div class="persona persona-me">{hero('me', dav('Д','me','sh-cookie9'), 'Деля' + SUP(True, 26), 'в сети', f'<button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button>', shape='sh-cookie9')}
-<div style="padding:16px 16px 0"><div class="dg-bgroup tall"><button class="dg-btn tonal">{ic("add_a_photo")}Фото</button><button class="dg-btn tonal">{ic("edit")}Изменить</button><button class="dg-btn filled" aria-pressed="true">{ic("palette",1)}Оформление</button><button class="dg-btn tonal">{ic("settings")}Настройки</button></div></div>
+MYPROFILE = f'''<div class="persona persona-me">{hero('me', dav('Д','me','sh-cookie9'), 'Деля' + SUP(True, 26), 'в сети', f'<button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><span style="display:flex;gap:8px"><button class="dg-ib" aria-label="Настройки">{ic("settings")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></span>', shape='sh-cookie9')}
+<div class="dg-accrow"><div class="ac on">{dav('Д','me','sh-cookie9','s')}{ic('check',1,18)}</div><div class="ac">{rav('Р','sc','s')}<span class="dg-badge">3</span></div><div class="ac add">{ic('add')}</div></div>
+<div style="padding:16px 16px 0"><div class="dg-bgroup tall"><button class="dg-btn tonal">{ic("add_a_photo")}Фото</button><button class="dg-btn tonal">{ic("edit")}Изменить</button><button class="dg-btn filled" aria-pressed="true">{ic("palette",1)}Оформление</button></div></div>
 <div class="dg-list" style="padding:12px 16px 0">{info('+7 912 000-11-22','Мобильный')}{info('@delusha','Имя пользователя', ic("qr_code_2"))}{info('Собираю свой телеграм','О себе')}</div>
 {mtabs('Истории','Подарки','Медиа','Файлы')}</div>'''
 
@@ -234,29 +237,31 @@ ABOUT = f'''<div class="dbar"><button class="dg-ib" aria-label="Назад">{ic(
 <div style="padding:4px 12px 0"><div class="dg-ff">
  <div>{logo(76, seed=41)}</div>
  <div style="min-width:0">
-  <div class="who">delusha<i>@</i>DelushaGram</div>
+  <div class="who">731004218<i>@</i>DelushaGram</div>
   <div class="sep">--------------------------</div>
-  {ffl('Клиент','DelushaGram 0.1')}
+  {ffl('Клиент','0.1 (a1b2c3d)')}
   {ffl('База','Telegram 12.9.2 (6991)')}
-  {ffl('Сборка','release, arm64-v8a')}
-  {ffl('Устройство','Google Pixel 8')}
-  {ffl('Android','15 (API 35)')}
-  {ffl('Аккаунт','@delusha, DC 2')}
+  {ffl('Слой','TL 214')}
+  {ffl('Сборка','release, arm64-v8a, CI #42')}
+  {ffl('Устройство','Pixel 8 (shiba)')}
+  {ffl('Android','15, API 35')}
+  {ffl('Патч','2026-10-05')}
+  {ffl('Экран','1080×2400, 120 Гц')}
+  {ffl('Память','312 МБ / 7,6 ГБ')}
+  {ffl('Аккаунт','DC 2, аккаунтов 2')}
+  {ffl('Сеть','Wi-Fi, DC 2 48 мс')}
+  {ffl('Сервер DG','доступен, 63 мс')}
   {ffl('Статус','поддержал')}
-  {ffl('Тема','тёмная, акцент системы')}
-  {ffl('Шрифт','Roboto Flex')}
-  {ffl('Движение','пружины, 120 Гц')}
-  {ffl('Размытие','RenderEffect')}
-  {ffl('Призрак','включён')}
-  {ffl('История','1 284 сообщ., 212 МБ')}
+  {ffl('Пуши','FCM')}
+  {ffl('Призрак','вкл.')}
   {ffl('Кэш','1,2 ГБ')}
-  {ffl('Сеанс','3 ч 12 мин')}
+  {ffl('История','1 284, 212 МБ')}
+  {ffl('Аптайм','3 ч 12 мин')}
  </div>
- <div class="pal">{PAL}</div>
 </div></div>'''
 
 S = {
- '01-chats': screen('light', topbar() + STORIES + SEG + CHATS + FABS),
+ '01-chats': screen('light', topbar() + STORIES + SEG + CHATS + PXBOTTOM),
  '02-chat': screen('light', CHAT, 'chat'),
  '03-menu': screen('dark', CHAT + '<div class="dg-scrim zs"></div>' + MENU, 'chat'),
  '04-history': screen('dark', CHAT + CAR, 'chat'),
@@ -269,8 +274,7 @@ S = {
  '11-profile-user': screen('light', DASHA),
  '12-new-message': screen('light', NEWMSG),
  '13-search-calls': screen('dark', SEARCH),
- '14-ghost-amoled': screen('amoled', '<div class="gwash">' + topbar(True) + STORIES + '</div>' + SEG + CHATS + FABS),
- '15-menu': screen('light', topbar() + STORIES + SEG + CHATS + FABS + '<div class="dg-scrim zs"></div>' + PMENU),
+ '14-ghost-amoled': screen('amoled', '<div class="gwash">' + topbar(True) + STORIES + '</div>' + SEG + CHATS + PXBOTTOM),
  '16-about': screen('dark', ABOUT),
 }
 
@@ -344,6 +348,12 @@ body{display:flex;flex-wrap:wrap;gap:40px;padding:40px;font-family:var(--font-sa
 .dg-li.info{min-height:60px}
 .dg-li.info>.dg-ic{color:var(--primary)}
 .tnum{font-variant-numeric:tabular-nums}
+.dg-accrow{display:flex;justify-content:center;gap:10px;padding:14px 16px 0}
+.dg-accrow .ac{position:relative;height:52px;padding:0 14px 0 6px;border-radius:26px;background:var(--surface-container);display:flex;align-items:center;gap:6px}
+.dg-accrow .ac.on{background:var(--p-c);color:var(--p-on)}
+.dg-accrow .ac.add{padding:0 14px;color:var(--on-surface-variant)}
+.dg-accrow .dg-badge{position:absolute;top:-4px;right:-4px}
+.px-fab.sm{width:52px;height:52px}
 .setwrap{padding:0 12px;display:flex;flex-direction:column;gap:14px}
 .setwrap .dg-li{min-height:54px;padding:8px 16px}
 .logo-lead{background:var(--surface-container-highest)!important}
@@ -360,6 +370,6 @@ body{display:flex;flex-wrap:wrap;gap:40px;padding:40px;font-family:var(--font-sa
 """
 
 FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block">'
-html = f'<!doctype html><html><head><meta charset="utf-8">{FONTS}<style>{tokcss}{bundle}{expressive.all_css()}{CSS}</style></head><body>' + ''.join(f'<div id="s-{k}">{v_}</div>' for k, v_ in S.items()) + '</body></html>'
+html = f'<!doctype html><html><head><meta charset="utf-8">{FONTS}<style>{tokcss}{bundle}{expressive.all_css()}{PX.CSS}{CSS}</style></head><body>' + ''.join(f'<div id="s-{k}">{v_}</div>' for k, v_ in S.items()) + '</body></html>'
 open(os.path.join(D, 'screens.html'), 'w').write(html)
 print(list(S))

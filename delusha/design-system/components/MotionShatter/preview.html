@@ -1,0 +1,61 @@
+<!-- @dsCard group="Движение" height=470 subtitle="Удаление: сообщение рассыпается на пиксели" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"></head>
+<body>
+<div class="mo-wrap">
+<div class="mo-phone" id="ph" style="height:420px"><div class="dg-wall"></div><div class="dg-msgs" id="ms" style="position:absolute;left:0;right:0;bottom:0"></div></div>
+<div class="mo-side"><span class="mo-hint"><span class="dg-ic">touch_app</span>Нажми на своё сообщение, чтобы удалить</span>
+<div class="mo-btns"><button class="dg-btn tonal" id="again"><span class="dg-ic">refresh</span>Вернуть</button></div>
+<p><b>Своё удалённое сообщение рассыпается на пиксели</b> слева направо, они подлетают, кружатся и падают. Лента закрывает пустое место пружиной.</p>
+<p><span class="mo-tok">spatial-default</span> лента, пиксели на физике с гравитацией</p></div>
+</div>
+<script>
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var SPR={'spatial-fast':[.6,800],'spatial-default':[.8,380],'spatial-slow':[.8,200],'effects-fast':[1,3800],'effects-default':[1,1600],'effects-slow':[1,800],'spatial-calm':[1,380]};
+function Spring(x,cb,name,eps){this.x=x;this.v=0;this.t=x;this.cb=cb;this.eps=eps||0.001;this.use(name||'spatial-default');}
+Spring.prototype.use=function(n){var s=SPR[n];this.z=s[0];this.k=s[1];return this};
+Spring.prototype.set=function(x){this.x=this.t=x;this.v=0;if(this.r){cancelAnimationFrame(this.r);this.r=0}this.cb(x);return this};
+Spring.prototype.kick=function(v){this.v=v;return this};
+Spring.prototype.to=function(t,n,done){if(n)this.use(n);this.t=t;this.done=done||null;var me=this;
+ if(RM){this.set(t);if(done)done();return this}
+ if(!this.r){this.l=performance.now();this.r=requestAnimationFrame(function f(now){var dt=Math.min(.05,(now-me.l)/1000);me.l=now;var c=2*me.z*Math.sqrt(me.k),steps=Math.max(1,Math.ceil(dt/.002)),h=dt/steps;
+  for(var i=0;i<steps;i++){var a=-me.k*(me.x-me.t)-c*me.v;me.v+=a*h;me.x+=me.v*h}
+  if(Math.abs(me.v)<me.eps*10&&Math.abs(me.x-me.t)<me.eps){me.x=me.t;me.v=0;me.r=0;me.cb(me.x);var d=me.done;me.done=null;if(d)d();return}
+  me.cb(me.x);me.r=requestAnimationFrame(f)})}
+ return this};
+function L(a,b,p){return a+(b-a)*p}
+function C(p){return Math.max(0,Math.min(1,p))}
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function rel(el,root){var a=el.getBoundingClientRect(),b=root.getBoundingClientRect();return{x:a.left-b.left,y:a.top-b.top,w:a.width,h:a.height}}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}
+
+function pxBar(host,o){o=o||{};var P=o.pitch||12,S=o.size||10,cols=Math.floor(host.clientWidth/P),rows=o.rows||5,tiles=[];
+ var box=document.createElement('div');box.className='tiles';host.insertBefore(box,host.querySelector('.content'));
+ for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){var dc=Math.min(c,cols-1-c),dr=Math.min(r,rows-1-r);if(dc+dr<2)continue;
+  var t=document.createElement('i'),k=Math.random();t.className='pt'+(k<.1?' r':k<.16?' d':k<.22?' c':'');box.appendChild(t);
+  var tx=c*P,ty=r*P;(function(t,tx,ty){var s=new Spring(1,function(p){t.style.transform='translate('+L(t._fx,tx,p)+'px,'+L(t._fy,ty,p)+'px) scale('+L(.2,1,C(p))+')';t.style.opacity=C(p*1.4)},'spatial-default');t._fx=tx;t._fy=ty;t._s=s;t._tx=tx;t._ty=ty;s.set(1);tiles.push(t)})(t,tx,ty)}
+ return tiles}
+function pxGather(tiles,fx,fy,open,delayK){tiles.forEach(function(t){var d=Math.hypot(t._tx-fx,t._ty-fy);t._fx=fx+(Math.random()-.5)*20;t._fy=fy+(Math.random()-.5)*20;
+ if(open){t._s.set(0);setTimeout(function(){t._s.to(1,'spatial-default')},d*(delayK||.9)+Math.random()*60)}else{setTimeout(function(){t._s.to(0,'spatial-fast')},Math.max(0,260-d*.8)*.6)}})}
+function pxRipple(tiles,cx,cy,R){tiles.forEach(function(t){var d=Math.hypot(t._tx+5-cx,t._ty+5-cy);if(d>R)return;setTimeout(function(){var s=new Spring(1,function(x){t.style.scale=x},'spatial-fast');s.set(1).kick(18*(1-d/R)).to(1)},d*2.2)})}
+function pxShatter(el,root,color){var r=rel(el,root),G=9,ps=[];el.style.visibility='hidden';
+ for(var y=0;y<r.h;y+=G)for(var x=0;x<r.w;x+=G){var d=document.createElement('i');d.className='px-dyn';d.style.width=d.style.height=(G-1.5)+'px';d.style.background=color;root.appendChild(d);
+  ps.push({el:d,x:r.x+x,y:r.y+y,vx:(x/r.w-.5)*260+(Math.random()-.5)*160,vy:-120-Math.random()*220,rot:0,vr:(Math.random()-.5)*720,delay:(x/r.w)*140+Math.random()*60})}
+ var t0=performance.now(),last=t0;requestAnimationFrame(function f(now){var dt=Math.min(.04,(now-last)/1000);last=now;var alive=0;
+  ps.forEach(function(p){var age=now-t0-p.delay;if(age<0){p.el.style.transform='translate('+p.x+'px,'+p.y+'px)';alive++;return}
+   p.vy+=900*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;var a=1-age/900;if(a>0)alive++;p.el.style.opacity=Math.max(0,a);p.el.style.transform='translate('+p.x+'px,'+p.y+'px) rotate('+p.rot+'deg) scale('+Math.max(.2,a)+')'});
+  if(alive)requestAnimationFrame(f);else ps.forEach(function(p){p.el.remove()})})}
+
+var ph=$('#ph'),ms=$('#ms');
+function fill(){ms.innerHTML='<div class="dg-b in first last">Ты где?<span class="meta">9:31</span></div><div class="dg-b out first">Уже бегу</div><div class="dg-b out">Буду через пять минут, возьму тебе кофе</div><div class="dg-b out last">И круассан<span class="meta">9:32</span></div><div class="dg-b in first last">Жду</div>';
+ $$('.dg-b.out',ms).forEach(function(b){b.style.cursor='pointer';b.addEventListener('click',function(){del(b)})})}
+function del(b){buzz();var all=$$('.dg-b,.dg-day',ms);var before=all.map(function(x){return rel(x,ph).y});
+ pxShatter(b,ph,getComputedStyle(b).backgroundColor);
+ setTimeout(function(){b.style.display='none';var after=all.map(function(x){return rel(x,ph).y});
+  var s=new Spring(0,function(p){all.forEach(function(x,i){if(x!==b)x.style.transform='translateY('+((before[i]-after[i])*(1-p))+'px)'})},'spatial-default');s.to(1)},240)}
+fill();$('#again').addEventListener('click',fill);
+</script>
+</body>
+</html>
