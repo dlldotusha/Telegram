@@ -1,0 +1,15 @@
+<!-- @dsCard group="Навигация" height=90 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"></head>
+<body>
+<div class="dg-stage"><div class="dg-chips" data-single>
+ <button class="dg-chip" data-toggle aria-pressed="true">Все <span class="n">12</span></button>
+ <button class="dg-chip" data-toggle aria-pressed="false">Личные</button>
+ <button class="dg-chip" data-toggle aria-pressed="false">Группы <span class="n">3</span></button>
+ <button class="dg-chip" data-toggle aria-pressed="false">Каналы</button>
+ <button class="dg-chip" data-toggle aria-pressed="false">Боты</button>
+</div></div>
+<script>document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var g=b.closest('[data-single]');if(g){g.querySelectorAll('[data-toggle]').forEach(function(x){x.setAttribute(x.hasAttribute('aria-current')?'aria-current':'aria-pressed',x===b?(x.hasAttribute('aria-current')?'page':'true'):(x.hasAttribute('aria-current')?'false':'false'))})}else{b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')==='true'?'false':'true')}})});</script>
+</body>
+</html>

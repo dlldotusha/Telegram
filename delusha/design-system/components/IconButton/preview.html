@@ -1,0 +1,17 @@
+<!-- @dsCard group="Действия" height=120 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"></head>
+<body>
+<div class="dg-stage">
+ <button class="dg-ib" aria-label="Назад"><span class="dg-ic">arrow_back</span></button>
+ <button class="dg-ib" aria-label="Поиск"><span class="dg-ic">search</span></button>
+ <button class="dg-ib tonal" aria-label="Звонок"><span class="dg-ic">call</span></button>
+ <button class="dg-ib filled" aria-label="Отправить"><span class="dg-ic fill">send</span></button>
+ <button class="dg-ib outlined" aria-label="Ещё"><span class="dg-ic">more_vert</span></button>
+ <button class="dg-ib" data-toggle aria-pressed="true" aria-label="Закрепить"><span class="dg-ic">push_pin</span></button>
+ <button class="dg-ib wide tonal" aria-label="Фильтры"><span class="dg-ic">tune</span></button>
+</div>
+<script>document.querySelectorAll('[data-toggle]').forEach(function(b){b.addEventListener('click',function(){var g=b.closest('[data-single]');if(g){g.querySelectorAll('[data-toggle]').forEach(function(x){x.setAttribute(x.hasAttribute('aria-current')?'aria-current':'aria-pressed',x===b?(x.hasAttribute('aria-current')?'page':'true'):(x.hasAttribute('aria-current')?'false':'false'))})}else{b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')==='true'?'false':'true')}})});</script>
+</body>
+</html>
