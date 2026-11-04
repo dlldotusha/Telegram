@@ -441,6 +441,23 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-secs .dg-sec:last-child{border-radius:8px 8px 28px 28px}
 .dg-sec .hd{font:800 13px/16px var(--font-sans);letter-spacing:.3px;color:var(--primary);text-transform:none}
 .dg-cluster{position:absolute;pointer-events:none}
+.dgb{display:inline-block;vertical-align:-3px;flex:none;margin-left:4px}
+.dgb .bbg{fill:var(--primary-container)}
+.dgb .bp1{fill:var(--primary)}.dgb .bp1o{fill:none;stroke:var(--primary)}
+.dgb .bp2{fill:var(--tertiary)}.dgb .bp2o{fill:none;stroke:var(--tertiary)}
+.dgb .hole{fill:var(--primary-container)}
+.dgb-user .bbg{fill:var(--surface-container-highest)}
+.dgb-user .bo{fill:none;stroke:var(--on-surface-variant)}
+.dg-logo .lp1{fill:var(--primary)}.dg-logo .lp1o{fill:none;stroke:var(--primary)}
+.dg-logo .lp2{fill:color-mix(in srgb,var(--primary) 55%,var(--surface))}.dg-logo .lp2o{fill:none;stroke:color-mix(in srgb,var(--primary) 55%,var(--surface))}
+.dg-logo .lp3{fill:var(--tertiary)}.dg-logo .lp3o{fill:none;stroke:var(--tertiary)}
+.dg-logo .hole{fill:var(--surface)}
+.dg-anim{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.dg-anim div{height:76px;border-radius:18px;background:var(--surface-container-high);display:grid;place-items:center;position:relative;color:var(--on-surface-variant)}
+.dg-anim div i{display:block;width:34px;height:34px;background:var(--outline)}
+.dg-anim div .dg-ic{position:absolute;right:8px;bottom:8px;font-size:18px}
+.dg-anim div.on{background:var(--primary-container);border-radius:32px;color:var(--on-primary-container)}
+.dg-anim div.on i{background:var(--primary)}
 .dgon{position:absolute;right:-3px;bottom:-3px;width:20px;height:20px;border-radius:7px;background:var(--online);box-shadow:0 0 0 3px var(--surface);-webkit-mask:none}
 .dgon::after{content:"";position:absolute;inset:4px 5px;background:var(--surface);-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%209.6%2012%22%3E%3Cg%20fill%3D%22%23000%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%222.4%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%224.8%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%222.4%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%222.4%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%224.8%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%224.8%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%227.2%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%227.2%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%222.4%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%224.8%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%209.6%2012%22%3E%3Cg%20fill%3D%22%23000%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%222.4%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%224.8%22%20y%3D%220%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%222.4%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%222.4%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%224.8%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%224.8%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%227.2%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%227.2%22%20y%3D%227.2%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%220%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%222.4%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3Crect%20x%3D%224.8%22%20y%3D%229.6%22%20width%3D%222%22%20height%3D%222%22%20rx%3D%22.4%22/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
 .dg-card .dg-ic{font:normal 22px/1 "Material Symbols Rounded";color:inherit;font-variation-settings:"FILL" 1,"wght" 500,"GRAD" 0,"opsz" 24}

@@ -3,6 +3,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from gen_shapes import css as shapes_css, svgpath
 import motion
 import expressive
+from logo import badge_inline
 
 OUT = os.path.join(os.path.dirname(__file__), 'ds', 'project')
 def w(path, text):
@@ -617,6 +618,7 @@ comps['Avatar'] = (card('Идентичность', 220, f'''<div class="dg-stag
 - Анимация, выбранная владельцем (стоит, дышит, морф, крутится), играет только на его профиле и в шапке чата с ним, в списках аватар стоит.
 - Размеры: `avatar-s` 40, `avatar-m` 52, закреплённые 68, профиль 156.
 - «В сети»: точка `online` с обводкой цветом фона. Если человек в сети с DelushaGram — значок с пиксельной D (`dgon`) вместо точки.
+- Поддержавшие: значок с пиксельной D рядом с именем везде (см. Marks). Кастомный аватар только у поддержавших; у остальных пользователей DelushaGram аватар круглый.
 
 **Android:** `DgAvatarDrawable` оборачивает `AvatarDrawable`/`ImageReceiver`; форма через `RoundedPolygon` (androidx.graphics.shapes), морфинг через `Morph`.
 ''')
@@ -783,7 +785,7 @@ comps['PinnedChats'] = (card('Навигация', 130, f'''<div class="dg-pins"
 comps['ProfileHero'] = (card('Профиль', 520, f'''<div class="persona persona-anya" style="width:380px;margin:12px;border-radius:28px;overflow:hidden;background:var(--surface)">
  <div class="dg-hero" style="height:170px"><i class="pat sh-cookie9" style="left:20px;top:10px;width:90px;height:90px"></i><i class="pat sh-clover4" style="left:220px;top:-20px;width:110px;height:110px"></i><i class="pat sh-flower8" style="left:300px;top:90px;width:80px;height:80px"></i><i class="pat sh-sunny" style="left:120px;top:100px;width:60px;height:60px"></i></div>
  <div class="dg-ring sh-cookie12" style="width:132px;height:132px;margin-top:-66px"><span class="dg-av persona persona-anya sh-cookie12" style="width:118px;height:118px;font-size:44px">А</span></div>
- <h2 class="dg-pname" style="font-size:28px">Аня Соколова<span class="bdg sh-sunny">{ic("auto_awesome",True)}</span></h2>
+ <h2 class="dg-pname" style="font-size:28px">Аня Соколова{badge_inline("sup",26)}</h2>
  <div class="dg-pstat">в сети</div>
  <div class="dg-bento" style="padding:14px 14px 16px"><div class="dg-card span2 acc"><b>Рисую интерфейсы, пью матчу</b></div><div class="dg-card"><span>Ник</span><b>@anya_sk</b></div><div class="dg-card"><span>Звонки</span><b>Вчера, 12 мин</b></div></div>
 </div>'''), '''# ProfileHero
@@ -800,13 +802,13 @@ comps['ProfileHero'] = (card('Профиль', 520, f'''<div class="persona pers
 ''')
 
 comps['ProfileEditor'] = (card('Профиль', 520, f'''<div class="dg-secs" style="width:380px;margin:12px">
- <div class="dg-sec"><span class="hd">Форма</span><div class="dg-pick"><i class="sh-circle"></i><i class="sh-cookie9 on"></i><i class="sh-clover4"></i><i class="sh-flower8"></i><i class="sh-sunny"></i></div></div>
- <div class="dg-sec"><span class="hd">Цвет</span><div class="dg-pick col"><i class="sh-cookie9 on" style="background:oklch(0.6 0.13 295)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.10 190)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 140)"></i><i class="sh-cookie9" style="background:oklch(0.64 0.13 50)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.14 0)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 240)"></i></div></div>
- <div class="dg-sec"><span class="hd">Аватар</span><div class="dg-seg" style="padding:0"><button aria-pressed="false">Стоит</button><button aria-pressed="true">Дышит</button><button aria-pressed="false">Морф</button><button aria-pressed="false" style="border-radius:8px 20px 20px 8px">Крутится</button></div></div>
- <div class="dg-sec"><span class="hd">Имя</span><div class="dg-names"><div style="font-variation-settings:'wdth' 60">Аа</div><div style="font-variation-settings:'wdth' 100">Аа</div><div class="on" style="font-variation-settings:'wdth' 151">Аа</div></div></div>
+ <div class="dg-sec"><div class="dg-pick"><i class="sh-circle"></i><i class="sh-cookie9 on"></i><i class="sh-clover4"></i><i class="sh-flower8"></i><i class="sh-sunny"></i></div></div>
+ <div class="dg-sec"><div class="dg-pick col"><i class="sh-cookie9 on" style="background:oklch(0.6 0.13 295)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.10 190)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 140)"></i><i class="sh-cookie9" style="background:oklch(0.64 0.13 50)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.14 0)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 240)"></i></div></div>
+ <div class="dg-sec"><div class="dg-anim"><div><i class="sh-cookie9"></i>{ic("pause",True)}</div><div class="on"><i class="sh-cookie9"></i>{ic("air")}</div><div><i class="sh-clover4"></i>{ic("animation")}</div><div><i class="sh-flower8"></i>{ic("autorenew")}</div></div></div>
+ <div class="dg-sec"><div class="dg-names"><div style="font-variation-settings:'wdth' 60">Аа</div><div style="font-variation-settings:'wdth' 100">Аа</div><div class="on" style="font-variation-settings:'wdth' 151">Аа</div></div></div>
 </div>'''), '''# ProfileEditor
 
-Редактор своего профиля Delusha: открывается карандашом на своём профиле. Сверху живое превью, ниже секции группой с общими краями. Всё применяется сразу.
+Редактор своего профиля Delusha: открывается карандашом на своём профиле. Сверху живое превью, ниже секции группой с общими краями, без подписей. Всё применяется сразу.
 
 Настройки (все параметрические, без картинок, чтобы помещались в описание профиля):
 
@@ -823,7 +825,29 @@ comps['ProfileEditor'] = (card('Профиль', 520, f'''<div class="dg-secs" s
 
 Без поддержки: превью видно, все секции приглушены до 38% и неактивны, над ними одна кнопка «Поддержать».
 
+Ни заголовка экрана, ни подписей секций: каждая секция узнаётся по своему содержимому (формы, цвета, шапки, анимация, «Аа»). Анимация аватара выбирается плитками с мини-аватаром и значком движения.
+
 **Android:** `DgProfileEditorActivity`; запись на сервер DelushaGram, сервер принимает её только от аккаунтов из белого списка (см. «Профиль Delusha» в README).
+''')
+
+comps['Marks'] = (card('Идентичность', 170, f'''<div class="dg-stage" style="gap:36px">
+ <span style="font:800 20px/1 var(--font-sans);display:flex;align-items:center">Аня Соколова{badge_inline("sup",22)}</span>
+ <span style="font:800 20px/1 var(--font-sans);display:flex;align-items:center">Даша{badge_inline("user",22)}</span>
+ <span class="dg-avwrap"><span class="dg-av t">Д</span><span class="dgon"></span></span>
+ <span class="dg-avwrap"><span class="dg-av e">М</span><span class="on"></span></span>
+</div>'''), '''# Marks
+
+Значки DelushaGram у людей.
+
+| Значок | Кому | Где |
+|---|---|---|
+| Пиксельная D на `primary-container` | поддержал разработку и серверы | рядом с именем везде |
+| D из рамок на `surface-container-highest` | пользуется DelushaGram, не поддержал | рядом с именем только в профиле |
+| D на зелёном квадрате вместо точки | сейчас в сети с DelushaGram | угол аватара |
+
+**Что даёт код:** статус человека с сервера DelushaGram (поддержал, пользователь, в сети с клиента), размер.
+
+**Android:** `DgMarkDrawable` (рисует пиксели по сетке, у каждого пикселя свой стиль от seed = id пользователя для знака в профиле; на мелких размерах только заливка), вставляется в `SimpleTextView` после имени, как значок верификации.
 ''')
 
 comps['ToggleTile'] = (card('Списки', 180, f'''<div class="dg-stage" style="max-width:420px"><div class="dg-ttiles" style="width:100%"><div class="dg-ttile on"><span class="ti sh-cookie9">{ic("visibility_off",True)}</span><div class="bt"><b>Призрак</b><input type="checkbox" class="dg-sw" checked aria-label="Призрак"></div></div><div class="dg-ttile"><span class="ti sh-clover4">{ic("history",True)}</span><div class="bt"><b>История</b><input type="checkbox" class="dg-sw" aria-label="История"></div></div></div></div>'''), '''# ToggleTile
@@ -950,11 +974,13 @@ Material 3 Expressive отличается от обычного M3 смелос
 - **В клиенте.** Без поддержки редактор открывается, но все настройки приглушены и неактивны, сверху одна кнопка «Поддержать». После поддержки и подтверждения настройки оживают сразу.
 - **Что видят другие пользователи Delusha:** форму, тон и анимацию аватара, шапку профиля, значок у имени, эффект открытия профиля, твои пузыри в твоём цвете (если ты так выбрал).
 
-## Знак и онлайн
+## Знак и значки
 
-- **Знак DelushaGram** — буква D целиком из пикселей, сетка 9 × 11, толщина 3 пикселя, у пикселей скругление 20%. Файлы в группе ассетов Logos.
-- **Онлайн-значок.** Если человек сейчас в сети **и сидит с DelushaGram**, вместо зелёной точки на аватаре стоит значок 20 × 20: скруглённый квадрат цвета `online` с пиксельной D 4 × 5 цветом фона. Обычные клиенты видят обычную точку.
-- Клиент сообщает серверу DelushaGram, что он открыт, раз в минуту. В режиме призрака не сообщает, и значка нет.
+- **Знак DelushaGram** — буква D целиком из пикселей (сетка 9 × 11, толщина 3), и **каждый пиксель свой**: залитый, рамка, рамка с точкой, круг, печенька, квадрат с окном, два наложенных со сдвигом, наполовину залитый. Цвета: `primary`, светлый `primary`, изредка `tertiary`. Файлы в группе ассетов Logos.
+- **Значок поддержавшего.** Тем, кто поддержал разработку и серверы, — пиксельная D на `primary-container` **рядом с именем везде**: список чатов, закреплённые, шапка чата, профиль, контакты, поиск. На мелких размерах (13–20) пиксели только залитые квадраты и круги, чтобы буква читалась.
+- **Бейдж пользователя.** Тем, кто сидит с DelushaGram, но не поддержал, — маленькая D из одних рамок (`on-surface-variant` на `surface-container-highest`) **только в профиле**, рядом с именем.
+- **Онлайн с DelushaGram.** Если человек сейчас в сети именно с DelushaGram, вместо зелёной точки на аватаре значок 20 × 20: квадрат `online` с пиксельной D цветом фона. Обычные клиенты — обычная точка. Клиент сообщает серверу DelushaGram, что открыт, раз в минуту; в режиме призрака не сообщает.
+- Статус поддержавшего хранится на сервере (белый список), клиенты получают его вместе с профилем Delusha.
 
 ## Размытие
 

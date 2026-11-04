@@ -2,6 +2,7 @@ import json, os, math, random, sys
 D = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, D)
 import expressive
+from logo import badge_inline, pixels_varied
 P = os.path.join(D, 'ds', 'project')
 T = json.load(open(os.path.join(P, 'tokens.json')))
 
@@ -37,8 +38,12 @@ def dav(letter, persona, shape, cls=''):
 def rav(letter, tone, cls=''):
     return f'<span class="dg-av {tone} reg {cls}">{letter}</span>'
 
-def row(av, name, prev, time, extra='', badge='', unread=False, online=False):
-    if online: av = f'<span class="dg-avwrap">{av}<span class="{"dgon" if "persona" in av else "on"}"></span></span>'
+SUP = badge_inline('sup', 18)
+USERB = badge_inline('user', 20)
+def row(av, name, prev, time, extra='', badge='', unread=False, online=False, dg=False):
+    sup = 'persona' in av and 'persona-me' not in av or 'persona-me' in av
+    if online: av = f'<span class="dg-avwrap">{av}<span class="{"dgon" if (dg or "persona" in av) else "on"}"></span></span>'
+    if sup: name = name + SUP
     return f'<div class="dg-chat{" unread" if unread else ""}">{av}<div class="mid"><div class="nm">{name}{extra}</div><div class="pv">{prev}</div></div><div class="rt">{time}{badge}</div></div>'
 
 CHATS = '<div class="dg-cgroup">' + ''.join([
@@ -47,15 +52,15 @@ CHATS = '<div class="dg-cgroup">' + ''.join([
     row(dav('Л', 'lyokha', 'sh-clover4'), 'Лёха', ic('mic') + 'Голосовое, 0:42', '8:55', badge='<span class="dg-badge">1</span>', unread=True),
     row(rav(ic('campaign', 1), 'sc'), 'Delusha Dev', 'Сборка 0.1 собрана, 48 МБ', 'Пн', ' ' + ic('verified', 1) + '<span class="dg-ic mute">volume_off</span>', badge='<span class="dg-badge muted">14</span>'),
     row(rav('К', 't'), 'Кофе по пятницам', '<span class="who">Даша:</span> кто завтра?', 'Вс', badge='<span class="dg-badge mention">@</span>', unread=True),
-    row(dav('Д', 'dasha', 'sh-flower8'), 'Даша', 'ок, до завтра', 'Сб'),
+    row(rav('Д', 't'), 'Даша', 'ок, до завтра', 'Сб', online=True, dg=True),
     row(rav('Ю', ''), 'Юля', ic('photo') + 'Фото', 'Пт'),
 ]) + '</div>'
 
 PINS = f'''<div class="dg-pins">
  <div class="dg-pin"><span class="dg-av sh-cookie4" style="--av-bg:var(--primary);--av-fg:var(--on-primary)">{ic("bookmark",1,30)}</span>Избранное</div>
- <div class="dg-pin">{dav('А','anya','sh-cookie12')}Аня</div>
+ <div class="dg-pin">{dav('А','anya','sh-cookie12')}<span>Аня{badge_inline('sup',13)}</span></div>
  <div class="dg-pin">{rav('М','e')}<span class="dg-badge">2</span>Мама</div>
- <div class="dg-pin">{dav('Л','lyokha','sh-clover4')}<span class="dg-badge">1</span>Лёха</div>
+ <div class="dg-pin">{dav('Л','lyokha','sh-clover4')}<span class="dg-badge">1</span><span>Лёха{badge_inline('sup',13)}</span></div>
  <div class="dg-pin">{rav('Р','sc')}Работа</div>
 </div>'''
 
@@ -75,7 +80,7 @@ def wave(width=150, progress=.4, amp=3.5, period=20):
     act = "M" + " L".join(p for p in pts if float(p.split(',')[0]) - 2 <= cut)
     return f'<svg class="dg-wave" width="{width+4}" height="24" viewBox="0 0 {width+4} 24"><path class="trk" d="M{cut+8},12 L{width+2},12"/><path class="act" d="{act}"/></svg>'
 
-CHATHEAD = f'''<div class="chead dg-glass"><div class="dg-appbar small" style="padding-top:0;background:transparent"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button>{dav('А','anya','sh-cookie12','s')}<span class="ttl" style="font-weight:800;font-variation-settings:'wdth' 115">Аня Соколова<small>в сети</small></span><button class="dg-ib" aria-label="Звонок">{ic("call")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div></div>'''
+CHATHEAD = f'''<div class="chead dg-glass"><div class="dg-appbar small" style="padding-top:0;background:transparent"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button>{dav('А','anya','sh-cookie12','s')}<span class="ttl" style="font-weight:800;font-variation-settings:'wdth' 115">Аня Соколова{SUP}<small>в сети</small></span><button class="dg-ib" aria-label="Звонок">{ic("call")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div></div>'''
 A = 'persona persona-anya'
 MSGS = f'''<div class="dg-msgs chatmsgs">
  <div class="dg-b out first">Смотри, что я собрал</div>
@@ -111,7 +116,7 @@ CAR = f'''<div class="dg-scrim zs"></div><div class="carv">
 PROFILE = f'''<div class="persona persona-anya">
 <div class="dg-hero">{pattern(14, 412, 250, 50, 120)}<div class="top"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div></div>
 <div class="dg-ring sh-cookie12" style="width:172px;height:172px">{dav('А','anya','sh-cookie12')}</div>
-<h2 class="dg-pname">Аня Соколова<span class="bdg sh-sunny">{ic("auto_awesome",1)}</span></h2>
+<h2 class="dg-pname">Аня Соколова{badge_inline('sup',28)}</h2>
 <div class="dg-pstat">в сети</div>
 <div style="padding:16px 16px 0"><div class="dg-bgroup tall"><button class="dg-btn filled" aria-pressed="true">{ic("chat_bubble",1)}Чат</button><button class="dg-btn tonal">{ic("notifications_off")}Звук</button><button class="dg-btn tonal">{ic("call")}Звонок</button><button class="dg-btn tonal">{ic("videocam")}Видео</button></div></div>
 <div class="dg-bento" style="padding:12px 16px 0">
@@ -133,28 +138,28 @@ CLUSTER = '''<div class="dg-cluster" style="right:-24px;top:-6px;width:210px;hei
  <i class="sh-clover4" style="left:20px;top:56px;width:80px;height:80px;background:var(--tertiary-container)"></i>
  <i class="sh-sunny" style="left:150px;top:96px;width:48px;height:48px;background:var(--primary)"></i></div>'''
 
-SETTINGS = f'''<div style="position:relative">{CLUSTER}<div class="dg-appbar" style="padding:0 4px 4px;background:transparent;position:relative"><div class="row"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button></div><h1 class="dg-xxl" style="margin:26px 16px 8px">Delusha</h1></div></div>
+SETTINGS = f'''<div style="position:relative">{CLUSTER}<div class="dg-appbar" style="padding:0 4px 4px;background:transparent;position:relative"><div class="row"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button></div><svg class="dg-logo" viewBox="0 0 90 110" width="118" height="144" style="margin:10px 20px 6px">{pixels_varied(9,11,3,10,seed=7,cls=('lp1','lp2','lp3'))}</svg></div></div>
 <div style="padding:12px 12px 0;display:flex;flex-direction:column;gap:14px">
  <div class="dg-ttiles"><div class="dg-ttile on"><span class="ti sh-cookie9">{ic("visibility_off",1)}</span><div class="bt"><b>Призрак</b><input type="checkbox" class="dg-sw" checked></div></div><div class="dg-ttile on2"><span class="ti sh-clover4">{ic("history",1)}</span><div class="bt"><b>История</b><input type="checkbox" class="dg-sw" checked></div></div></div>
- <div class="dg-list"><div class="dg-li"><span class="lead" style="background:none;width:44px">{dav('Д','me','sh-cookie9','s')}</span><span class="tx"><b>Мой профиль</b></span>{ic("chevron_right")}</div><div class="dg-li"><span class="lead e">{ic("delete_history")}</span><span class="tx"><b>Удалённые сообщения</b><span>1 284 сообщения, 212 МБ</span></span>{ic("chevron_right")}</div></div>
+ <div class="dg-list"><div class="dg-li"><span class="lead" style="background:none;width:44px">{dav('Д','me','sh-cookie9','s')}</span><span class="tx"><b>Деля{SUP}</b><span>@delusha</span></span>{ic("chevron_right")}</div><div class="dg-li"><span class="lead e">{ic("delete_history")}</span><span class="tx"><b>Удалённые сообщения</b><span>1 284 сообщения, 212 МБ</span></span>{ic("chevron_right")}</div></div>
  <div class="dg-list">{li("done_all","Читать после ответа")}{li("auto_stories","Смотреть истории тайно",on=False)}</div>
  <div class="dg-list">{li("swipe","Свайпы по чатам",None,"chev")}{li("archive","Архив",None,"chev")}{li("favorite","Анимации реакций","Полные","chev")}</div>
 </div>'''
 
-EDITOR = f'''<div class="dg-appbar" style="padding:0 4px 0;background:transparent"><div class="row"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button></div><h1 class="dg-xl" style="margin:6px 16px 10px;font-size:42px;line-height:44px">Мой профиль</h1></div>
+EDITOR = f'''<div class="dg-appbar" style="padding:0 4px 0;background:transparent"><div class="row"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button></div></div>
 <div class="persona persona-me" style="margin:0 12px;border-radius:32px;overflow:hidden;background:var(--surface-container-low)">
  <div class="dg-hero" style="height:120px;border-radius:0 0 28px 28px">{pattern(9, 388, 120, 30, 70)}</div>
  <div style="display:flex;align-items:flex-end;gap:12px;padding:0 16px 14px;margin-top:-44px;position:relative;z-index:2">
   <span class="dg-ring sm sh-cookie9" style="width:92px;height:92px;margin:0">{dav('Д','me','sh-cookie9')}</span>
-  <div style="padding-bottom:6px"><div style="font:900 24px/26px var(--font-sans);font-variation-settings:'wdth' 132">Деля</div><div style="font:600 13px/18px var(--font-sans);color:var(--p-acc)">@delusha</div></div>
+  <div style="padding-bottom:6px"><div style="font:900 24px/26px var(--font-sans);font-variation-settings:'wdth' 132">Деля{badge_inline('sup',20)}</div><div style="font:600 13px/18px var(--font-sans);color:var(--p-acc)">@delusha</div></div>
  </div>
 </div>
 <div class="dg-secs" style="margin-top:12px">
- <div class="dg-sec"><span class="hd">Форма</span><div class="dg-pick"><i class="sh-circle"></i><i class="sh-cookie9 on"></i><i class="sh-clover4"></i><i class="sh-flower8"></i><i class="sh-sunny"></i><i class="sh-pent"></i></div></div>
- <div class="dg-sec"><span class="hd">Цвет</span><div class="dg-pick col"><i class="sh-cookie9 on" style="background:oklch(0.6 0.13 295)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.10 190)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 140)"></i><i class="sh-cookie9" style="background:oklch(0.64 0.13 50)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.14 0)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 240)"></i><i class="sh-cookie9" style="background:oklch(0.5 0.02 295)"></i></div></div>
- <div class="dg-sec persona persona-me"><span class="hd">Шапка</span><div class="dg-bgs"><div class="on">{pattern(5,120,76,20,40,'')}<span style="position:relative">Формы</span></div><div style="background:radial-gradient(circle at 20% 20%,var(--p-pat),transparent 60%),radial-gradient(circle at 90% 90%,var(--p-acc),transparent 55%),var(--p-c)"><span>Градиент</span></div><div><span>Цвет</span></div></div></div>
- <div class="dg-sec"><span class="hd">Аватар</span><div class="dg-seg" style="padding:0"><button aria-pressed="false">Стоит</button><button aria-pressed="true">Дышит</button><button aria-pressed="false">Морф</button><button aria-pressed="false" style="border-radius:8px 20px 20px 8px">Крутится</button></div></div>
- <div class="dg-sec"><span class="hd">Имя</span><div class="dg-names"><div style="font-variation-settings:'wdth' 60">Аа</div><div style="font-variation-settings:'wdth' 100">Аа</div><div class="on" style="font-variation-settings:'wdth' 151">Аа</div></div></div>
+ <div class="dg-sec"><div class="dg-pick"><i class="sh-circle"></i><i class="sh-cookie9 on"></i><i class="sh-clover4"></i><i class="sh-flower8"></i><i class="sh-sunny"></i><i class="sh-pent"></i></div></div>
+ <div class="dg-sec"><div class="dg-pick col"><i class="sh-cookie9 on" style="background:oklch(0.6 0.13 295)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.10 190)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 140)"></i><i class="sh-cookie9" style="background:oklch(0.64 0.13 50)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.14 0)"></i><i class="sh-cookie9" style="background:oklch(0.6 0.12 240)"></i><i class="sh-cookie9" style="background:oklch(0.5 0.02 295)"></i></div></div>
+ <div class="dg-sec persona persona-me"><div class="dg-bgs"><div class="on">{pattern(5,120,76,20,40,'')}</div><div style="background:radial-gradient(circle at 20% 20%,var(--p-pat),transparent 60%),radial-gradient(circle at 90% 90%,var(--p-acc),transparent 55%),var(--p-c)"></div><div></div></div></div>
+ <div class="dg-sec"><div class="dg-anim"><div><i class="sh-cookie9"></i>{ic("pause",1)}</div><div class="on"><i class="sh-cookie9"></i>{ic("air")}</div><div><i class="sh-clover4"></i>{ic("animation")}</div><div><i class="sh-flower8"></i>{ic("autorenew")}</div></div></div>
+ <div class="dg-sec"><div class="dg-names"><div style="font-variation-settings:'wdth' 60">Аа</div><div style="font-variation-settings:'wdth' 100">Аа</div><div class="on" style="font-variation-settings:'wdth' 151">Аа</div></div></div>
 </div>'''
 
 NEWCHAT = f'''<div class="dg-appbar" style="padding:0 4px 0;background:transparent"><div class="row"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button></div></div>
@@ -163,7 +168,7 @@ NEWCHAT = f'''<div class="dg-appbar" style="padding:0 4px 0;background:transpare
 <div class="dg-cgroup">
  {row(dav('А','anya','sh-cookie12'),'Аня Соколова','в сети','',online=True)}
  {row(dav('Л','lyokha','sh-clover4'),'Лёха','был 5 минут назад','')}
- {row(dav('Д','dasha','sh-flower8'),'Даша','была вчера','')}
+ {row(rav('Д','t'),'Даша','была вчера','')}
  {row(rav('В','t'),'Вика','была недавно','')}
  {row(rav('И','sc'),'Игорь','был на этой неделе','')}
  {row(rav('М','e'),'Мама','в сети','',online=True)}
@@ -173,7 +178,7 @@ NEWCHAT = f'''<div class="dg-appbar" style="padding:0 4px 0;background:transpare
 MYPROFILE = f'''<div class="persona persona-me">
 <div class="dg-hero">{pattern(14, 412, 250, 50, 120)}<div class="top"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><span style="display:flex;gap:8px"><button class="dg-ib" aria-label="Изменить профиль">{ic("edit")}</button><button class="dg-ib" aria-label="Настройки">{ic("settings")}</button></span></div></div>
 <div class="dg-ring sh-cookie9" style="width:172px;height:172px">{dav('Д','me','sh-cookie9')}</div>
-<h2 class="dg-pname">Деля<span class="bdg sh-sunny">{ic("auto_awesome",1)}</span></h2>
+<h2 class="dg-pname">Деля{badge_inline('sup',28)}</h2>
 <div class="dg-pstat">@delusha</div>
 <div class="dg-accrow"><div class="ac on">{dav('Д','me','sh-cookie9','s')}{ic("check",1,18)}</div><div class="ac">{rav('Р','sc','s')}<span class="dg-badge">3</span></div><div class="ac add">{ic("add")}</div></div>
 <div class="dg-bento" style="padding:14px 16px 0">
@@ -197,6 +202,12 @@ SEARCH = f'''<div class="dg-search dg-glass" style="margin:4px 16px 0">{ic("arro
 </div>'''
 
 LOCKED = EDITOR.replace('<div class="dg-secs" style="margin-top:12px">','<div class="lockcta"><button class="dg-btn filled m">'+ic("favorite",1)+'Поддержать</button></div><div class="dg-secs locked" style="margin-top:12px">')
+DASHA = f'''<div class="dg-hero" style="height:200px;background:var(--surface-container)"><div class="top"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div></div>
+<div class="dg-ring" style="width:168px;height:168px;border-radius:50%;margin-top:-84px">{rav('Д','t')}</div>
+<h2 class="dg-pname">Даша{USERB}</h2>
+<div class="dg-pstat" style="color:var(--primary)">в сети</div>
+<div style="padding:16px 16px 0"><div class="dg-bgroup tall"><button class="dg-btn filled" aria-pressed="true">{ic("chat_bubble",1)}Чат</button><button class="dg-btn tonal">{ic("notifications_off")}Звук</button><button class="dg-btn tonal">{ic("call")}Звонок</button><button class="dg-btn tonal">{ic("videocam")}Видео</button></div></div>
+<div class="dg-bento" style="padding:12px 16px 0"><div class="dg-card"><span>Ник</span><b>@dasha_m</b></div><div class="dg-card"><span>ID</span><b class="tnum">615 220 093</b></div></div>'''
 S = {
  '01-chats': screen('light', CHATS_SCREEN),
  '02-chat': screen('light', CHAT, 'chat'),
@@ -210,6 +221,7 @@ S = {
  '10-profile-editor': screen('dark', EDITOR),
  '11-search-calls': screen('dark', SEARCH),
  '12-editor-locked': screen('light', LOCKED),
+ '13-profile-user': screen('light', DASHA),
 }
 
 CSS = r"""
