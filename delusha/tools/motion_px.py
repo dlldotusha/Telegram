@@ -87,7 +87,7 @@ CARDS['MotionPixelButtons'] = (560, 'Главные кнопки из пиксе
  </div>
 </div>
 <div class="mo-side"><span class="mo-hint">{ic("touch_app")}Напиши текст, нажми кнопку; тап по микрофону, зажми его</span>
-<p><b>Кнопка собрана из пикселей знака</b>, и у каждого пикселя свой эффект: заливка, стекло, свечение, рамка, градиент. Вместе картинка остаётся чёткой.</p>
+<p><b>Кнопка — это оригинальная кнопка M3, пропущенная через пиксельный фильтр</b>, и у каждого пикселя свой эффект: заливка, стекло, свечение, рамка, градиент. Вместе картинка остаётся чёткой.</p>
 <p>Пустое поле — микрофон. Начал печатать — пиксели микрофона перелетают в самолётик. Тап по микрофону — пиксели складываются в камеру (кружок) и обратно. Зажал — кнопка растёт, пиксели дышат в такт голосу и светятся.</p>
 <p><span class="mo-tok">spatial-default</span> морфинг глифа, <span class="mo-tok">spatial-fast</span> отклик</p></div>
 </div>''', _fx.JS + r"""
@@ -97,10 +97,10 @@ var sc=new Spring(1,function(v){B.host.style.transform='scale('+v+')'},'spatial-
 inp.addEventListener('input',function(){var want=inp.value.trim()?'send':mode;if(B.host.dataset.glyph!==want)B.setGlyph(want,true)});
 function add(html,cls){var b=document.createElement('div');b.className='dg-b out first last '+(cls||'');b.innerHTML=html;b.style.transformOrigin='100% 100%';ms.appendChild(b);var s=new Spring(.6,function(v){b.style.scale=v},'spatial-fast');s.to(1);while(ms.children.length>7)ms.removeChild(ms.firstElementChild)}
 var downT=0,holdTimer=null,recording=false,t0=0,tick=null;
-B.host.addEventListener('pointerdown',function(e){B.host.setPointerCapture(e.pointerId);downT=performance.now();sc.to(.88);
+B.host.addEventListener('pointerdown',function(e){B.host.setPointerCapture(e.pointerId);downT=performance.now();sc.to(.94);B.setRadius(2,true);
  if(B.host.dataset.glyph==='send')return;
  holdTimer=setTimeout(function(){recording=true;buzz();sc.to(1.45,'spatial-default');B.level(true);fld.style.display='none';rec.style.display='flex';t0=performance.now();tick=setInterval(function(){var s=Math.floor((performance.now()-t0)/1000);tm.textContent='0:'+String(s).padStart(2,'0')},250)},260)});
-function up(){clearTimeout(holdTimer);
+function up(){clearTimeout(holdTimer);B.setRadius(4.5,true);
  if(recording){recording=false;clearInterval(tick);B.level(false);sc.to(1,'spatial-default');rec.style.display='none';fld.style.display='';var s=Math.max(1,Math.round((performance.now()-t0)/1000));add(mode==='mic'?'Голосовое, 0:'+String(s).padStart(2,'0'):'Кружок, 0:'+String(s).padStart(2,'0'));return}
  sc.to(1);var g=B.host.dataset.glyph;
  if(g==='send'){buzz();B.burst();add(inp.value.replace(/</g,'&lt;'));inp.value='';B.setGlyph(mode,true)}
@@ -108,7 +108,9 @@ function up(){clearTimeout(holdTimer);
 B.host.addEventListener('pointerup',up);B.host.addEventListener('pointercancel',up);
 """, '''# MotionPixelButtons
 
-Главные кнопки чата собраны из пикселей знака: отправить, голосовое, кружок. Фон — печенька 17 × 17 пикселей, глиф — 13 × 13 поверх, растеризован из Material Symbols.
+Главные кнопки чата собраны из пикселей знака: отправить, голосовое, кружок. Это **пиксельный фильтр**: берётся оригинальная кнопка M3 Expressive (скруглённый квадрат) и её иконка Material Symbols и растеризуются в сетку 17 × 17 и 13 × 13.
+
+- Нажатие как в M3 Expressive: углы кнопки становятся острее, в пикселях — угловые пиксели появляются от центра к краю; отпустил — прячутся обратно.
 
 - **У каждого пикселя свой эффект**: обычная заливка (большинство), стекло (полупрозрачный с бликом), свечение (мягко пульсирует), рамка, градиент, круг. Глиф всегда сплошной цвета `on-primary`, поэтому знак читается.
 - **Морфинг глифа.** Пиксели не исчезают, а перелетают на новые места (`spatial-default`): микрофон ↔ самолётик, когда в поле появляется или пропадает текст; микрофон ↔ камера по тапу (голосовое или кружок). Лишние пиксели гаснут, недостающие вылетают из центра.

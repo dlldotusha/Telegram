@@ -27,7 +27,7 @@ FX_CSS = r"""
 def fab_fx(glyph='edit', n=17, pitch=3.9, size=3.3, seed=3):
     """Pixel cookie button 17x17 with a 13x13 glyph and per-pixel effects (static HTML)."""
     rnd = random.Random(seed); g = set((c + 2, r + 2) for c, r in PX.glyph_cells(glyph)); out = []
-    for c, r in PX.cookie_cells(n):
+    for c, r in PX.rrect_cells(n):
         on = (c, r) in g; k = rnd.random()
         if on: cls = 'fp g'
         else: cls = 'fp' + (' gl' if k < .14 else ' gw' if k < .24 else ' rg' if k < .31 else ' gd' if k < .41 else ' c' if k < .47 else '')
@@ -43,15 +43,16 @@ def bar_fx(cols, rows, pitch=8, seed=5):
     return ''.join(out)
 
 GLYPHS_JS = 'var PXG=' + json.dumps({k: PX.glyph_cells(k) for k in PX.GLYPHS}) + ';'
-COOKIE_JS = 'var PXC=' + json.dumps(PX.cookie_cells(17)) + ';'
+COOKIE_JS = 'var PXC=[];for(var _r=0;_r<17;_r++)for(var _c=0;_c<17;_c++)PXC.push([_c,_r]);function pxIn(c,r,n,rad){var x=c+.5,y=r+.5,dx=Math.max(rad-x,0,x-(n-rad)),dy=Math.max(rad-y,0,y-(n-rad));return dx*dx+dy*dy<=rad*rad}'
 
 JS = GLYPHS_JS + COOKIE_JS + r"""
 function pxButton(host,o){o=o||{};var P=o.pitch||3.9,S=o.size||3.3,N=17,glyph=o.glyph||'mic';host.classList.add('pxb');host.style.width=host.style.height=(N*P)+'px';
  var bgl=document.createElement('div');bgl.className='bgl';host.appendChild(bgl);var gyl=document.createElement('div');gyl.className='gyl';host.appendChild(gyl);
  var bg=PXC.map(function(cr){var e=document.createElement('i'),k=Math.random();e.className='fp'+(k<.14?' gl':k<.24?' gw':k<.31?' rg':k<.41?' gd':k<.47?' c':'');e.style.width=e.style.height=S+'px';bgl.appendChild(e);
-  var it={e:e,x:cr[0]*P,y:cr[1]*P,sc:1};it.s=new Spring(1,function(v){it.sc=v;place(it)},'spatial-fast');return it});
+  var it={e:e,x:cr[0]*P,y:cr[1]*P,c:cr[0],r:cr[1],sc:1};it.s=new Spring(1,function(v){it.sc=v;place(it)},'spatial-fast');return it});
  function place(it){it.e.style.transform='translate('+it.x+'px,'+it.y+'px) scale('+it.sc+')'}
- bg.forEach(place);
+ var rad=4.5;function setRadius(R,anim){rad=R;bg.forEach(function(it){var on=pxIn(it.c,it.r,N,R);var d=Math.hypot(it.c-8,it.r-8);if(anim)setTimeout(function(){it.s.to(on?1:0)},(12-d)*8);else it.s.set(on?1:0)})}
+ setRadius(4.5,false);
  var gp=[];
  function mk(x,y){var e=document.createElement('i');e.className='fp g';e.style.width=e.style.height=S+'px';gyl.appendChild(e);
   var it={e:e,x:x,y:y,sc:0};it.px=new Spring(x,function(v){it.x=v;place(it)},'spatial-default');it.py=new Spring(y,function(v){it.y=v;place(it)},'spatial-default');it.s=new Spring(0,function(v){it.sc=v;place(it)},'spatial-fast');return it}
@@ -62,8 +63,8 @@ function pxButton(host,o){o=o||{};var P=o.pitch||3.9,S=o.size||3.3,N=17,glyph=o.
   gp.forEach(function(p,i){if(!used[i]){p.s.to(0,'effects-fast',function(){p.e.remove()})}});gp=next;host.dataset.glyph=name}
  setGlyph(glyph,false);
  var lvl=0,raf=0;function level(on){if(on&&!raf){var t0=performance.now();raf=requestAnimationFrame(function f(t){var v=.35+.65*Math.abs(Math.sin((t-t0)/170)*Math.sin((t-t0)/410+1));lvl=v;
-   bg.forEach(function(it,i){var d=Math.hypot(it.x-8*P,it.y-8*P)/(8.5*P);it.sc=1+v*.55*(1-d)*(.6+.4*Math.sin(i*1.7+(t-t0)/90));place(it);it.e.style.filter='brightness('+(1+v*.5*(1-d))+')'});raf=requestAnimationFrame(f)})}
-  if(!on&&raf){cancelAnimationFrame(raf);raf=0;bg.forEach(function(it){it.e.style.filter='';it.s.set(it.sc).to(1)})}}
- function burst(){bg.forEach(function(it){var d=Math.hypot(it.x-8*P,it.y-8*P);setTimeout(function(){it.s.set(1).kick(-16).to(1)},d*5)})}
- return {setGlyph:setGlyph,level:level,burst:burst,host:host}}
+   bg.forEach(function(it,i){if(!pxIn(it.c,it.r,N,rad))return;var d=Math.hypot(it.x-8*P,it.y-8*P)/(8.5*P);it.sc=1+v*.55*(1-d)*(.6+.4*Math.sin(i*1.7+(t-t0)/90));place(it);it.e.style.filter='brightness('+(1+v*.5*(1-d))+')'});raf=requestAnimationFrame(f)})}
+  if(!on&&raf){cancelAnimationFrame(raf);raf=0;bg.forEach(function(it){it.e.style.filter='';it.s.set(it.sc).to(pxIn(it.c,it.r,N,rad)?1:0)})}}
+ function burst(){bg.forEach(function(it){if(!pxIn(it.c,it.r,N,rad))return;var d=Math.hypot(it.x-8*P,it.y-8*P);setTimeout(function(){it.s.set(1).kick(-16).to(1)},d*5)})}
+ return {setGlyph:setGlyph,level:level,burst:burst,setRadius:setRadius,host:host}}
 """

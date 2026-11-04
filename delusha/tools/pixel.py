@@ -36,6 +36,16 @@ def bar_pixels(cols, rows, pitch=8, size=6.6, seed=5):
         out.append(f'<i class="{cls}" style="left:{c*pitch}px;top:{r*pitch}px"></i>')
     return ''.join(out)
 
+def rrect_cells(n=17, rad=4.5):
+    """Pixel filter of an M3 rounded square: cells whose centers fall inside the original shape."""
+    cells = []
+    for r in range(n):
+        for c in range(n):
+            x = c + .5; y = r + .5
+            dx = max(rad - x, 0, x - (n - rad)); dy = max(rad - y, 0, y - (n - rad))
+            if dx * dx + dy * dy <= rad * rad: cells.append((c, r))
+    return cells
+
 def cookie_cells(n=17):
     R = n / 2; cells = []
     for r in range(n):
@@ -48,7 +58,7 @@ def cookie_cells(n=17):
 def fab_pixels(glyph='edit', n=17, pitch=3.9, size=3.3, seed=3):
     """Pixel cookie FAB (17x17) with a 13x13 glyph centered (offset 2,2)."""
     rnd = random.Random(seed); g = set((c + 2, r + 2) for c, r in glyph_cells(glyph)); out = []
-    for c, r in cookie_cells(n):
+    for c, r in rrect_cells(n):
         on = (c, r) in g; k = rnd.random()
         cls = 'fp' + (' g' if on else '') + (' c' if (k < .14 and not on) else '')
         out.append(f'<i class="{cls}" style="left:{c*pitch:.1f}px;top:{r*pitch:.1f}px;width:{size}px;height:{size}px"></i>')
