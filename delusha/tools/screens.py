@@ -67,7 +67,7 @@ SEG = '''<div class="dg-seg"><button aria-pressed="true">Все <span class="n">
 
 def topbar(ghost=False):
     g = f'<button class="dg-ghost on">{ic("visibility_off",1)}Призрак</button>' if ghost else ''
-    return f'<div class="dbar">{logo(24)}{g}<span class="grow"></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>'
+    return f'<div class="dbar"><button class="dg-logobtn" aria-label="Меню">{logo(24)}</button>{g}<span class="grow"></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>'
 
 def tabs(active):
     items = [('chats', ic('chat_bubble', active == 'chats'), 'Чаты', '<span class="tbn">12</span>'),
@@ -141,17 +141,17 @@ DASHA = f'''<div class="plainhero">{hero('', rav('Д','t'), 'Даша' + USERB, 
 <div class="dg-list" style="padding:12px 16px 0">{info('@dasha_m','Имя пользователя', ic("qr_code_2"))}{info('Учусь на дизайнера','О себе')}{info('<span class="tnum">615 220 093</span>','ID', ic("content_copy"))}</div>
 {mtabs('Истории','Медиа','Файлы','Ссылки')}{MEDIA}'''
 
-MYPROFILE = f'''<div class="persona persona-me">{hero('me', dav('Д','me','sh-cookie9'), 'Деля' + SUP(True, 26), 'в сети', f'<span></span><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button>', shape='sh-cookie9')}
+MYPROFILE = f'''<div class="persona persona-me">{hero('me', dav('Д','me','sh-cookie9'), 'Деля' + SUP(True, 26), 'в сети', f'<button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button>', shape='sh-cookie9')}
 <div style="padding:16px 16px 0"><div class="dg-bgroup tall"><button class="dg-btn tonal">{ic("add_a_photo")}Фото</button><button class="dg-btn tonal">{ic("edit")}Изменить</button><button class="dg-btn filled" aria-pressed="true">{ic("palette",1)}Оформление</button><button class="dg-btn tonal">{ic("settings")}Настройки</button></div></div>
 <div class="dg-list" style="padding:12px 16px 0">{info('+7 912 000-11-22','Мобильный')}{info('@delusha','Имя пользователя', ic("qr_code_2"))}{info('Собираю свой телеграм','О себе')}</div>
-{mtabs('Истории','Подарки','Медиа','Файлы')}</div>''' + tabs('profile')
+{mtabs('Истории','Подарки','Медиа','Файлы')}</div>'''
 
 def li(icon, title, sub=None, tail='chev', lead='', on=True):
     s = f'<span>{sub}</span>' if sub else ''
     t = {'sw': f'<input type="checkbox" class="dg-sw"{" checked" if on else ""}>', 'chev': ic('chevron_right'), '': ''}.get(tail, f'<span class="val">{tail}</span>')
     return f'<div class="dg-li"><span class="lead {lead}">{ic(icon, lead in ("t","acc"))}</span><span class="tx"><b>{title}</b>{s}</span>{t}</div>'
 
-SETTINGS = f'''<div class="dbar"><span class="grow"></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>
+SETTINGS = f'''<div class="dbar"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><span class="grow"></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><button class="dg-ib" aria-label="Ещё">{ic("more_vert")}</button></div>
 <div class="setwrap">
  <div class="dg-list"><span class="hd">Аккаунты</span>
   <div class="dg-li"><span class="lead" style="background:none">{dav('Д','me','sh-cookie9','s')}</span><span class="tx"><b>Деля{SUP(True)}</b><span>+7 912 000-11-22</span></span>{ic("check_circle",1)}</div>
@@ -160,7 +160,7 @@ SETTINGS = f'''<div class="dbar"><span class="grow"></span><button class="dg-ib"
  <div class="dg-list"><div class="dg-li"><span class="lead logo-lead">{logo(20)}</span><span class="tx"><b>DelushaGram</b></span>{ic("chevron_right")}</div></div>
  <div class="dg-list">{li("person","Аккаунт")}{li("chat","Настройки чатов")}{li("lock","Конфиденциальность")}{li("notifications","Уведомления и звуки")}{li("database","Данные и память")}{li("folder","Папки с чатами")}{li("devices","Устройства")}{li("battery_saver","Энергосбережение")}{li("translate","Язык","Русский")}</div>
  <div class="dg-list">{li("star","Telegram Premium")}{li("kid_star","Мои звёзды")}{li("business_center","Telegram для бизнеса")}{li("redeem","Отправить подарок")}</div>
-</div>''' + tabs('settings')
+</div>'''
 
 DELUSHA = f'''<div class="dbar"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><span class="grow"></span></div>
 <div style="display:flex;justify-content:center;padding:4px 0 14px">{logo(96, seed=23)}</div>
@@ -168,6 +168,7 @@ DELUSHA = f'''<div class="dbar"><button class="dg-ib" aria-label="Назад">{i
  <div class="dg-ttiles"><div class="dg-ttile on"><span class="ti sh-cookie9">{ic("visibility_off",1)}</span><div class="bt"><b>Призрак</b><input type="checkbox" class="dg-sw" checked></div></div><div class="dg-ttile on2"><span class="ti sh-clover4">{ic("history",1)}</span><div class="bt"><b>История</b><input type="checkbox" class="dg-sw" checked></div></div></div>
  <div class="dg-list"><div class="dg-li"><span class="lead" style="background:none">{dav('Д','me','sh-cookie9','s')}</span><span class="tx"><b>Оформление профиля{SUP()}</b></span>{ic("chevron_right")}</div>{li("delete_history","Удалённые сообщения","1 284 сообщения, 212 МБ",lead="e")}</div>
  <div class="dg-list">{li("done_all","Читать после ответа",tail="sw")}{li("auto_stories","Смотреть истории тайно",tail="sw",on=False)}{li("swipe","Свайпы по чатам")}{li("archive","Архив","Свайпом вниз")}{li("favorite","Анимации реакций","Полные")}{li("blur_on","Размытие",tail="sw")}</div>
+ <div class="dg-list">{li("terminal","О клиенте")}</div>
 </div>'''
 
 EDITOR = f'''<div class="dbar"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><span class="grow"></span></div>
@@ -214,8 +215,48 @@ NEWMSG = f'''<div class="dbar"><button class="dg-ib" aria-label="Назад">{ic
  {row(rav('Ю',''),'Юля','была недавно','')}
 </div>'''
 
+PMENU = f'''<div class="dg-pmenu" style="position:absolute;left:10px;top:42px;z-index:12">
+ <div class="pm-head">{logo(26)}<span class="grow"></span><button class="dg-ib" aria-label="Тема">{ic("dark_mode")}</button></div>
+ <div class="pm-accs"><span class="pm-acc on sh-cookie9">{dav('Д','me','sh-cookie9')}</span><div class="pm-me"><b>Деля{SUP(True)}</b><span>@delusha</span></div><span class="pm-acc">{rav('Р','sc')}<span class="dg-badge">3</span></span><span class="pm-add">{ic("add")}</span></div>
+ <div class="pm-grid">
+  <button class="pm-t"><span class="ti sh-cookie9">{ic("person",1)}</span>Профиль</button>
+  <button class="pm-t"><span class="ti sh-clover4">{ic("contacts",1)}</span>Контакты</button>
+  <button class="pm-t"><span class="ti sh-flower8">{ic("call",1)}</span>Звонки</button>
+  <button class="pm-t"><span class="ti sh-cookie4">{ic("bookmark",1)}</span>Избранное</button>
+  <button class="pm-t"><span class="ti sh-pent">{ic("settings",1)}</span>Настройки</button>
+  <button class="pm-t dg"><span class="ti sh-cookie12">{logo(20, seed=31)}</span>DelushaGram</button>
+ </div>
+</div>'''
+
+PAL = ''.join(f'<i style="background:var(--{t})"></i>' for t in ['primary','secondary','tertiary','error','online','primary-container','tertiary-container','surface-container-highest'])
+def ffl(k, v): return f'<div class="ln"><span class="k">{k}</span>: {v}</div>'
+ABOUT = f'''<div class="dbar"><button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button><span class="grow"></span><button class="dg-ib" aria-label="Копировать">{ic("content_copy")}</button></div>
+<div style="padding:4px 12px 0"><div class="dg-ff">
+ <div>{logo(76, seed=41)}</div>
+ <div style="min-width:0">
+  <div class="who">delusha<i>@</i>DelushaGram</div>
+  <div class="sep">--------------------------</div>
+  {ffl('Клиент','DelushaGram 0.1')}
+  {ffl('База','Telegram 12.9.2 (6991)')}
+  {ffl('Сборка','release, arm64-v8a')}
+  {ffl('Устройство','Google Pixel 8')}
+  {ffl('Android','15 (API 35)')}
+  {ffl('Аккаунт','@delusha, DC 2')}
+  {ffl('Статус','поддержал')}
+  {ffl('Тема','тёмная, акцент системы')}
+  {ffl('Шрифт','Roboto Flex')}
+  {ffl('Движение','пружины, 120 Гц')}
+  {ffl('Размытие','RenderEffect')}
+  {ffl('Призрак','включён')}
+  {ffl('История','1 284 сообщ., 212 МБ')}
+  {ffl('Кэш','1,2 ГБ')}
+  {ffl('Сеанс','3 ч 12 мин')}
+ </div>
+ <div class="pal">{PAL}</div>
+</div></div>'''
+
 S = {
- '01-chats': screen('light', topbar() + STORIES + SEG + CHATS + FABS + tabs('chats')),
+ '01-chats': screen('light', topbar() + STORIES + SEG + CHATS + FABS),
  '02-chat': screen('light', CHAT, 'chat'),
  '03-menu': screen('dark', CHAT + '<div class="dg-scrim zs"></div>' + MENU, 'chat'),
  '04-history': screen('dark', CHAT + CAR, 'chat'),
@@ -228,7 +269,9 @@ S = {
  '11-profile-user': screen('light', DASHA),
  '12-new-message': screen('light', NEWMSG),
  '13-search-calls': screen('dark', SEARCH),
- '14-ghost-amoled': screen('amoled', '<div class="gwash">' + topbar(True) + STORIES + '</div>' + SEG + CHATS + FABS + tabs('chats')),
+ '14-ghost-amoled': screen('amoled', '<div class="gwash">' + topbar(True) + STORIES + '</div>' + SEG + CHATS + FABS),
+ '15-menu': screen('light', topbar() + STORIES + SEG + CHATS + FABS + '<div class="dg-scrim zs"></div>' + PMENU),
+ '16-about': screen('dark', ABOUT),
 }
 
 CSS = r"""
@@ -266,7 +309,7 @@ body{display:flex;flex-wrap:wrap;gap:40px;padding:40px;font-family:var(--font-sa
 .tb .tbn{position:absolute;top:4px;left:36px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--primary);color:var(--on-primary);font:600 11px/18px var(--font-sans);text-align:center}
 .tb.on .tbn{position:static;background:var(--on-secondary-container);color:var(--secondary-container)}
 .tb .tav{width:32px;height:32px;font-size:13px}
-.fabs{position:absolute;right:18px;bottom:116px;z-index:9;display:flex;flex-direction:column;align-items:center;gap:12px}
+.fabs{position:absolute;right:18px;bottom:44px;z-index:9;display:flex;flex-direction:column;align-items:center;gap:12px}
 .sfab{width:44px;height:44px;border:0;border-radius:16px;background:var(--surface-container-highest);color:var(--on-surface);display:grid;place-items:center;box-shadow:var(--elevation-2)}
 /* chat */
 .chat .sb{position:absolute;top:0;left:0;right:0}
@@ -316,7 +359,7 @@ body{display:flex;flex-wrap:wrap;gap:40px;padding:40px;font-family:var(--font-sa
 .dg-pname .dgb{margin-left:8px;vertical-align:-4px}
 """
 
-FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block">'
+FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block">'
 html = f'<!doctype html><html><head><meta charset="utf-8">{FONTS}<style>{tokcss}{bundle}{expressive.all_css()}{CSS}</style></head><body>' + ''.join(f'<div id="s-{k}">{v_}</div>' for k, v_ in S.items()) + '</body></html>'
 open(os.path.join(D, 'screens.html'), 'w').write(html)
 print(list(S))

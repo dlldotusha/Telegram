@@ -111,7 +111,8 @@ w('tokens.json', json.dumps(tokens, ensure_ascii=False, indent=1))
 
 # ---------------------------------------------------------------- bundle.css
 SPR = "cubic-bezier(.34,1.56,.64,1)"
-bundle = """@import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap");
+bundle = """@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block");
 /* DelushaGram components. Web stand-ins for the Android views; springs approximated with an overshooting cubic-bezier. */
 :root{--dg-spring:%(spr)s;--dg-ease:cubic-bezier(.2,0,0,1)}
@@ -487,26 +488,57 @@ comps['Fab'] = (card('Действия', 300, f'''<div class="dg-stage" style="a
 **Android:** `DgFab`, `DgFabMenu`.
 ''')
 
-comps['FloatingToolbar'] = (card('Навигация', 170, f'''<div class="dg-stage col" style="max-width:420px;position:relative;overflow:hidden;border-radius:28px;padding:0;height:150px">
- <div class="fabs" style="position:absolute;right:16px;bottom:88px"></div>
- <div class="tabs dg-glass" style="position:absolute;left:12px;right:12px;bottom:12px;height:68px;border-radius:34px;display:flex;align-items:center;justify-content:space-around;padding:0 8px">
-  <button class="tb on">{ic("chat_bubble",True)}<span class="tl">Чаты</span><span class="tbn">12</span></button>
-  <button class="tb">{ic("settings")}<span class="tl">Настройки</span></button>
-  <button class="tb"><span class="dg-av persona persona-me sh-cookie9 tav">Д</span><span class="tl">Профиль</span></button>
+comps['PixelMenu'] = (card('Навигация', 470, f'''<div class="dg-stage"><div class="dg-pmenu">
+ <div class="pm-head"><svg class="dg-logo" id="a" width="26" height="32"></svg><span class="grow"></span><button class="dg-ib" aria-label="Тема">{ic("dark_mode")}</button></div>
+ <div class="pm-accs"><span class="pm-acc on sh-cookie9"><span class="dg-av persona persona-me sh-cookie9">Д</span></span><div class="pm-me"><b>Деля{badge_inline("sup",18,True)}</b><span>@delusha</span></div><span class="pm-acc"><span class="dg-av sc">Р</span><span class="dg-badge">3</span></span><span class="pm-add">{ic("add")}</span></div>
+ <div class="pm-grid">
+  <button class="pm-t"><span class="ti sh-cookie9">{ic("person",True)}</span>Профиль</button>
+  <button class="pm-t"><span class="ti sh-clover4">{ic("contacts",True)}</span>Контакты</button>
+  <button class="pm-t"><span class="ti sh-flower8">{ic("call",True)}</span>Звонки</button>
+  <button class="pm-t"><span class="ti sh-cookie4">{ic("bookmark",True)}</span>Избранное</button>
+  <button class="pm-t"><span class="ti sh-pent">{ic("settings",True)}</span>Настройки</button>
+  <button class="pm-t dg"><span class="ti sh-cookie12"><svg class="dg-logo" id="b" width="20" height="24"></svg></span>DelushaGram</button>
  </div>
-</div>'''), '''# FloatingToolbar
+</div></div>''', motion.ENGINE + logo_js.LOGO_JS + "dgLogo($('#a'));dgLogo($('#b'),{animate:false});"), '''# PixelMenu
 
-Нижняя стеклянная панель вкладок, как `MainTabsActivity` в Telegram 12.9.2, в стиле M3 Expressive.
+Главная навигация DelushaGram. Нижних вкладок нет, бокового меню на всю высоту тоже: есть карточка, которая собирается из пикселей знака (см. MotionMenu).
 
-**Что даёт код:** вкладки, текущая, счётчик непрочитанного, аватар текущего аккаунта.
+**Что даёт код:** аккаунты (текущий, остальные со счётчиками), разделы, состояние темы.
 
-- Вкладки DelushaGram: **Чаты, Настройки, Профиль**. Контакты и Звонки скрыты (в Telegram есть «Скрыть вкладку звонков», мы скрываем и контакты); их можно вернуть в настройках DelushaGram.
-- Выбранная вкладка — пилюля `secondary-container` с подписью, остальные только иконки; счётчик чатов на иконке.
-- Панель на `surface-glass` с размытием, высота 68, углы 34, отступ 16 от краёв и над системной навигацией.
-- Долгий тап по «Чатам» — выбор папки, по «Профилю» — переключение аккаунтов и «Добавить аккаунт» (как в Telegram).
-- Над панелью справа кнопки списка чатов: маленькая камера историй и FAB «новое сообщение» в форме печеньки.
+- Карточка 316 шириной, углы 32, `surface-container-low`, тень `elevation-3`, прижата к левому верхнему углу под знаком.
+- Сверху знак и переключатель день/ночь. Ниже аккаунты: текущий в кольце `primary` с именем, остальные аватарами со счётчиком, «+» добавить. Тап по аватару переключает аккаунт.
+- Плитки 3 × 2: Профиль, Контакты, Звонки, Избранное, Настройки, DelushaGram. Иконки в формах M3, при нажатии углы плитки сжимаются.
+- Открывается тапом по знаку и свайпом от левого края, поэтому дотянуться можно и одной рукой.
 
-**Android:** перерисовка `GlassTabView` в `MainTabsActivity`, список вкладок через `showCallsTab` + свой флаг для контактов.
+**Android:** `DgPixelMenu`.
+''')
+
+comps['ClientInfo'] = (card('Профиль', 460, f'''<div class="dg-stage" style="max-width:400px"><div class="dg-ff" style="width:100%">
+ <div><svg class="dg-logo" id="a" width="76" height="93"></svg></div>
+ <div style="min-width:0">
+  <div class="who">delusha<i>@</i>DelushaGram</div><div class="sep">--------------------------</div>
+  <div class="ln"><span class="k">Клиент</span>: DelushaGram 0.1</div><div class="ln"><span class="k">База</span>: Telegram 12.9.2 (6991)</div><div class="ln"><span class="k">Устройство</span>: Google Pixel 8</div><div class="ln"><span class="k">Android</span>: 15 (API 35)</div><div class="ln"><span class="k">Аккаунт</span>: @delusha, DC 2</div><div class="ln"><span class="k">Статус</span>: поддержал</div><div class="ln"><span class="k">Тема</span>: тёмная, акцент системы</div><div class="ln"><span class="k">Движение</span>: пружины, 120 Гц</div><div class="ln"><span class="k">Кэш</span>: 1,2 ГБ</div>
+ </div>
+ <div class="pal"><i style="background:var(--primary)"></i><i style="background:var(--secondary)"></i><i style="background:var(--tertiary)"></i><i style="background:var(--error)"></i><i style="background:var(--online)"></i><i style="background:var(--primary-container)"></i><i style="background:var(--tertiary-container)"></i><i style="background:var(--surface-container-highest)"></i></div>
+</div></div>''', motion.ENGINE + logo_js.LOGO_JS + "dgLogo($('#a'));"), '''# ClientInfo
+
+Экран «О клиенте» (Настройки → DelushaGram → О клиенте) в стиле fastfetch: живой знак слева, справа `пользователь@DelushaGram`, черта и строки «ключ: значение» моноширинным Roboto Mono, внизу полоса цветов текущей палитры (как цветные квадраты fastfetch, только роли M3).
+
+| Ключ | Откуда |
+|---|---|
+| Клиент, База, Сборка | `BuildVars`, `BuildConfig` |
+| Устройство, Android | `Build.MODEL`, `Build.VERSION` |
+| Аккаунт | ник и дата-центр текущего аккаунта |
+| Статус | сервер DelushaGram: поддержал, пользователь |
+| Тема, Шрифт, Движение, Размытие | текущие настройки и частота экрана |
+| Призрак, История | состояние функций форка, размер истории |
+| Кэш, Сеанс | размер кэша, время с запуска |
+
+- Ключи `primary` 600, значения `on-surface`, разделитель `outline`.
+- Кнопка «Копировать» в шапке копирует всё текстом (для отчётов об ошибках).
+- Тап по знаку перегенерирует его.
+
+**Android:** `DgAboutActivity`, текст собирается в `SpannableString`, знак — `DgLogoDrawable`.
 ''')
 
 comps['TopAppBar'] = (card('Навигация', 330, f'''<div class="dg-stage col" style="gap:20px">
@@ -931,18 +963,19 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 
 ## Удобство: обязательные правила
 
-- **Нижняя треть экрана — для частых действий.** Нижняя панель (`FloatingToolbar`: аккаунт, поиск, новый чат), поле ввода, меню сообщений и листы. Наверху только заголовок и плашка призрака.
-- **Структура клиента — как в Telegram 12.9.2.** Экраны, их порядок, пункты настроек и меню не переизобретаются: меняется оформление и добавляются функции DelushaGram. Единственное отличие в навигации — скрытые вкладки:
+- **Частое — под пальцем.** FAB «новое сообщение», поле ввода, меню сообщений и листы снизу; навигация — пиксельное меню, которое открывается и свайпом от края в любом месте экрана. Наверху только знак, плашка призрака и поиск.
+- **Структура клиента — как в Telegram 12.9.2.** Экраны, их порядок, пункты настроек и меню не переизобретаются: меняется оформление и добавляются функции DelushaGram. Отличие в навигации одно — вместо нижних вкладок своё пиксельное меню:
 
 | Что | Где |
 |---|---|
-| Вкладки внизу | Чаты, Настройки, Профиль (Контакты и Звонки скрыты, возвращаются в настройках DelushaGram) |
-| Контакты | экран «Новое сообщение» (FAB), там же новая группа, контакт, канал |
-| Звонки | фильтр «Звонки» в поиске, кнопка в шапке чата и в профиле человека |
-| Избранное | «⋮» на главном экране (как в Telegram) и профиль |
-| Аккаунты | «Аккаунты» в начале настроек и долгий тап по вкладке «Профиль» (как в Telegram) |
+| Навигация | пиксельное меню из знака в шапке списка чатов (тап или свайп от левого края): аккаунты, Профиль, Контакты, Звонки, Избранное, Настройки, DelushaGram. Нижних вкладок нет |
+| Контакты | пиксельное меню и экран «Новое сообщение» (FAB) |
+| Звонки | пиксельное меню, фильтр «Звонки» в поиске, кнопка в шапке чата |
+| Избранное | пиксельное меню и «⋮» на главном экране |
+| Аккаунты | пиксельное меню и «Аккаунты» в начале настроек |
 | DelushaGram | строка сразу после аккаунтов в настройках; призрак ещё и в шапке главного экрана |
-| Тема | «⋮» на главном экране (день/ночь, как в Telegram) и настройки чатов |
+| Тема | переключатель в пиксельном меню и настройки чатов |
+| О клиенте | Настройки → DelushaGram → О клиенте, в стиле fastfetch |
 - **Зона касания не меньше `touch-target` (48).** Даже у маленьких иконок, бейджей и чипов. Между соседними целями не меньше 8.
 - **Каждый жест продублирован видимой кнопкой.** Свайп ответа дублируется пунктом «Ответить» в `MessageMenu`, свайп папок — чипами `FolderChips`, долгий тап по аватару (смена аккаунта) — списком аккаунтов на своём профиле.
 - **Режим призрака за один тап** из шапки списка чатов (`dg-ghost`), из шторки (плитка быстрых настроек) и из настроек Delusha. Его состояние всегда видно в шапке.
@@ -1049,6 +1082,7 @@ Material 3 Expressive отличается от обычного M3 смелос
 | Где | Что происходит | Карточка |
 |---|---|---|
 | Отправка | Поле ввода превращается в пузырь и встаёт в ленту | MotionSend |
+| Меню | Знак рассыпается на пиксели и собирается в карточку меню | MotionMenu |
 | Открытие чата | Строка раскрывается в экран, аватар перелетает в шапку | MotionOpen |
 | Свайпы по чатам | Заливка от иконки, порог с вибрацией, схлопывание | MotionSwipe |
 | Архив | Вытягивается вниз, печенька крутится и морфит | MotionPull |

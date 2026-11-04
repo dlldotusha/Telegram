@@ -525,3 +525,62 @@ $('#br').addEventListener('click',function(){del.classList.remove('deleted');dt.
 
 **Android:** события удаления и правки приходят в `MessagesController` (`updateDeleteMessages`, `updateEditMessage`), форк сохраняет копию в свою БД. Карусель — `DgEditHistoryCarousel` поверх `ChatActivity`, пузыри рисуются тем же `DgBubbleDrawable`.
 ''')
+
+# ------------------------------------------------------------------ 11. Pixel menu
+import logo_js as _lj
+CARDS['MotionMenu'] = (600, 'Пиксельное меню из знака', f'''<div class="mo-wrap">
+<div class="mo-phone" id="ph" style="height:540px">
+ <div style="display:flex;align-items:center;gap:6px;padding:12px 8px 6px 18px"><button class="dg-logobtn" id="lg" aria-label="Меню"><svg class="dg-logo" id="lgs" width="26" height="32"></svg></button><span style="flex:1"></span><button class="dg-ib" aria-label="Поиск">{ic("search")}</button></div>
+ <div class="mo-list" id="rest"></div>
+ <div class="mo-scrim" id="scrim"></div>
+ <div class="dg-pmenu" id="menu" style="position:absolute;left:10px;top:8px;z-index:12;opacity:0;pointer-events:none">
+  <div class="pm-head"><svg class="dg-logo" id="mlg" width="26" height="32"></svg><span class="grow"></span><button class="dg-ib" aria-label="Тема">{ic("dark_mode")}</button></div>
+  <div class="pm-accs"><span class="pm-acc on sh-cookie9"><span class="dg-av persona persona-me sh-cookie9">Д</span></span><div class="pm-me"><b>Деля</b><span>@delusha</span></div><span class="pm-acc"><span class="dg-av sc">Р</span><span class="dg-badge">3</span></span><span class="pm-add">{ic("add")}</span></div>
+  <div class="pm-grid">
+   <button class="pm-t"><span class="ti sh-cookie9">{ic("person",True)}</span>Профиль</button>
+   <button class="pm-t"><span class="ti sh-clover4">{ic("contacts",True)}</span>Контакты</button>
+   <button class="pm-t"><span class="ti sh-flower8">{ic("call",True)}</span>Звонки</button>
+   <button class="pm-t"><span class="ti sh-cookie4">{ic("bookmark",True)}</span>Избранное</button>
+   <button class="pm-t"><span class="ti sh-pent">{ic("settings",True)}</span>Настройки</button>
+   <button class="pm-t dg"><span class="ti sh-cookie12"><svg class="dg-logo" id="tlg" width="20" height="24"></svg></span>DelushaGram</button>
+  </div>
+ </div>
+</div>
+<div class="mo-side"><span class="mo-hint">{ic("touch_app")}Нажми на знак или потяни от левого края</span>
+<p><b>Своё меню вместо нижних вкладок и бокового меню.</b> Знак рассыпается на пиксели, они разлетаются лесенкой и складываются в карточку, из неё проявляются аккаунты и плитки разделов.</p>
+<p><span class="mo-tok">spatial-default</span> пиксели, <span class="mo-tok">spatial-fast</span> плитки, <span class="mo-tok">effects-slow</span> размытие</p></div>
+</div>''', _lj.LOGO_JS + r"""
+var ph=$('#ph'),menu=$('#menu'),scrim=$('#scrim'),lg=$('#lg'),on=false,busy=false;
+dgLogo($('#lgs'));dgLogo($('#mlg'));dgLogo($('#tlg'),{animate:false});
+var rest=$('#rest');[['А','Аня','печатает…','9:40','t'],['М','Мама','Купи хлеба по дороге','9:38','e'],['Л','Лёха','Голосовое, 0:42','8:55','sc'],['К','Кофе по пятницам','Даша: кто завтра?','Вс',''],['Д','Даша','ок, до завтра','Сб','t'],['Ю','Юля','Фото','Пт','e']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
+var items=[].concat($$('.pm-head,.pm-accs',menu),$$('.pm-t',menu));
+var sc=new Spring(0,function(p){scrim.style.opacity=C(p);scrim.style.pointerEvents=p>.5?'auto':'none'},'effects-slow');sc.set(0);
+var ms=new Spring(0,function(p){menu.style.opacity=C(p);menu.style.pointerEvents=p>.5?'auto':'none'},'effects-fast');ms.set(0);
+var its=items.map(function(it){return new Spring(0,function(p){it.style.opacity=C(p);it.style.transform='translateY('+(1-p)*10+'px) scale('+L(.92,1,p)+')'},'spatial-fast')});its.forEach(function(s){s.set(0)});
+function pixels(open){var r=rel(menu,ph),o=rel(lg,ph),cx=o.x+o.w/2,cy=o.y+o.h/2,G=20,cols=Math.ceil(r.w/G),rows=Math.ceil(r.h/G),ps=[],n=0;
+ for(var j=0;j<rows;j++)for(var i=0;i<cols;i++){var d=document.createElement('i');var k=Math.random();d.className='dg-pxl'+(k<.18?' r':k<.3?' c':'');ph.appendChild(d);
+  var tx=r.x+i*G+1,ty=r.y+j*G+1;var dist=Math.hypot(tx-cx,ty-cy);
+  (function(d,tx,ty,dist){var s=new Spring(open?0:1,function(p){d.style.transform='translate('+L(cx-9,tx,p)+'px,'+L(cy-9,ty,p)+'px) scale('+L(.25,1,C(p))+')';d.style.opacity=C(p*1.5)},open?'spatial-default':'spatial-fast');s.set(open?0:1);
+   setTimeout(function(){s.to(open?1:0)},open?dist*.7+Math.random()*40:Math.max(0,180-dist*.4));ps.push(d)})(d,tx,ty,dist);n++}
+ return ps}
+function open(){if(busy)return;busy=true;on=true;buzz();sc.to(1,'effects-slow');var ps=pixels(true);
+ setTimeout(function(){ms.to(1,'effects-default');its.forEach(function(s,i){setTimeout(function(){s.to(1)},i*30)});
+  ps.forEach(function(d){d.style.transition='opacity .25s';d.style.opacity=0});setTimeout(function(){ps.forEach(function(d){d.remove()});busy=false},300)},RM?0:520)}
+function close(){if(busy)return;busy=true;on=false;its.forEach(function(s){s.to(0,'effects-fast')});ms.to(0,'effects-fast');sc.to(0,'effects-default');var ps=pixels(false);
+ setTimeout(function(){ps.forEach(function(d){d.remove()});busy=false},RM?0:520)}
+lg.addEventListener('click',function(){on?close():open()});scrim.addEventListener('click',close);
+$$('.pm-t',menu).forEach(function(t){t.addEventListener('click',close)});
+var sx=null;ph.addEventListener('pointerdown',function(e){var b=ph.getBoundingClientRect();if(!on&&e.clientX-b.left<28)sx=e.clientX});
+ph.addEventListener('pointermove',function(e){if(sx!=null&&e.clientX-sx>40){sx=null;open()}});ph.addEventListener('pointerup',function(){sx=null});
+""", '''# MotionMenu
+
+Пиксельное меню DelushaGram — своя навигация вместо нижних вкладок Telegram и старого бокового меню.
+
+- **Открыть:** тап по живому знаку в шапке списка чатов или свайп вправо от левого края экрана (как боковое меню).
+- **Появление:** знак рассыпается на пиксели (часть залитых, часть рамок и кругов), они разлетаются лесенкой по расстоянию от знака (`spatial-default`) и складываются в сетку размером с карточку меню. Карточка проявляется, пиксели гаснут, содержимое появляется лесенкой по 30 мс (`spatial-fast`). Чат за меню размывается (`effects-slow`).
+- **Закрыть:** тап мимо, свайп влево, «назад» или выбор раздела. Пиксели слетаются обратно в знак, быстрее чем разлетались.
+- **Внутри:** знак и переключатель день/ночь; аккаунты (текущий в кольце, у других счётчик, «+» добавить); плитки Профиль, Контакты, Звонки, Избранное, Настройки, DelushaGram.
+- При «Меньше движения» пиксели не летят: карточка просто проявляется.
+
+**Android:** `DgPixelMenu` поверх `DialogsActivity` (`MainTabsActivity` с вкладками не используется); пиксели рисуются одним `View` на `Canvas`, у каждого своя `SpringAnimation` по позиции и масштабу; свайп от края через тот же `DrawerLayoutContainer`, который остался в коде.
+''')

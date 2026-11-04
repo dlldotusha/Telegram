@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block");
 /* DelushaGram components. Web stand-ins for the Android views; springs approximated with an overshooting cubic-bezier. */
@@ -458,6 +459,36 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-secs .dg-sec:last-child{border-radius:8px 8px 28px 28px}
 .dg-sec .hd{font:800 13px/16px var(--font-sans);letter-spacing:.3px;color:var(--primary);text-transform:none}
 .dg-cluster{position:absolute;pointer-events:none}
+/* pixel menu (replaces bottom tabs / drawer) */
+.dg-logobtn{border:0;background:transparent;padding:6px;margin:-6px;border-radius:14px;cursor:pointer;display:grid;place-items:center}
+.dg-pmenu{width:316px;border-radius:32px;background:var(--surface-container-low);box-shadow:var(--elevation-3);padding:14px;display:flex;flex-direction:column;gap:12px}
+.dg-pmenu .pm-head{display:flex;align-items:center;gap:6px;padding:2px 2px 0 6px}
+.dg-pmenu .pm-head .grow{flex:1}
+.dg-pmenu .pm-accs{display:flex;gap:10px;align-items:center;padding:4px 4px 2px}
+.dg-pmenu .pm-acc{position:relative;display:grid;place-items:center}
+.dg-pmenu .pm-acc .dg-av{width:52px;height:52px;font-size:19px}
+.dg-pmenu .pm-acc.on{padding:3px;background:var(--primary)}
+.dg-pmenu .pm-acc .dg-badge{position:absolute;top:-4px;right:-6px;box-shadow:0 0 0 3px var(--surface-container-low)}
+.dg-pmenu .pm-add{width:52px;height:52px;border-radius:50%;border:2px dashed var(--outline);color:var(--on-surface-variant);display:grid;place-items:center}
+.dg-pmenu .pm-me{flex:1;min-width:0;padding-left:4px}
+.dg-pmenu .pm-me b{display:flex;align-items:center;font:600 16px/22px var(--font-sans)}
+.dg-pmenu .pm-me span{font:400 13px/18px var(--font-sans);color:var(--on-surface-variant)}
+.dg-pmenu .pm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.dg-pmenu .pm-t{height:92px;border-radius:24px;background:var(--surface-container-high);display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;padding:12px;font:500 13px/16px var(--font-sans);color:var(--on-surface);border:0;text-align:left}
+.dg-pmenu .pm-t .ti{width:40px;height:40px;display:grid;place-items:center;background:var(--secondary-container);color:var(--on-secondary-container)}
+.dg-pmenu .pm-t.dg .ti{background:var(--surface-container-highest)}
+.dg-pmenu .pm-t:active{border-radius:14px}
+.dg-pxl{position:absolute;left:0;top:0;width:18px;height:18px;border-radius:5px;background:var(--surface-container-low);pointer-events:none;z-index:13;will-change:transform}
+.dg-pxl.r{background:transparent;box-shadow:inset 0 0 0 2.5px var(--surface-container-highest)}
+.dg-pxl.c{border-radius:50%}
+/* fastfetch-style client info */
+.dg-ff{border-radius:28px;background:var(--surface-container-lowest);padding:18px 16px;display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;font:400 12.5px/19px "Roboto Mono",ui-monospace,Menlo,monospace;color:var(--on-surface);box-shadow:inset 0 0 0 1px var(--outline-variant)}
+.dg-ff .who{font-weight:700;color:var(--primary)}.dg-ff .who i{font-style:normal;color:var(--on-surface)}
+.dg-ff .sep{color:var(--outline);letter-spacing:-.5px;overflow:hidden;white-space:nowrap}
+.dg-ff .k{color:var(--primary);font-weight:600}
+.dg-ff .ln{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-ff .pal{grid-column:1/-1;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:4px}
+.dg-ff .pal i{display:block;height:20px;border-radius:6px}
 .dg-stories{display:flex;gap:6px;padding:6px 12px 2px;overflow:hidden}
 .dg-stories .st{flex:none;width:74px;display:flex;flex-direction:column;align-items:center;gap:5px;font:500 12px/16px var(--font-sans);color:var(--on-surface)}
 .dg-stories .ring{position:relative;width:66px;height:66px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--primary),var(--tertiary),var(--primary))}
