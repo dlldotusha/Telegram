@@ -93,6 +93,9 @@ tokens = {
    {"name": "fab", "value": "56px", "usage": "FAB."},
    {"name": "composer", "value": "52px", "usage": "Поле ввода и кнопка отправки."},
    {"name": "bubble-max", "value": "80%", "usage": "Максимальная ширина пузыря от ширины чата."}]},
+ "blur": {"note": "Размытие под полупрозрачными поверхностями. На Android 12+ RenderEffect, ниже собственный blur Telegram.", "tokens": [
+   {"name": "blur-glass", "value": "24px", "usage": "Нижняя панель, шапка чата, поле ввода поверх `surface-glass`."},
+   {"name": "blur-scrim", "value": "10px", "usage": "Фон под меню сообщения, листами и меню аккаунта."}]},
  "state": {"tokens": [
    {"name": "state-hover", "value": "0.08", "usage": "Слой наведения (мышь, стилус)."},
    {"name": "state-focus", "value": "0.10", "usage": "Слой фокуса."},
@@ -169,7 +172,45 @@ body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(
 .dg-fabmenu{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .dg-fabmenu .item{height:56px;border-radius:28px;padding:0 24px 0 18px;display:inline-flex;align-items:center;gap:12px;background:var(--primary-container);color:var(--on-primary-container);font:500 16px/24px var(--font-sans);box-shadow:var(--elevation-3)}
 .dg-fabmenu .close{width:56px;height:56px;border-radius:50%%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;margin-top:4px;box-shadow:var(--elevation-3)}
-/* Floating toolbar */
+/* Glass */
+.dg-glass{background:var(--surface-glass);-webkit-backdrop-filter:blur(var(--blur-glass)) saturate(1.6);backdrop-filter:blur(var(--blur-glass)) saturate(1.6)}
+.dg-scrim{position:absolute;inset:0;background:color-mix(in srgb,var(--scrim) 24%%,transparent);-webkit-backdrop-filter:blur(var(--blur-scrim));backdrop-filter:blur(var(--blur-scrim))}
+/* Bottom bar: account, search, new chat */
+.dg-bottombar{display:flex;align-items:center;gap:10px}
+.dg-bottombar .bar{flex:1;min-width:0;height:64px;border-radius:32px;display:flex;align-items:center;gap:10px;padding:0 18px 0 6px;box-shadow:var(--elevation-2);color:var(--on-surface-variant);font:400 16px/24px var(--font-sans);cursor:pointer;border:0}
+.dg-bottombar .bar .dg-av{width:52px;height:52px;font-size:18px}
+.dg-bottombar .bar .ph{flex:1;text-align:left}
+.dg-bottombar .dg-fab{width:64px;height:64px;border-radius:var(--shape-l-plus);box-shadow:var(--elevation-2)}
+/* Sheet */
+.dg-sheet{background:var(--surface-container-low);border-radius:var(--shape-xl) var(--shape-xl) 0 0;padding:10px 16px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--elevation-3)}
+.dg-sheet .handle{align-self:center;width:32px;height:4px;border-radius:2px;background:var(--on-surface-variant);opacity:.5}
+.dg-tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.dg-tile{border:0;cursor:pointer;height:96px;border-radius:var(--shape-l-plus);background:var(--surface-container-high);color:var(--on-surface);display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:14px;font:600 14px/18px var(--font-sans);text-align:left;transition:border-radius 380ms var(--dg-spring)}
+.dg-tile:active{border-radius:var(--shape-m)}
+.dg-tile .ti{width:40px;height:40px;display:grid;place-items:center;background:var(--secondary-container);color:var(--on-secondary-container)}
+.dg-tile.t .ti{background:var(--tertiary-container);color:var(--on-tertiary-container)}
+.dg-acc{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:var(--shape-xs);background:var(--surface-container)}
+.dg-acc:first-child{border-radius:var(--shape-l-plus) var(--shape-l-plus) var(--shape-xs) var(--shape-xs)}
+.dg-acc:last-child{border-radius:var(--shape-xs) var(--shape-xs) var(--shape-l-plus) var(--shape-l-plus)}
+.dg-acc .tx{flex:1;font:600 15px/20px var(--font-sans)}
+.dg-acc .tx span{display:block;font:400 13px/18px var(--font-sans);color:var(--on-surface-variant)}
+.dg-acc>.dg-ic{color:var(--primary)}
+.dg-accs{display:flex;flex-direction:column;gap:var(--space-2xs)}
+/* History carousel */
+.dg-car{position:relative;height:200px;overflow:visible}
+.dg-car .v{position:absolute;top:30px;width:240px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;will-change:transform}
+.dg-car .v .tm{font:600 12px/16px var(--font-sans);color:var(--on-surface);padding:4px 10px;border-radius:12px;background:var(--surface-glass);font-variant-numeric:tabular-nums}
+.dg-car .v .dg-b{max-width:none;width:100%%;box-shadow:var(--elevation-2)}
+.dg-b mark{background:var(--tertiary-container);color:var(--on-tertiary-container);border-radius:6px;padding:0 3px}
+.dg-dots{display:flex;gap:6px;justify-content:center;align-items:center}
+.dg-dots i{display:block;width:8px;height:8px;border-radius:4px;background:var(--on-surface-variant);opacity:.45}
+.dg-dots i.on{width:24px;background:var(--primary);opacity:1}
+/* Chat wallpaper */
+.dg-wall{position:absolute;inset:0;background:radial-gradient(circle at 18%% 12%%,color-mix(in srgb,var(--primary-container) 75%%,transparent),transparent 46%%),radial-gradient(circle at 88%% 58%%,color-mix(in srgb,var(--tertiary-container) 70%%,transparent),transparent 50%%),radial-gradient(circle at 30%% 92%%,color-mix(in srgb,var(--secondary-container) 80%%,transparent),transparent 45%%),var(--surface)}
+.dg-wall i{position:absolute;display:block;background:var(--on-surface);opacity:.05}
+.dg-appbar.small.dg-glass{background:var(--surface-glass)}
+.dg-field.dg-glass,.dg-search.dg-glass{background:var(--surface-glass)}
+/* Floating toolbar (legacy tabs) */
 .dg-navwrap{display:flex;align-items:center;justify-content:center;gap:10px}
 .dg-toolbar{height:64px;border-radius:32px;background:var(--surface-container-highest);box-shadow:var(--elevation-3);display:flex;align-items:center;gap:2px;padding:0 8px}
 .dg-tb{border:0;background:transparent;cursor:pointer;height:48px;min-width:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--on-surface-variant);padding:0 12px;font:600 14px/20px var(--font-sans);transition:background-color 200ms,padding 380ms var(--dg-spring)}
@@ -436,38 +477,66 @@ comps['Fab'] = (card('Действия', 300, f'''<div class="dg-stage" style="a
 **Android:** `DgFab`, `DgFabMenu`.
 ''')
 
-comps['FloatingToolbar'] = (card('Навигация', 120, f'''<div class="dg-stage" style="justify-content:center">
- <div class="dg-navwrap">
-  <nav class="dg-toolbar" data-single aria-label="Разделы">
-   <button class="dg-tb" data-toggle aria-current="page">{ic("chat_bubble")}<span class="lbl">Чаты</span></button>
-   <button class="dg-tb" data-toggle aria-current="false">{ic("call")}<span class="lbl">Звонки</span></button>
-   <button class="dg-tb" data-toggle aria-current="false">{ic("person")}<span class="lbl">Контакты</span><span class="dot">3</span></button>
-  </nav>
-  <button class="dg-fab" aria-label="Новое сообщение">{ic("edit",True)}</button>
+comps['FloatingToolbar'] = (card('Навигация', 150, f'''<div class="dg-stage col" style="max-width:420px;position:relative;overflow:hidden;border-radius:28px;padding:0">
+ <div style="padding:12px 8px 90px">
+  <div class="dg-chat"><span class="dg-av e sh-clover4">М</span><div class="mid"><div class="nm">Мама</div><div class="pv">Купи хлеба по дороге</div></div><div class="rt">9:38<span class="dg-badge">2</span></div></div>
  </div>
-</div>''', TOGGLE_JS), '''# FloatingToolbar
+ <div class="dg-bottombar" style="position:absolute;left:12px;right:12px;bottom:12px">
+  <button class="bar dg-glass"><span class="dg-av sh-cookie9">Д</span>{ic("search")}<span class="ph">Поиск</span></button>
+  <button class="dg-fab" aria-label="Новый чат">{ic("edit",True)}</button>
+ </div>
+</div>'''), '''# FloatingToolbar
 
-Плавающая панель навигации внизу экрана: заменяет боковое меню Telegram. Всё, куда ходят часто, под большим пальцем.
+Нижняя панель главного экрана: свой аватар, поиск и «новый чат». Вкладок нет: звонки и контакты открываются редко и живут в меню аккаунта (AccountSheet).
 
-**Что даёт код:** 3–4 раздела (иконка + подпись), текущий раздел, счётчики.
+**Что даёт код:** аватар текущего аккаунта, обработчики поиска и FAB.
 
-- Разделы по умолчанию: Чаты, Звонки, Контакты. Настройки и аккаунты открываются тапом по своему аватару в шапке; долгий тап по нему переключает аккаунт.
-- Выбранный раздел показывает подпись в пилюле `secondary-container`, остальные только иконки. Подпись появляется пружиной `spatial-default`.
-- Отступ от низа 16 + системная навигация. Контент под панелью доскролливается до конца (нижний отступ списка = высота панели + 16).
-- При быстрой прокрутке вниз панель уезжает, при прокрутке вверх возвращается. В настройках можно закрепить.
-- Справа от панели FAB этого раздела.
+- Пилюля 64 на `surface-glass` с размытием `blur-glass`: список чатов виден под ней, панель не съедает экран.
+- Тап по аватару открывает AccountSheet снизу. Долгий тап сразу переключает на следующий аккаунт (вибрация, аватар морфит).
+- Тап по пилюле поиска: она переезжает наверх и становится полем поиска (пружина `spatial-default`), клавиатура открывается сразу.
+- FAB 64 `shape-l-plus`: новый чат, долгий тап открывает FAB-меню (группа, канал, секретный чат).
+- Отступ от низа 16 + системная навигация. При прокрутке вниз панель сжимается до аватара и FAB, при прокрутке вверх разворачивается.
 
-**Удобство:** тап по уже выбранному разделу прокручивает список наверх, второй тап открывает поиск.
+**Удобство:** всё, что нужно каждый день, в зоне большого пальца; ничего не надо искать в боковом меню.
 
-**Android:** `DgFloatingToolbar` поверх `DialogsActivity`; меню-шторка (`DrawerLayoutContainer`) отключается.
+**Android:** `DgBottomBar` поверх `DialogsActivity`; боковое меню (`DrawerLayoutContainer`) отключается, его пункты переезжают в AccountSheet.
+''')
+
+comps['AccountSheet'] = (card('Навигация', 470, f'''<div class="dg-stage"><div class="dg-sheet" style="width:380px">
+ <i class="handle"></i>
+ <div class="dg-accs">
+  <div class="dg-acc"><span class="dg-av s sh-cookie9">Д</span><span class="tx">Деля<span>@delusha</span></span>{ic("check_circle",True)}</div>
+  <div class="dg-acc"><span class="dg-av s sc sh-pent">Р</span><span class="tx">Работа<span>@delusha_work</span></span><span class="dg-badge">3</span></div>
+  <div class="dg-acc"><span class="dg-av s" style="--av-bg:var(--surface-container-highest);--av-fg:var(--on-surface-variant)">{ic("add")}</span><span class="tx">Добавить аккаунт</span></div>
+ </div>
+ <div class="dg-tiles">
+  <button class="dg-tile"><span class="ti sh-cookie9">{ic("person",True)}</span>Контакты</button>
+  <button class="dg-tile"><span class="ti sh-clover4">{ic("call",True)}</span>Звонки</button>
+  <button class="dg-tile"><span class="ti sh-flower8">{ic("bookmark",True)}</span>Избранное</button>
+  <button class="dg-tile t"><span class="ti sh-sunny">{ic("auto_awesome",True)}</span>Delusha</button>
+  <button class="dg-tile"><span class="ti sh-pent">{ic("dark_mode",True)}</span>Тема</button>
+  <button class="dg-tile"><span class="ti sh-cookie12">{ic("settings",True)}</span>Настройки</button>
+ </div>
+</div></div>'''), '''# AccountSheet
+
+Меню аккаунта: открывается тапом по своему аватару в нижней панели. Сюда переехало всё, что редко нужно: звонки, контакты, избранное, настройки, раздел Delusha, переключение темы и аккаунтов.
+
+**Что даёт код:** список аккаунтов (текущий отмечен), непрочитанные по каждому, набор плиток.
+
+- Аккаунты: группа строк с общими краями, текущий с галочкой `primary`, у остальных счётчик непрочитанного.
+- Плитки 3 в ряд, высота 96, иконка в форме из библиотеки M3. Раздел форка в `tertiary-container`.
+- Лист `surface-container-low`, верхние углы `shape-xl`, под ним `dg-scrim` с размытием `blur-scrim`.
+- Выезжает снизу пружиной `spatial-default`, плитки появляются лесенкой по 30 мс. Свайп вниз за любую точку листа закрывает его со скоростью пальца.
+
+**Android:** `DgAccountSheet` на базе `BottomSheet` Telegram; пункты из `DrawerLayoutAdapter`.
 ''')
 
 comps['TopAppBar'] = (card('Навигация', 330, f'''<div class="dg-stage col" style="gap:20px">
  <div class="dg-phone"><div class="dg-appbar">
-  <div class="row"><span class="grow"></span><button class="dg-ghost">{ic("visibility_off",True)}Призрак</button><button class="dg-ib" aria-label="Поиск">{ic("search")}</button><span class="dg-av s sh-cookie9">Д</span></div>
+  <div class="row"><span class="grow"></span><button class="dg-ghost" style="margin-right:8px">{ic("visibility_off",True)}Призрак</button></div>
   <h1>Чаты</h1>
  </div></div>
- <div class="dg-phone"><div class="dg-appbar small">
+ <div class="dg-phone" style="position:relative;height:96px"><div class="dg-wall"></div><div class="dg-appbar small dg-glass" style="position:relative">
   <button class="dg-ib" aria-label="Назад">{ic("arrow_back")}</button>
   <span class="dg-av s t sh-cookie12">А</span>
   <span class="ttl">Аня<small>в сети</small></span>
@@ -477,9 +546,9 @@ comps['TopAppBar'] = (card('Навигация', 330, f'''<div class="dg-stage c
 
 Шапка экрана в двух видах: крупная (главные разделы, настройки) и компактная (чат, вложенные экраны).
 
-**Крупная:** заголовок `screen-title` (или `hero-title` в разделах форка) под рядом действий; при прокрутке сжимается в компактную с `title-large`, пружина `spatial-slow`. Справа: плашка призрака (если включён), поиск, свой аватар.
+**Крупная:** заголовок `screen-title` (или `hero-title` в разделах форка) под рядом действий; при прокрутке сжимается в компактную с `title-large`, пружина `spatial-slow`. Справа только плашка призрака, если он включён. Аватар и поиск живут внизу, в нижней панели.
 
-**Компактная (чат):** назад, аватар `avatar-s`, имя и статус, до двух действий. Фон `surface-container`, нижние углы `shape-xl` отделяют шапку от ленты без линии.
+**Компактная (чат):** назад, аватар `avatar-s`, имя и статус, до двух действий. Фон `surface-glass` с размытием `blur-glass`: сообщения уходят под шапку и просвечивают. Нижние углы `shape-xl`.
 
 **Что даёт код:** заголовок, подзаголовок/статус, список действий, режим.
 
@@ -488,13 +557,13 @@ comps['TopAppBar'] = (card('Навигация', 330, f'''<div class="dg-stage c
 **Android:** обёртка над `ActionBar` Telegram: `DgTopAppBar` переопределяет отрисовку, не ломая меню и анимации поиска.
 ''')
 
-comps['SearchBar'] = (card('Навигация', 100, f'''<div class="dg-stage col" style="max-width:380px"><div class="dg-search">{ic("search")}<span class="ph">Поиск по чатам и сообщениям</span><button class="dg-ib" aria-label="Фильтры">{ic("tune")}</button></div></div>'''), '''# SearchBar
+comps['SearchBar'] = (card('Навигация', 100, f'''<div class="dg-stage col" style="max-width:380px"><div class="dg-search dg-glass">{ic("search")}<span class="ph">Поиск по чатам и сообщениям</span><button class="dg-ib" aria-label="Фильтры">{ic("tune")}</button></div></div>'''), '''# SearchBar
 
-Поле поиска-пилюля под крупной шапкой списка чатов.
+Поиск живёт в нижней панели, в пилюле рядом с аватаром. По тапу пилюля переезжает наверх и становится полем поиска.
 
 **Что даёт код:** подсказку, обработчик фильтров. Тап раскрывает полноэкранный поиск с историей; фильтры (тип медиа, дата, чат) чипами под полем.
 
-**Удобство:** поиск всегда на одном месте; свайп вниз по списку чатов тоже фокусирует поиск.
+**Удобство:** поиск всегда под пальцем; в развёрнутом виде поле наверху, результаты под ним, клавиатура снизу.
 
 **Android:** `DgSearchBar`, переход в существующий поиск `DialogsActivity` с общим элементом.
 ''')
@@ -631,7 +700,7 @@ comps['MessageBubble'] = (card('Чат', 470, f'''<div class="dg-phone" style="m
 
 - Входящие `bubble-in`, исходящие `bubble-out` (в тёмных темах приглушены до `primary-container`, чтобы не слепить ночью).
 - Удалённое (история форка): `bubble-deleted`, метка «удалено» с иконкой; тап открывает детали удаления.
-- Изменённое: метка «изменено, N раза» (`tertiary`, с правильным склонением: 1 раз, 2 раза, 5 раз); тап открывает лист со всеми версиями.
+- Изменённое: метка «изменено, N раза» (`tertiary`, с правильным склонением: 1 раз, 2 раза, 5 раз). Тап открывает карусель версий: те же пузыри, листаются свайпом, изменённые слова подсвечены (см. MotionHistory).
 - Ответ: цитата в плашке 12% от цвета текста, со скруглением 12, без боковой полоски.
 - Ширина не больше `bubble-max` (80%), время и галочки обтекаются текстом.
 - Голосовое: кнопка-печенька и волнистый прогресс (WavyProgress).
@@ -654,6 +723,7 @@ comps['Composer'] = (card('Чат', 160, f'''<div class="dg-stage col" style="ma
 - Есть текст: иконка морфит в «отправить», форма поворачивается на 1/9 оборота пружиной `spatial-fast`.
 - Ответ или редактирование: над полем плашка с цитатой и крестиком, в той же ширине.
 - Поле растёт до 6 строк, дальше прокрутка внутри.
+- Поле на `surface-glass` с размытием: сообщения уходят под него и просвечивают.
 - Долгий тап по «отправить»: без звука, отложить, отправить когда будет в сети.
 
 **Android:** перерисовка `ChatActivityEnterView` (фон поля и кнопка отправки), логика ввода не трогается.
@@ -676,7 +746,7 @@ comps['MessageMenu'] = (card('Чат', 470, f'''<div class="dg-stage"><div class
 - Группа 2 — функции форка: История правок (с числом версий, выделена `tertiary-container`), Повторить, Детали (JSON).
 - Группа 3 — опасное: Удалить (`error`).
 - Остальное (закрепить, выбрать, сохранить, ссылка) уходит в «Ещё», если пунктов больше 9.
-- Появляется из точки нажатия пружиной `spatial-default`, фон затемняется `scrim` 32%.
+- Появляется из точки нажатия пружиной `spatial-default`. Чат за меню размывается (`blur-scrim`) и затемняется на 24%, выбранное сообщение остаётся резким и приподнимается.
 
 **Удобство:** первая реакция одним тапом; меню не перекрывает сообщение, к которому относится.
 
@@ -769,10 +839,11 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 
 ## Удобство: обязательные правила
 
-- **Нижняя треть экрана — для частых действий.** Навигация (`FloatingToolbar`), FAB, поле ввода, меню сообщений и листы открываются снизу. Наверху только заголовок, поиск и редкие действия.
+- **Нижняя треть экрана — для частых действий.** Нижняя панель (`FloatingToolbar`: аккаунт, поиск, новый чат), поле ввода, меню сообщений и листы. Наверху только заголовок и плашка призрака.
+- **Редкое — в меню аккаунта.** Звонки, контакты, избранное, настройки и Delusha открываются тапом по своему аватару (`AccountSheet`). Вкладок внизу нет.
 - **Зона касания не меньше `touch-target` (48).** Даже у маленьких иконок, бейджей и чипов. Между соседними целями не меньше 8.
-- **Каждый жест продублирован видимой кнопкой.** Свайп ответа дублируется пунктом «Ответить» в `MessageMenu`, свайп папок — чипами `FolderChips`, долгий тап по аватару (смена аккаунта) — пунктом в профиле.
-- **Режим призрака за один тап** из шапки списка чатов (`dg-ghost`), из шторки (плитка быстрых настроек) и из меню профиля. Его состояние всегда видно в шапке.
+- **Каждый жест продублирован видимой кнопкой.** Свайп ответа дублируется пунктом «Ответить» в `MessageMenu`, свайп папок — чипами `FolderChips`, долгий тап по аватару (смена аккаунта) — списком аккаунтов в `AccountSheet`.
+- **Режим призрака за один тап** из шапки списка чатов (`dg-ghost`), из шторки (плитка быстрых настроек) и из `AccountSheet`. Его состояние всегда видно в шапке.
 - **Места не прыгают.** Одно и то же действие всегда в одной точке: «Назад» слева сверху, «Ещё» справа сверху, главное действие — FAB справа снизу.
 - **Обратная связь на всё.** Нажатие: слой `state-pressed` + морфинг формы + лёгкая вибрация. Результат: `Snackbar` с «Отменить» для обратимых действий, диалог подтверждения для необратимых.
 - **Текст масштабируется до 200%.** Ничего не обрезается, строки переносятся, высоты элементов растут.
@@ -791,13 +862,23 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 ## Цвет
 
 - Все цвета — роли Material 3 из `tokens.json`. Ни одного литерального цвета в коде компонентов: только `primary`, `on-surface` и т.д.
-- Значения по умолчанию — от сида «Сирень». На Android 12+ все роли пересчитываются из обоев (Monet); в настройках можно выбрать сид вручную. Роли и их назначение не меняются.
+- **По умолчанию берётся системный акцентный цвет** (Material You, Android 12+): все роли строятся из него, приложение выглядит в тон остальной системе. Значения в `tokens.json` от сида «Сирень» — запасные для Android 8–11 и для случая, когда в настройках выбран свой цвет.
+- **Палитра спокойная.** Насыщенный `primary` только для мелких акцентов (счётчики, ссылки, переключатели); крупные заливки — контейнеры с низкой насыщенностью. Никаких кислотных плашек на пол-экрана.
 - Три темы: `light`, `dark`, `amoled` (настоящий чёрный `surface` для OLED). Переключение по системе или вручную.
 - Текст: `on-surface` на любом `surface*`, `on-surface-variant` для вторичного. Каждая пара `on-X` / `X` держит не меньше 4.5:1 во всех трёх темах.
-- Сообщения: `bubble-in` / `on-bubble-in`, `bubble-out` / `on-bubble-out`. Исходящие в тёмных темах приглушены (`primary-container`), чтобы ночью не слепить.
+- Сообщения: `bubble-in` / `on-bubble-in`, `bubble-out` / `on-bubble-out`. Исходящие — `primary-container`, мягкий тон акцента, а не яркая заливка.
+- Обои чата по умолчанию: три размытых пятна `primary-container`, `tertiary-container`, `secondary-container` на `surface` и узор из форм M3 с прозрачностью 5%.
 - Функции форка окрашены в `tertiary`: плашка `ghost`, метка «изменено», иконки разделов форка. Удалённое — `bubble-deleted` (`error-container`). Так видно, что это не стандартный Telegram.
 - `error` только для необратимого и ошибок. Никогда как украшение.
 - Фокус клавиатуры и D-pad: кольцо `focus-ring` 3dp с отступом 2dp.
+
+## Размытие
+
+- Размываем только то, что **парит над контентом**: нижнюю панель, шапку чата, поле ввода (все на `surface-glass` + `blur-glass` 24) и фон под меню сообщения, листами и `AccountSheet` (`dg-scrim`: `blur-scrim` 10 + затемнение 24%).
+- **Не размываем** строки списков, пузыри, карточки настроек и всё, где лежит текст для чтения: под стеклом текст только проходит, а не читается.
+- Стекло всегда с запасом непрозрачности (66–72%), чтобы текст на нём держал контраст при любом контенте снизу.
+- В настройках «Размытие» можно выключить: тогда `surface-glass` становится непрозрачным `surface-container-high`.
+- **Android:** API 31+ `RenderEffect.createBlurEffect` на снимке контента в 1/4 разрешения; ниже — собственное размытие Telegram (`SizeNotifierFrameLayout`, `BlurredFrameLayout` уже есть в коде). Цель: размытие не стоит ни одного кадра.
 
 ## Форма
 
@@ -837,19 +918,19 @@ readme = r'''DelushaGram — личный форк Telegram для Android, пе
 |---|---|---|
 | Отправка | Поле ввода превращается в пузырь и встаёт в ленту | MotionSend |
 | Открытие чата | Строка раскрывается в экран, аватар перелетает в шапку | MotionOpen |
-| Разделы | Вкладка панели перетекает в пилюлю, список лесенкой | MotionTabs |
+| Меню аккаунта | Лист выезжает снизу, фон размывается, плитки лесенкой | MotionAccount |
 | Свайпы по чатам | Заливка от иконки, порог с вибрацией, схлопывание | MotionSwipe |
 | Архив | Вытягивается вниз, печенька крутится и морфит | MotionPull |
 | Призрак | Цвет заливает шапку кругом, глаз закрывается | MotionGhost |
 | Новый чат | FAB морфит в круг, пункты вылетают лесенкой | MotionFab |
 | Реакции | Сердце и частицы-формы, число прокручивается | MotionReactions |
-| История | Удалённое вздрагивает, изменённое перетекает | MotionHistory |
+| История | Удалённое вздрагивает, версии правок листаются каруселью | MotionHistory |
 | Нажатие | Углы кнопок и иконок сжимаются, отпускание с отскоком | Button, IconButton |
 
 ## Отступы и слои
 
 - Сетка 4: `space-2xs` 2 … `space-3xl` 48. Боковой отступ экрана `space-l` (16), между секциями `space-xl` (24).
-- Тени только у плавающего: `elevation-3` у `FloatingToolbar`, FAB, меню. Всё остальное различается тоном `surface-container-*`.
+- Тени только у плавающего: `elevation-2` у нижней панели и FAB, `elevation-3` у меню и листов. Всё остальное различается тоном `surface-container-*`.
 
 ## Иконки
 

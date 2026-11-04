@@ -46,7 +46,7 @@ var rest=$('#rest');[['М','Мама','Купи хлеба по дороге','9
 var items=$$('.item').reverse(),fab=$('#fab'),fi=$('#fi'),scrim=$('#scrim'),on=false;
 var ss=items.map(function(it){return new Spring(0,function(p){it.style.opacity=C(p*1.4);it.style.transform='translateY('+((1-p)*24)+'px) scale('+L(.6,1,p)+')';it.style.pointerEvents=p>.5?'auto':'none'},'spatial-default')});
 var fs=new Spring(0,function(p){fab.style.borderRadius=L(16,28,p)+'px';fi.style.transform='rotate('+(p*90)+'deg)'},'spatial-fast');
-var sc=new Spring(0,function(p){scrim.style.opacity=C(p)*.32},'effects-slow');
+var sc=new Spring(0,function(p){scrim.style.opacity=C(p)},'effects-slow');
 fs.set(0);ss.forEach(function(s){s.set(0)});
 var swapT;function toggle(v){on=v;buzz();fab.classList.toggle('on',on);fab.setAttribute('aria-expanded',on);scrim.classList.toggle('on',on);fs.to(on?1:0);sc.to(on?1:0,on?'effects-slow':'effects-default');
  clearTimeout(swapT);swapT=setTimeout(function(){fi.textContent=on?'close':'edit'},60);

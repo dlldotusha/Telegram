@@ -92,9 +92,9 @@ MOTION_CSS = r"""
 .mo-gbtn .ib .dg-ic{position:absolute;inset:0}
 /* fab */
 .mo-fab{height:420px}
-.mo-scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;pointer-events:none;z-index:2}
+.mo-scrim{position:absolute;inset:0;background:color-mix(in srgb,var(--scrim) 24%,transparent);-webkit-backdrop-filter:blur(var(--blur-scrim));backdrop-filter:blur(var(--blur-scrim));opacity:0;pointer-events:none;z-index:5}
 .mo-scrim.on{pointer-events:auto}
-.mo-fabzone{position:absolute;right:16px;bottom:16px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.mo-fabzone{position:absolute;right:16px;bottom:16px;z-index:6;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .mo-fabzone .item{height:56px;border-radius:28px;padding:0 24px 0 18px;display:inline-flex;align-items:center;gap:12px;background:var(--primary-container);color:var(--on-primary-container);font:500 16px/24px var(--font-sans);box-shadow:var(--elevation-3);transform-origin:100% 50%;opacity:0;cursor:pointer;border:0}
 .mo-fabbtn{width:56px;height:56px;border:0;cursor:pointer;display:grid;place-items:center;box-shadow:var(--elevation-3);background:var(--primary-container);color:var(--on-primary-container);transition:background-color 220ms,color 220ms}
 .mo-fabbtn.on{background:var(--primary);color:var(--on-primary)}
@@ -113,6 +113,8 @@ MOTION_CSS = r"""
 .mo-p{position:absolute;pointer-events:none;z-index:7;width:12px;height:12px}
 .mo-heart{position:absolute;pointer-events:none;z-index:8;font-size:44px;line-height:1}
 /* history */
+.mo-carwrap{position:absolute;left:0;right:0;top:120px;z-index:7;opacity:0;touch-action:none;cursor:grab;display:flex;flex-direction:column;gap:6px}
+.mo-sheet{position:absolute;left:0;right:0;bottom:0;z-index:6}
 .mo-hist{height:330px}
 .mo-tagrow{overflow:hidden;height:0}
 .mo-ver{overflow:hidden;height:0}
@@ -216,45 +218,63 @@ inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault(
 **Android:** в `ChatActivity` уже есть переход текста из поля (`ChatActivityEnterView` → `ChatMessageCell`, `MessageEnterTransitionContainer`); заменяем его интерполяцию на `SpringAnimation` по токенам и добавляем морф формы фона.
 ''')
 
-# ------------------------------------------------------------------ 3. Tabs
-CARDS['MotionTabs'] = (380, 'Плавающая панель: переключение разделов', f'''<div class="mo-wrap">
-<div class="mo-phone mo-tabsstage" id="ph">
- <div class="mo-title" id="title"><span id="t0">Чаты</span><span id="t1"></span></div>
- <div class="mo-rows" id="rows"></div>
- <div class="mo-bar"><div class="dg-toolbar" id="bar"></div></div>
+# ------------------------------------------------------------------ 3. Account sheet
+CARDS['MotionAccount'] = (560, 'Меню аккаунта из нижней панели', f'''<div class="mo-wrap">
+<div class="mo-phone" id="ph" style="height:500px">
+ <div class="dg-appbar" style="padding-bottom:6px"><div class="row"><span class="grow"></span></div><h1 style="margin-top:0">Чаты</h1></div>
+ <div class="mo-list" id="rest" style="padding-bottom:100px"></div>
+ <div class="dg-bottombar" style="position:absolute;left:12px;right:12px;bottom:14px;z-index:3">
+  <button class="bar dg-glass" id="me"><span class="dg-av sh-cookie9" id="meav">Д</span>{ic("search")}<span class="ph">Поиск</span></button>
+  <button class="dg-fab" aria-label="Новый чат">{ic("edit",True)}</button>
+ </div>
+ <div class="mo-scrim" id="scrim"></div>
+ <div class="dg-sheet mo-sheet" id="sheet">
+  <i class="handle"></i>
+  <div class="dg-accs">
+   <div class="dg-acc"><span class="dg-av s sh-cookie9">Д</span><span class="tx">Деля<span>@delusha</span></span>{ic("check_circle",True)}</div>
+   <div class="dg-acc"><span class="dg-av s sc sh-pent">Р</span><span class="tx">Работа<span>@delusha_work</span></span><span class="dg-badge">3</span></div>
+  </div>
+  <div class="dg-tiles">
+   <button class="dg-tile"><span class="ti sh-cookie9">{ic("person",True)}</span>Контакты</button>
+   <button class="dg-tile"><span class="ti sh-clover4">{ic("call",True)}</span>Звонки</button>
+   <button class="dg-tile"><span class="ti sh-flower8">{ic("bookmark",True)}</span>Избранное</button>
+   <button class="dg-tile t"><span class="ti sh-sunny">{ic("auto_awesome",True)}</span>Delusha</button>
+   <button class="dg-tile"><span class="ti sh-pent">{ic("dark_mode",True)}</span>Тема</button>
+   <button class="dg-tile"><span class="ti sh-cookie12">{ic("settings",True)}</span>Настройки</button>
+  </div>
+ </div>
 </div>
-<div class="mo-side"><span class="mo-hint">{ic("touch_app")}Переключай разделы</span>
-<p><b>Выбранная вкладка раздувается в пилюлю с подписью</b>, прошлая сдувается в иконку. Ширины меняются одновременно, поэтому панель «перетекает».</p>
-<p>Заголовок уезжает вверх, новый приходит снизу, строки списка появляются лесенкой по 40 мс.</p>
-<p><span class="mo-tok">spatial-default</span> ширина и заголовок, <span class="mo-tok">spatial-fast</span> иконка, <span class="mo-tok">effects-default</span> цвет</p></div>
+<div class="mo-side"><span class="mo-hint">{ic("touch_app")}Нажми на свой аватар внизу, закрой свайпом вниз</span>
+<p><b>Звонки, контакты и настройки ушли из панели</b> в меню аккаунта. Лист выезжает снизу, чат за ним размывается, плитки появляются лесенкой.</p>
+<p><span class="mo-tok">spatial-default</span> лист, <span class="mo-tok">spatial-fast</span> аватар и плитки, <span class="mo-tok">effects-slow</span> размытие</p></div>
 </div>''', r"""
-var tabs=[['chat_bubble','Чаты'],['call','Звонки'],['person','Контакты']],cur=0,bar=$('#bar'),ts=[];
-tabs.forEach(function(t,i){var b=document.createElement('button');b.className='mo-tab';b.setAttribute('aria-label',t[1]);
- b.innerHTML='<span class="pill"></span><span class="in"><span class="dg-ic">'+t[0]+'</span><span class="lb"><span style="padding:0 18px 0 6px;display:inline-block">'+t[1]+'</span></span></span>';bar.appendChild(b);
- var lb=b.querySelector('.lb'),pill=b.querySelector('.pill'),ico=b.querySelector('.dg-ic');var lw=lb.firstChild.offsetWidth;
- var s=new Spring(i===cur?1:0,function(a){lb.style.width=(a*lw)+'px';b.style.width=(48+Math.max(0,a)*lw)+'px';lb.style.opacity=C(a);pill.style.opacity=C(a);pill.style.transform='scale('+L(.5,1,C(a))+')';b.style.color=a>.5?'var(--on-secondary-container)':'';},'spatial-default');
- var ic=new Spring(1,function(x){ico.style.transform='scale('+x+')'},'spatial-fast');
- ico.style.fontVariationSettings=i===cur?'"FILL" 1':'';
- ts.push({s:s,ic:ic,ico:ico});b.addEventListener('click',function(){go(i)});});
-var t0=$('#t0'),t1=$('#t1'),rows=$('#rows'),ttl=new Spring(1,function(){},'spatial-default');
-var cols=['var(--primary-container)','var(--tertiary-container)','var(--secondary-container)'];
-function fill(i){rows.innerHTML='';var sh=['sh-cookie9','sh-clover4','sh-flower8','sh-pent'];for(var k=0;k<4;k++){var r=document.createElement('div');r.className='mo-row';r.innerHTML='<i class="'+sh[(k+i)%4]+'" style="--a:'+cols[(k+i)%3]+'"></i><span style="display:flex;flex-direction:column;gap:6px"><b style="width:'+(90+((k*37+i*23)%80))+'px"></b><b style="width:'+(140+((k*53+i*17)%60))+'px;opacity:.6"></b></span>';rows.appendChild(r);
- (function(r,k){r.style.opacity=0;var s=new Spring(0,function(p){r.style.opacity=C(p);r.style.transform='translateY('+(1-p)*24+'px)'},'spatial-default');setTimeout(function(){s.to(1)},k*40)})(r,k)}}
-fill(0);
-function go(i){if(i===cur)return;buzz();var old=cur;cur=i;ts.forEach(function(t,k){t.s.to(k===i?1:0);t.ico.style.fontVariationSettings=k===i?'"FILL" 1':''});ts[i].ic.set(.6).to(1,'spatial-fast');
- t1.textContent=tabs[i][1];var a=t0,b=t1;new Spring(0,function(p){a.style.transform='translateY('+(-p*44)+'px)';a.style.opacity=1-C(p);b.style.transform='translateY('+((1-p)*44)+'px)';b.style.opacity=C(p)},'spatial-default').to(1,null,function(){t0.textContent=tabs[i][1];t0.style.transform='';t0.style.opacity=1;t1.style.opacity=0});fill(i)}
-t1.style.opacity=0;
-""", '''# MotionTabs
+var rest=$('#rest');[['М','Мама','Купи хлеба по дороге','9:38','e','sh-clover4'],['А','Аня','Приду к восьми','9:40','t','sh-cookie12'],['Л','Лёха','Голосовое, 0:42','8:55','sc','sh-flower8'],['К','Кофе по пятницам','Даша: кто завтра?','Вс','','sh-pent'],['Д','Даша','ок, до завтра','Сб','t','sh-sunny']].forEach(function(d){var r=document.createElement('div');r.className='dg-chat';r.innerHTML='<span class="dg-av '+d[4]+' '+d[5]+'">'+d[0]+'</span><div class="mid"><div class="nm">'+d[1]+'</div><div class="pv">'+d[2]+'</div></div><div class="rt">'+d[3]+'</div>';rest.appendChild(r)});
+var sheet=$('#sheet'),scrim=$('#scrim'),meav=$('#meav'),tiles=$$('.dg-tile',sheet),on=false;
+var H=function(){return sheet.offsetHeight+20};
+var sy=new Spring(1,function(p){sheet.style.transform='translateY('+(p*H())+'px)'},'spatial-default',.001);
+var sc=new Spring(0,function(p){scrim.style.opacity=C(p);scrim.style.pointerEvents=p>.5?'auto':'none'},'effects-slow');
+var av=new Spring(1,function(x){meav.style.transform='scale('+x+')'},'spatial-fast');
+var ts=tiles.map(function(t){return new Spring(0,function(p){t.style.opacity=C(p);t.style.transform='scale('+L(.8,1,p)+') translateY('+(1-p)*12+'px)'},'spatial-fast')});
+sy.set(1);sc.set(0);ts.forEach(function(t){t.set(0)});
+function open(v){on=v;buzz();av.set(.8).to(1);sy.to(v?0:1,v?'spatial-default':'spatial-fast');sc.to(v?1:0,v?'effects-slow':'effects-default');
+ ts.forEach(function(t,i){setTimeout(function(){t.to(v?1:0)},v?60+i*30:0)})}
+$('#me').addEventListener('click',function(){open(!on)});scrim.addEventListener('click',function(){open(false)});
+var dy0=0,drag=false,lt=0,ly=0,vel=0;
+sheet.addEventListener('pointerdown',function(e){drag=true;dy0=e.clientY-sy.x*H();ly=e.clientY;lt=performance.now();sheet.setPointerCapture(e.pointerId)});
+sheet.addEventListener('pointermove',function(e){if(!drag)return;var n=performance.now();vel=(e.clientY-ly)/Math.max(1,n-lt)*1000;ly=e.clientY;lt=n;var d=e.clientY-dy0;sy.set(Math.max(-.04,d/H()));sc.set(1-C(sy.x))});
+function up(){if(!drag)return;drag=false;if(sy.x>.3||vel>600){sy.kick(vel/H());open(false)}else{sy.kick(vel/H()).to(0);sc.to(1)}}
+sheet.addEventListener('pointerup',up);sheet.addEventListener('pointercancel',up);
+""", '''# MotionAccount
 
-Переключение разделов в плавающей панели.
+Открытие меню аккаунта (AccountSheet) тапом по своему аватару в нижней панели.
 
-- Выбранная вкладка расширяется до пилюли с подписью (`spatial-default`), предыдущая одновременно сжимается в иконку: суммарная ширина почти постоянна, панель «перетекает».
-- Иконка выбранной сжимается до 60% и отпрыгивает обратно (`spatial-fast`), контур сменяется заливкой.
-- Заголовок раздела уезжает вверх с затуханием, новый приходит снизу.
-- Строки списка появляются лесенкой: каждая следующая через 40 мс, сдвиг 24 → 0.
-- Лёгкая вибрация на смену раздела.
+- Аватар сжимается до 80% и отпрыгивает (`spatial-fast`) — отклик на касание.
+- Лист выезжает снизу пружиной `spatial-default`; закрывается на ступень быстрее (`spatial-fast`).
+- Чат за листом размывается и темнеет (`dg-scrim`), проявление `effects-slow`.
+- Плитки появляются лесенкой через 30 мс: масштаб 0.8 → 1, сдвиг 12.
+- Лист тянется пальцем за любую точку. Отпустил ниже трети или резко — закрывается со скоростью пальца, иначе возвращается.
 
-**Android:** `DgFloatingToolbar` анимирует ширины детей через `SpringAnimation` на кастомном свойстве `expansion`; смена фрагментов в `DialogsActivity` без стандартного перехода, заголовок — `DgTopAppBar.setTitleAnimated()`.
+**Android:** `DgAccountSheet` (`BottomSheet` Telegram с заменённой анимацией появления на `SpringAnimation`).
 ''')
 
 # ------------------------------------------------------------------ 4. Chat swipe
@@ -401,7 +421,7 @@ var rest=$('#rest');[['М','Мама','Купи хлеба по дороге','9
 var items=$$('.item').reverse(),fab=$('#fab'),fi=$('#fi'),scrim=$('#scrim'),on=false;
 var ss=items.map(function(it){return new Spring(0,function(p){it.style.opacity=C(p*1.4);it.style.transform='translateY('+((1-p)*24)+'px) scale('+L(.6,1,p)+')';it.style.pointerEvents=p>.5?'auto':'none'},'spatial-default')});
 var fs=new Spring(0,function(p){fab.style.borderRadius=L(16,28,p)+'px';fi.style.transform='rotate('+(p*90)+'deg)'},'spatial-fast');
-var sc=new Spring(0,function(p){scrim.style.opacity=C(p)*.32},'effects-slow');
+var sc=new Spring(0,function(p){scrim.style.opacity=C(p)},'effects-slow');
 fs.set(0);ss.forEach(function(s){s.set(0)});
 var swapT;function toggle(v){on=v;buzz();fab.classList.toggle('on',on);fab.setAttribute('aria-expanded',on);scrim.classList.toggle('on',on);fs.to(on?1:0);sc.to(on?1:0,on?'effects-slow':'effects-default');
  clearTimeout(swapT);swapT=setTimeout(function(){fi.textContent=on?'close':'edit'},60);
@@ -507,41 +527,58 @@ rx($('#b1'),$('#c1'),$('#n1'));rx($('#b2'),$('#c2'),$('#n2'));
 ''')
 
 # ------------------------------------------------------------------ 10. History marks
-CARDS['MotionHistory'] = (420, 'Удалённые и изменённые сообщения', f'''<div class="mo-wrap">
-<div class="mo-phone mo-hist" id="ph"><div class="dg-msgs" style="position:absolute;left:0;right:0;bottom:0">
+CARDS['MotionHistory'] = (560, 'Удалённые сообщения и карусель правок', f'''<div class="mo-wrap">
+<div class="mo-phone" id="ph" style="height:500px"><div class="dg-wall"></div><div class="dg-msgs" style="position:absolute;left:0;right:0;bottom:0">
  <div class="dg-b out first last">Во сколько встречаемся?<span class="meta">9:30 {ic("done_all")}</span></div>
  <div class="dg-b in first" id="del"><div class="mo-tagrow" id="dtag"><span class="tag">{ic("delete")}удалено</span></div>ой, это не тебе<span class="meta">9:33</span></div>
- <div class="dg-b in last" id="ed"><div class="mo-tagrow" id="etag"><span class="tag" style="cursor:pointer">{ic("history")}изменено, 2 раза</span></div><span id="etx">Приду к семи</span><span class="meta">9:35</span><div class="mo-ver" id="ver"><div><s>Приду к семи</s> 9:35</div><div>Приду к восьми, сейчас</div></div></div>
-</div></div>
-<div class="mo-side"><span class="mo-hint">{ic("touch_app")}Сыграй, что сделал собеседник</span>
+ <div class="dg-b in last edited" id="ed" style="cursor:pointer"><span class="tag" id="etag">{ic("history")}<span id="ecount">изменено, 1 раз</span></span><span id="etx">Приду к половине восьмого</span><span class="meta" id="emeta">9:37</span></div>
+</div>
+<div class="mo-scrim" id="scrim"></div>
+<div class="mo-carwrap" id="cw"><div class="dg-car" id="car"></div><div class="dg-dots" id="dots"></div></div>
+</div>
+<div class="mo-side"><span class="mo-hint">{ic("touch_app")}Сыграй, что сделал собеседник, потом нажми на изменённое</span>
 <div class="mo-btns"><button class="dg-btn tonal" id="bd">{ic("delete")}Удалил</button><button class="dg-btn tonal" id="be">{ic("edit")}Изменил</button><button class="dg-btn text" id="br">Сначала</button></div>
-<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается, сверху выезжает метка. <b>Изменённое</b> плавно меняет текст, метка «изменено» открывает все версии.</p>
-<p><span class="mo-tok">spatial-fast</span> встряска, <span class="mo-tok">spatial-default</span> метки и текст, <span class="mo-tok">effects-default</span> цвет</p></div>
+<p><b>Удалённое не исчезает, а вздрагивает</b> и перекрашивается. <b>Тап по изменённому</b> раскрывает карусель: те же пузыри, листаешь версии свайпом, изменённые слова подсвечены.</p>
+<p><span class="mo-tok">spatial-fast</span> встряска, <span class="mo-tok">spatial-default</span> карусель, <span class="mo-tok">effects-slow</span> размытие</p></div>
 </div>''', r"""
-var del=$('#del'),dtag=$('#dtag'),ed=$('#ed'),etag=$('#etag'),etx=$('#etx'),ver=$('#ver');
+var ph=$('#ph'),del=$('#del'),dtag=$('#dtag'),ed=$('#ed'),etx=$('#etx'),ecount=$('#ecount'),scrim=$('#scrim'),cw=$('#cw'),car=$('#car'),dots=$('#dots');
+var V=[['9:35','Приду к семи'],['9:37','Приду к половине восьмого'],['9:40','Приду к восьми']],n=2;
 del.style.transition='background-color 300ms cubic-bezier(.2,0,0,1),color 300ms cubic-bezier(.2,0,0,1)';
-var th=dtag.firstChild.offsetHeight+2,eh=etag.firstChild.offsetHeight+2,vh=ver.scrollHeight;dtag.style.height=etag.style.height='0px';
+var th=dtag.firstChild.offsetHeight+2;dtag.style.height='0px';
 var shake=new Spring(0,function(x){del.style.transform='translateX('+x+'px)'},'spatial-fast',.05);
 var dt=new Spring(0,function(a){dtag.style.height=Math.max(0,a*th)+'px';dtag.style.opacity=C(a)},'spatial-default');
-var et=new Spring(0,function(a){etag.style.height=Math.max(0,a*eh)+'px';etag.style.opacity=C(a)},'spatial-default');
-var vs=new Spring(0,function(a){ver.style.height=Math.max(0,a*vh)+'px';ver.style.opacity=C(a)},'spatial-default');ver.style.height='0px';
 var tx=new Spring(1,function(a){etx.style.opacity=C(a);etx.style.filter='blur('+((1-C(a))*4)+'px)'},'effects-default');
+function diff(prev,cur){var pw=prev?prev.split(' '):[];return cur.split(' ').map(function(w){return pw.indexOf(w)<0&&prev?'<mark>'+w+'</mark>':w}).join(' ')}
+var cards=[],W=240,G=16,pos=new Spring(0,layout,'spatial-default',.001),op=new Spring(0,function(p){cw.style.opacity=C(p);cw.style.transform='translateY('+((1-p)*60)+'px) scale('+L(.85,1,p)+')';scrim.style.opacity=C(p);scrim.style.pointerEvents=cw.style.pointerEvents=p>.5?'auto':'none'},'spatial-default');
+function build(){car.innerHTML='';dots.innerHTML='';cards=V.slice(0,n).map(function(v,k){var d=document.createElement('div');d.className='v';d.innerHTML='<span class="tm">'+v[0]+'</span><div class="dg-b in first last">'+diff(k?V[k-1][1]:null,v[1])+'</div>';car.appendChild(d);var dd=document.createElement('i');dots.appendChild(dd);return d})}
+function layout(p){var cx=ph.clientWidth/2-W/2;cards.forEach(function(c,k){var d=k-p,a=Math.min(1,Math.abs(d));c.style.left='0';c.style.transform='translateX('+(cx+d*(W+G))+'px) scale('+(1-.12*a)+')';c.style.opacity=1-.5*a;c.style.zIndex=10-Math.round(Math.abs(d))});
+ $$('i',dots).forEach(function(dd,k){var a=C(1-Math.abs(k-p));dd.style.width=(8+16*a)+'px';dd.style.opacity=.45+.55*a;dd.style.background=a>.5?'var(--primary)':''})}
+op.set(0);
+ed.addEventListener('click',function(){buzz();build();pos.set(n-1);op.to(1)});
+scrim.addEventListener('click',function(){op.to(0,'spatial-fast')});
+var sx=0,p0=0,drag=false,lx=0,lt=0,vel=0;
+cw.addEventListener('pointerdown',function(e){drag=true;sx=e.clientX;p0=pos.x;lx=e.clientX;lt=performance.now();cw.setPointerCapture(e.pointerId)});
+cw.addEventListener('pointermove',function(e){if(!drag)return;var t=performance.now();vel=(e.clientX-lx)/Math.max(1,t-lt)*1000;lx=e.clientX;lt=t;var p=p0-(e.clientX-sx)/(W+G);if(p<0)p=p*.3;if(p>n-1)p=n-1+(p-n+1)*.3;pos.set(p)});
+function up(e){if(!drag)return;drag=false;var moved=Math.abs(e.clientX-sx);if(moved<6){return}var tgt=Math.round(pos.x-vel*.12/(W+G));tgt=Math.max(0,Math.min(n-1,tgt));if(tgt!==Math.round(p0))buzz();pos.kick(-vel/(W+G)).to(tgt)}
+cw.addEventListener('pointerup',up);cw.addEventListener('pointercancel',up);
 $('#bd').addEventListener('click',function(){buzz();del.classList.add('deleted');shake.set(0).kick(-700).to(0);dt.to(1)});
-$('#be').addEventListener('click',function(){if(etx.textContent==='Приду к восьми')return;buzz();tx.to(0,'effects-fast',function(){etx.textContent='Приду к восьми';tx.to(1,'effects-default')});et.to(1)});
-etag.addEventListener('click',function(){vs.to(vs.t?0:1)});
-$('#br').addEventListener('click',function(){del.classList.remove('deleted');dt.to(0);et.to(0);vs.to(0);etx.textContent='Приду к семи'});
+$('#be').addEventListener('click',function(){if(n===3)return;buzz();n=3;tx.to(0,'effects-fast',function(){etx.textContent=V[2][1];ecount.textContent='изменено, 2 раза';$('#emeta').textContent='9:40';tx.to(1,'effects-default')})});
+$('#br').addEventListener('click',function(){del.classList.remove('deleted');dt.to(0);n=2;etx.textContent=V[1][1];ecount.textContent='изменено, 1 раз';$('#emeta').textContent='9:37';op.to(0)});
 """, '''# MotionHistory
 
-Как форк показывает удалённые и изменённые собеседником сообщения (история сообщений).
+Как форк показывает удалённые и изменённые собеседником сообщения.
 
 **Удалено:**
 - Пузырь не пропадает. Он вздрагивает по горизонтали: пружина `spatial-fast` с начальным толчком 700 px/с, затухает за 3 колебания.
-- Цвет `bubble-in` → `bubble-deleted` (`effects-default`).
-- Сверху выезжает метка «удалено» с иконкой корзины (высота 0 → строка, `spatial-default`).
+- Цвет `bubble-in` → `bubble-deleted` (`effects-default`), сверху выезжает метка «удалено».
 
 **Изменено:**
-- Старый текст расплывается и гаснет, новый проявляется (размытие 4 → 0), высота пузыря подстраивается пружиной.
-- Появляется метка «изменено, N раза» (`tertiary`). Тап по ней раскрывает список версий внутри пузыря: старые зачёркнуты, с временем.
+- Старый текст расплывается и гаснет, новый проявляется (размытие 4 → 0), метка обновляется: «изменено, 1 раз» → «изменено, 2 раза».
+- **Тап по изменённому сообщению открывает карусель версий.** Чат размывается, над ним появляются пузыри всех версий в ряд, текущая по центру, соседние уменьшены до 88% и приглушены. Над каждой время правки.
+- Листается свайпом 1:1 за пальцем, отпустил — пружина `spatial-default` доводит до ближайшей версии с учётом скорости. На краях сопротивление 30%. Каждая смена версии даёт короткую вибрацию.
+- Слова, которых не было в предыдущей версии, подсвечены `tertiary-container`.
+- Точки внизу: текущая растягивается в пилюлю `primary`, плавно по ходу свайпа.
+- Тап мимо закрывает карусель, она возвращается в пузырь (`spatial-fast`).
 
-**Android:** события удаления и правки приходят в `MessagesController` (`updateDeleteMessages`, `updateEditMessage`), форк сохраняет копию в свою БД и вызывает `ChatMessageCell.animateHistoryMark(type)`.
+**Android:** события удаления и правки приходят в `MessagesController` (`updateDeleteMessages`, `updateEditMessage`), форк сохраняет копию в свою БД. Карусель — `DgEditHistoryCarousel` поверх `ChatActivity`, пузыри рисуются тем же `DgBubbleDrawable`.
 ''')

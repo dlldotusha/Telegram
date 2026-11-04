@@ -8,37 +8,37 @@ def oklch(L,C,H):
         x=max(0,min(1,x)); return 12.92*x if x<=0.0031308 else 1.055*x**(1/2.4)-0.055
     return '#%02x%02x%02x'%tuple(round(f(v)*255) for v in (r,g,bb))
 H=295; T=195
-L={ # light, dark, amoled  as (L,C,H)
-'primary':[(.48,.17,H),(.82,.11,H),(.82,.11,H)],
-'on-primary':[(.99,.005,H),(.28,.10,H),(.28,.10,H)],
-'primary-container':[(.90,.07,H),(.38,.11,H),(.34,.11,H)],
-'on-primary-container':[(.30,.10,H),(.92,.06,H),(.92,.06,H)],
-'secondary':[(.50,.05,H),(.82,.04,H),(.82,.04,H)],
-'on-secondary':[(.99,.005,H),(.30,.04,H),(.30,.04,H)],
-'secondary-container':[(.91,.035,H),(.33,.035,H),(.28,.035,H)],
-'on-secondary-container':[(.32,.04,H),(.90,.03,H),(.90,.03,H)],
-'tertiary':[(.47,.09,T),(.82,.08,T),(.82,.08,T)],
-'on-tertiary':[(.99,.005,T),(.28,.06,T),(.28,.06,T)],
-'tertiary-container':[(.91,.06,T),(.37,.06,T),(.32,.06,T)],
-'on-tertiary-container':[(.32,.06,T),(.92,.05,T),(.92,.05,T)],
-'error':[(.53,.19,27),(.78,.13,27),(.78,.13,27)],
-'on-error':[(.99,.005,27),(.30,.10,27),(.30,.10,27)],
-'error-container':[(.93,.045,27),(.36,.09,27),(.30,.08,27)],
-'on-error-container':[(.36,.12,27),(.92,.04,27),(.92,.04,27)],
-'surface':[(.985,.007,H),(.165,.012,H),(0,0,H)],
-'surface-container-lowest':[(1,0,H),(.13,.01,H),(0,0,H)],
-'surface-container-low':[(.965,.011,H),(.19,.014,H),(.13,.008,H)],
-'surface-container':[(.945,.014,H),(.21,.015,H),(.165,.01,H)],
-'surface-container-high':[(.925,.017,H),(.245,.017,H),(.20,.012,H)],
-'surface-container-highest':[(.905,.02,H),(.28,.018,H),(.235,.014,H)],
-'on-surface':[(.22,.015,H),(.93,.01,H),(.95,.008,H)],
-'on-surface-variant':[(.45,.02,H),(.77,.02,H),(.77,.02,H)],
-'outline':[(.58,.02,H),(.62,.02,H),(.60,.02,H)],
-'outline-variant':[(.86,.02,H),(.36,.02,H),(.30,.015,H)],
-'inverse-surface':[(.30,.015,H),(.92,.01,H),(.92,.01,H)],
-'inverse-on-surface':[(.95,.01,H),(.25,.015,H),(.25,.015,H)],
-'inverse-primary':[(.82,.11,H),(.48,.17,H),(.48,.17,H)],
-'online':[(.55,.15,150),(.80,.15,150),(.80,.15,150)],
+L={ # light, dark, amoled  as (L,C,H) -- calm tonal-spot palette
+'primary':[(.50,.12,H),(.80,.085,H),(.80,.085,H)],
+'on-primary':[(.99,.004,H),(.27,.07,H),(.27,.07,H)],
+'primary-container':[(.925,.04,H),(.34,.06,H),(.29,.055,H)],
+'on-primary-container':[(.30,.07,H),(.91,.035,H),(.91,.035,H)],
+'secondary':[(.50,.03,H),(.80,.03,H),(.80,.03,H)],
+'on-secondary':[(.99,.004,H),(.29,.025,H),(.29,.025,H)],
+'secondary-container':[(.925,.02,H),(.31,.02,H),(.25,.018,H)],
+'on-secondary-container':[(.31,.025,H),(.88,.02,H),(.88,.02,H)],
+'tertiary':[(.47,.065,T),(.80,.055,T),(.80,.055,T)],
+'on-tertiary':[(.99,.004,T),(.27,.04,T),(.27,.04,T)],
+'tertiary-container':[(.93,.035,T),(.32,.03,T),(.27,.028,T)],
+'on-tertiary-container':[(.31,.045,T),(.89,.03,T),(.89,.03,T)],
+'error':[(.53,.17,27),(.77,.11,27),(.77,.11,27)],
+'on-error':[(.99,.004,27),(.30,.08,27),(.30,.08,27)],
+'error-container':[(.935,.035,27),(.33,.06,27),(.28,.05,27)],
+'on-error-container':[(.36,.10,27),(.90,.03,27),(.90,.03,27)],
+'surface':[(.985,.004,H),(.16,.008,H),(0,0,H)],
+'surface-container-lowest':[(1,0,H),(.13,.006,H),(0,0,H)],
+'surface-container-low':[(.965,.006,H),(.185,.009,H),(.12,.005,H)],
+'surface-container':[(.948,.008,H),(.205,.01,H),(.155,.006,H)],
+'surface-container-high':[(.93,.009,H),(.235,.011,H),(.19,.007,H)],
+'surface-container-highest':[(.912,.01,H),(.27,.012,H),(.225,.008,H)],
+'on-surface':[(.21,.01,H),(.93,.006,H),(.95,.004,H)],
+'on-surface-variant':[(.45,.012,H),(.77,.012,H),(.77,.01,H)],
+'outline':[(.58,.012,H),(.62,.012,H),(.60,.01,H)],
+'outline-variant':[(.87,.01,H),(.35,.012,H),(.29,.008,H)],
+'inverse-surface':[(.30,.01,H),(.92,.006,H),(.92,.006,H)],
+'inverse-on-surface':[(.95,.006,H),(.25,.01,H),(.25,.01,H)],
+'inverse-primary':[(.80,.085,H),(.50,.12,H),(.50,.12,H)],
+'online':[(.56,.12,150),(.78,.12,150),(.78,.12,150)],
 }
 usage={
 'primary':'Главный акцент: активные элементы, FAB-иконка на светлом, ссылки, счётчик непрочитанных, исходящий пузырь (светлая тема).',
@@ -76,10 +76,12 @@ themes=['light','dark','amoled']
 toks=[]
 for k,v in L.items():
     toks.append({'name':k,'value':{t:oklch(*v[i]) for i,t in enumerate(themes)},'usage':usage[k]})
-toks.append({'name':'scrim','value':{t:'#000000' for t in themes},'usage':'Затемнение под листами и диалогами, 32% непрозрачности.'})
+def glass(v,a): return oklch(*v)+'%02x'%round(a*255)
+toks.append({'name':'surface-glass','value':{'light':glass((.975,.006,H),.72),'dark':glass((.21,.01,H),.70),'amoled':glass((.10,.004,H),.66)},'usage':'Полупрозрачный фон с размытием `blur-glass`: нижняя панель, шапка чата, поле ввода. Текст на нём `on-surface`.'})
+toks.append({'name':'scrim','value':{t:'#000000' for t in themes},'usage':'Затемнение под меню и листами: 24% поверх размытия `blur-scrim`.'})
 alias=[
-('bubble-out',{'light':'{primary}','dark':'{primary-container}','amoled':'{primary-container}'},'Исходящий пузырь. В тёмных темах приглушён до контейнера, чтобы не слепить ночью.'),
-('on-bubble-out',{'light':'{on-primary}','dark':'{on-primary-container}','amoled':'{on-primary-container}'},'Текст исходящего пузыря.'),
+('bubble-out','{primary-container}','Исходящий пузырь: спокойный контейнер акцента, не насыщенный `primary`.'),
+('on-bubble-out','{on-primary-container}','Текст исходящего пузыря.'),
 ('bubble-in','{surface-container-highest}','Входящий пузырь.'),
 ('on-bubble-in','{on-surface}','Текст входящего пузыря.'),
 ('bubble-deleted','{error-container}','Пузырь сообщения, которое собеседник удалил (история форка).'),
